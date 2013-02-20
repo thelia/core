@@ -21,20 +21,25 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Template\BaseParam;
+namespace Thelia\Tools;
 
-use Thelia\Tpex\BaseParam\BaseParam;
-use Thelia\Tools\Redirect;
+use Symfony\Component\HttpFoundation\Response;
 
-class Secure extends BaseParam
+class Redirect
 {
-    public function exec()
+    
+    public static function unauthorize($url)
     {
-        $request = $this->getRequest();
+        self::exec($url, 401);
+    }
+    
+    public static function exec($url, $status = 302)
+    {
+        $response = new Response('', $status, array(
+            "location" => $url
+        ));
         
-        if (!$request->getSession()->get('connected') && $this->baseParamValue) {
-            Redirect::unauthorize();
-        }
+        $response->send();
+        exit;
     }
 }
-
