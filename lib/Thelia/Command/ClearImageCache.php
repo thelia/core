@@ -1,4 +1,5 @@
 <?php
+use Thelia\Core\Event\TheliaEvents;
 /*************************************************************************************/
 /*                                                                                   */
 /*      Thelia	                                                                     */
@@ -20,9 +21,50 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Action\Exception;
 
-class ActionException extends \RuntimeException
+namespace Thelia\Command;
+
+
+use Thelia\Command\ContainerAwareCommand;
+use Thelia\Core\Event\TheliaEvents;
+
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Thelia\Core\Event\ImageEvent;
+use Thelia\Core\HttpFoundation\Request;
+use Symfony\Component\Console\Input\InputArgument;
+
+
+class ClearImageCache extends ContainerAwareCommand
 {
+    protected function configure()
+    {
+        $this
+            ->setName("image-cache:clear")
+            ->setDescription("Empty part or whole web space image cache")
+            ->addArgument("subdir", InputArgument::OPTIONAL, "Clear only the specified subdirectory")
+        ;
+    }
 
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $request = new Request();
+
+        try {
+            $event = new ImageEvent($request);
+
+            $subdir = $input->getArgument('subdir');
+
+            if (! is_null($subdir)) $event->setCacheSubdirectory($subdir);
+
+            $dispatcher->dispatch(TheliaEvents::IMAGE_CLEAR_CACHE, $event);
+
+            $output->writeln(sprintf('%s image cache successfully cleared.', is_null($subdir) ? 'Entire' : ucfirst($subdir)));
+        }
+        catch(\Exception $ex) {
+             $output->writeln(sprintf("Failed to clear image cache: %s", $ex->getMessage()));
+        }
+    }
 }
