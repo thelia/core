@@ -20,10 +20,8 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Model\Exception;
 
-namespace Thelia\Action\Exception;
 
-class StockNotFoundException extends ActionException
-{
-
-}
+class InvalidArgumentException extends ModelException
+{}

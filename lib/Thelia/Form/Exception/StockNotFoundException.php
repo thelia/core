@@ -21,33 +21,9 @@
 /*                                                                                   */
 /*************************************************************************************/
 
+namespace Thelia\Form\Exception;
 
-namespace Thelia\Core\DependencyInjection;
+class StockNotFoundException extends FormValidationException
+{
 
-
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Thelia\Core\Context;
-
-class ContainerAwareAdmin implements ContainerAwareInterface {
-
-    /**
-     * @var ContainerInterface
-     *
-     * @api
-     */
-    protected $container;
-
-    /**
-     * Sets the Container.
-     *
-     * @param ContainerInterface|null $container A ContainerInterface instance or null
-     *
-     * @api
-     */
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $container->get('thelia.envContext')->setContext(Context::CONTEXT_BACK_OFFICE);
-        $this->container = $container;
-    }
 }

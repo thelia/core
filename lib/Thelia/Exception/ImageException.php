@@ -20,37 +20,17 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Controller;
 
-use Thelia\Controller\NullControllerInterface;
-use Symfony\Component\HttpFoundation\Request;
+namespace Thelia\Exception;
 
-/**
- *
- * Must be the last controller call. It fixes default values
- *
- * @author Manuel Raynaud <mraynadu@openstudio.fr>
- */
+use Thelia\Log\Tlog;
 
-class DefaultController implements NullControllerInterface
+class ImageException extends \RuntimeException
 {
-    /**
-     *
-     * set the default value for thelia
-     *
-     * In this case there is no action so we have to verify if some needed params are not missing
-     *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     */
-    public function noAction(Request $request)
-    {
-        if (! $view = $request->query->get('view')) {
-            $view = "index";
-            if ($request->request->has('view')) {
-                $view = $request->request->get('view');
-            }
-        }
-        
-        $request->attributes->set('_view', $view);
+    public function __construct($message, $code = null, $previous = null) {
+
+        Tlog::getInstance()->addError($message);
+
+        parent::__construct($message, $code, $previous);
     }
 }
