@@ -20,69 +20,27 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Install;
+use Thelia\Install\Exception\AlreadyInstallException;
 
-namespace Thelia\Model;
-
-use Thelia\Model\Base\Config as BaseConfig;
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigEvent;
-
-class Config extends BaseConfig {
-
-    use \Thelia\Model\Tools\ModelEventDispatcherTrait;
-
+/**
+ * Class BaseInstall
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+abstract class BaseInstall
+{
     /**
-     * {@inheritDoc}
+     * Verify if an installation already exists
      */
-    public function preInsert(ConnectionInterface $con = null)
+    public function __construct($verifyInstall = true)
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_CREATECONFIG, new ConfigEvent($this));
+        if (file_exists(THELIA_ROOT . '/local/config/database.yml') && $verifyInstall) {
+            throw new AlreadyInstallException("Thelia is already installed");
+        }
 
-        return true;
+
+        $this->exec();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function postInsert(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_CREATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_UPDATECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_UPDATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_DELETECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_DELETECONFIG, new ConfigEvent($this));
-    }
+    abstract public function exec();
 }

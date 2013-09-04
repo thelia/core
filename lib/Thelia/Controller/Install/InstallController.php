@@ -21,68 +21,49 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model;
+namespace Thelia\Controller\Install;
+use Thelia\Install\BaseInstall;
+use Thelia\Install\CheckPermission;
 
-use Thelia\Model\Base\Config as BaseConfig;
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigEvent;
+/**
+ * Class InstallController
+ * @package Thelia\Controller\Install
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class InstallController extends BaseInstallController {
 
-class Config extends BaseConfig {
-
-    use \Thelia\Model\Tools\ModelEventDispatcherTrait;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preInsert(ConnectionInterface $con = null)
+    public function index()
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_CREATECONFIG, new ConfigEvent($this));
+        $this->verifyStep(1);
 
-        return true;
+        $this->getSession()->set("step", 1);
+
+        $this->render("index.html");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function postInsert(ConnectionInterface $con = null)
+    public function checkPermission()
     {
-        $this->dispatchEvent(TheliaEvents::AFTER_CREATECONFIG, new ConfigEvent($this));
+        $this->verifyStep(2);
+
+        $permission = new CheckPermission();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function preUpdate(ConnectionInterface $con = null)
+    protected function verifyStep($step)
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_UPDATECONFIG, new ConfigEvent($this));
+        $session = $this->getSession();
 
-        return true;
-    }
+        if ($session->has("step")) {
+            $sessionStep = $session->get("step");
+        } else {
+           return true;
+        }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function postUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_UPDATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_DELETECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_DELETECONFIG, new ConfigEvent($this));
+        switch($step) {
+            case "1" :
+                if ($sessionStep > 1) {
+                    $this->redirect("/install/step/2");
+                }
+                break;
+        }
     }
 }

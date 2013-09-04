@@ -21,68 +21,50 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model;
+namespace Thelia\Command;
+use Propel\Runtime\Propel;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Thelia\Install\Database;
 
-use Thelia\Model\Base\Config as BaseConfig;
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigEvent;
 
-class Config extends BaseConfig {
-
-    use \Thelia\Model\Tools\ModelEventDispatcherTrait;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preInsert(ConnectionInterface $con = null)
+/**
+ * Class ReloadDatabasesCommand
+ * @package Thelia\Command
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class ReloadDatabaseCommand extends BaseModuleGenerate
+{
+    public function configure()
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_CREATECONFIG, new ConfigEvent($this));
-
-        return true;
+        $this
+            ->setName("thelia:dev:reloadDB")
+            ->setDescription("erase current database and create new one")
+/*            ->addOption(
+                "load-fixtures",
+                null,
+                InputOption::VALUE_NONE,
+                "load fixtures in databases"
+            )*/
+        ;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function postInsert(ConnectionInterface $con = null)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->dispatchEvent(TheliaEvents::AFTER_CREATECONFIG, new ConfigEvent($this));
-    }
+        $connection = Propel::getConnection(\Thelia\Model\Map\ProductTableMap::DATABASE_NAME);
+        $connection = $connection->getWrappedConnection();
 
-    /**
-     * {@inheritDoc}
-     */
-    public function preUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_UPDATECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_UPDATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_DELETECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_DELETECONFIG, new ConfigEvent($this));
+        $database = new Database($connection);
+        $output->writeln(array(
+           '',
+           '<info>starting reloaded database, please wait</info>'
+        ));
+        $database->insertSql();
+        $output->writeln(array(
+            '',
+            '<info>Database reloaded with success</info>',
+            ''
+        ));
     }
 }
