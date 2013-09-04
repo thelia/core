@@ -21,68 +21,40 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model;
+namespace Thelia\Controller\Install;
+use Symfony\Component\HttpFoundation\Response;
+use Thelia\Controller\BaseController;
 
-use Thelia\Model\Base\Config as BaseConfig;
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigEvent;
 
-class Config extends BaseConfig {
-
-    use \Thelia\Model\Tools\ModelEventDispatcherTrait;
-
+/**
+ * Class BaseInstallController
+ * @package Thelia\Controller\Install
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class BaseInstallController extends BaseController
+{
     /**
-     * {@inheritDoc}
+     * @return a ParserInterface instance parser
      */
-    public function preInsert(ConnectionInterface $con = null)
+    protected function getParser()
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_CREATECONFIG, new ConfigEvent($this));
+        $parser = $this->container->get("thelia.parser");
 
-        return true;
+        // Define the template thant shoud be used
+        $parser->setTemplate("install");
+
+        return $parser;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function postInsert(ConnectionInterface $con = null)
+    public function render($templateName, $args = array())
     {
-        $this->dispatchEvent(TheliaEvents::AFTER_CREATECONFIG, new ConfigEvent($this));
+        return new Response($this->renderRaw($templateName, $args));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function preUpdate(ConnectionInterface $con = null)
+    public function renderRaw($templateName, $args = array())
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_UPDATECONFIG, new ConfigEvent($this));
+        $data = $this->getParser()->render($templateName, $args);
 
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_UPDATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_DELETECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_DELETECONFIG, new ConfigEvent($this));
+        return $data;
     }
 }

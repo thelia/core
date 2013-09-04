@@ -21,68 +21,15 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model;
+namespace Thelia\Install\Exception;
 
-use Thelia\Model\Base\Config as BaseConfig;
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigEvent;
 
-class Config extends BaseConfig {
+/**
+ * Class AlreadyInstallException
+ * @package Thelia\Install\Exception
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class AlreadyInstallException extends InstallException
+{
 
-    use \Thelia\Model\Tools\ModelEventDispatcherTrait;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preInsert(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_CREATECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postInsert(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_CREATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_UPDATECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_UPDATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_DELETECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_DELETECONFIG, new ConfigEvent($this));
-    }
 }

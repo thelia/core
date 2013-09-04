@@ -21,68 +21,83 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model;
+namespace Thelia\Install;
 
-use Thelia\Model\Base\Config as BaseConfig;
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigEvent;
 
-class Config extends BaseConfig {
+/**
+ * Class Database
+ * @package Thelia\Install
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class Database
+{
+    public $connection;
 
-    use \Thelia\Model\Tools\ModelEventDispatcherTrait;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preInsert(ConnectionInterface $con = null)
+    public function __construct(\PDO $connection)
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_CREATECONFIG, new ConfigEvent($this));
-
-        return true;
+        $this->connection = $connection;
     }
 
     /**
-     * {@inheritDoc}
+     * Insert all sql needed in database
+     *
+     * @param $dbName
      */
-    public function postInsert(ConnectionInterface $con = null)
+    public function insertSql($dbName = null)
     {
-        $this->dispatchEvent(TheliaEvents::AFTER_CREATECONFIG, new ConfigEvent($this));
+        if($dbName) {
+            $this->connection->query(sprintf("use %s", $dbName));
+        }
+
+        $sql = array();
+        $sql = array_merge(
+            $sql,
+            $this->prepareSql(file_get_contents(THELIA_ROOT . "/install/thelia.sql")),
+            $this->prepareSql(file_get_contents(THELIA_ROOT . "/install/insert.sql"))
+        );
+
+        for ($i = 0; $i < count($sql); $i ++) {
+            if (!empty($sql[$i])) {
+                $this->connection->query($sql[$i]);
+            }
+        }
     }
 
     /**
-     * {@inheritDoc}
+     * Separate each sql instruction in an array
+     *
+     * @param $sql
+     * @return array
      */
-    public function preUpdate(ConnectionInterface $con = null)
+    protected function prepareSql($sql)
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_UPDATECONFIG, new ConfigEvent($this));
+        $sql = str_replace(";',", "-CODE-", $sql);
+        $sql = trim($sql);
+        $query = array();
 
-        return true;
+        $tab = explode(";", $sql);
+
+        for ($i=0; $i<count($tab); $i++) {
+            $queryTemp = str_replace("-CODE-", ";',", $tab[$i]);
+            $queryTemp = str_replace("|", ";", $queryTemp);
+            $query[] = $queryTemp;
+        }
+
+        return $query;
     }
 
     /**
-     * {@inheritDoc}
+     * create database if not exists
+     *
+     * @param $dbName
      */
-    public function postUpdate(ConnectionInterface $con = null)
+    public function createDatabase($dbName)
     {
-        $this->dispatchEvent(TheliaEvents::AFTER_UPDATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_DELETECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_DELETECONFIG, new ConfigEvent($this));
+        $this->connection->query(
+            sprintf(
+                "CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8",
+                $dbName
+            )
+        );
     }
 }

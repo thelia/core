@@ -21,68 +21,58 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model;
+namespace Thelia\Install;
 
-use Thelia\Model\Base\Config as BaseConfig;
-use Propel\Runtime\Connection\ConnectionInterface;
-use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigEvent;
 
-class Config extends BaseConfig {
+/**
+ * Class CheckPermission
+ * @package Thelia\Install
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class CheckPermission extends BaseInstall
+{
+    const CONF = "const";
+    const LOG  = "log";
+    const CACHE = "cache";
 
-    use \Thelia\Model\Tools\ModelEventDispatcherTrait;
+    private $directories = array();
+    private $validation = array();
+    private $valid = true;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function preInsert(ConnectionInterface $con = null)
+    public function __construct($verifyInstall = true)
     {
-        $this->dispatchEvent(TheliaEvents::BEFORE_CREATECONFIG, new ConfigEvent($this));
 
-        return true;
+
+        $this->directories = array(
+            self::CONF => THELIA_ROOT . "local/config",
+            self::LOG => THELIA_ROOT . "log",
+            self::CACHE => THELIA_ROOT . "cache"
+        );
+
+        $this->validation = array(
+            self::CONF => array(
+                "text" => sprintf("config directory(%s)...", $this->directories[self::CONF]),
+                "status" => true
+            ),
+            self::LOG => array(
+                "text" => sprintf("cache directory(%s)...", $this->directories[self::LOG]),
+                "status" => true
+            ),
+            self::CACHE => array(
+                "text" => sprintf("log directory(%s)...", $this->directories[self::CACHE]),
+                "status" => true
+            )
+        );
+        parent::__construct($verifyInstall);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function postInsert(ConnectionInterface $con = null)
+    public function exec()
     {
-        $this->dispatchEvent(TheliaEvents::AFTER_CREATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_UPDATECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postUpdate(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_UPDATECONFIG, new ConfigEvent($this));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function preDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::BEFORE_DELETECONFIG, new ConfigEvent($this));
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function postDelete(ConnectionInterface $con = null)
-    {
-        $this->dispatchEvent(TheliaEvents::AFTER_DELETECONFIG, new ConfigEvent($this));
+        foreach ($this->directories as $key => $directory) {
+            if(is_writable($directory) === false) {
+                $this->valid = false;
+                $this->validation[$key]["status"] = false;
+            }
+        }
     }
 }
