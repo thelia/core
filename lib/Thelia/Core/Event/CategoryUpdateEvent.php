@@ -21,38 +21,24 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model\Tools;
+namespace Thelia\Core\Event;
 
-use Thelia\Core\Event\ActionEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Thelia\Model\Category;
 
-/**
- * A trait to provide event dispatching mechanism to Model objects
- */
-trait ModelEventDispatcherTrait {
+class CategoryUpdateEvent extends ActionEvent
+{
+    protected $category_id;
+    protected $locale;
+    protected $title;
+    protected $chapo;
+    protected $description;
+    protected $postscriptum;
+    protected $url;
+    protected $visibility;
+    protected $parent;
 
-    /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-     */
-    protected $dispatcher = null;
-
-
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    public function __construct($category_id)
     {
-        $this->dispatcher = $dispatcher;
-
-        return $this;
-    }
-
-    public function getDispatcher()
-    {
-        return $this->dispatcher;
-    }
-
-    protected function dispatchEvent($eventName, ActionEvent $event)
-    {
-        if (!is_null($this->dispatcher)) {
-            $this->dispatcher->dispatch($eventName, $event);
-        }
+        $this->category_id = $category_id;
     }
 }

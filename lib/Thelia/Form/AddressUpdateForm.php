@@ -21,38 +21,49 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model\Tools;
+namespace Thelia\Form;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-use Thelia\Core\Event\ActionEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * A trait to provide event dispatching mechanism to Model objects
+ * Class AddressUpdateForm
+ * @package Thelia\Form
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-trait ModelEventDispatcherTrait {
+class AddressUpdateForm extends AddressCreateForm {
 
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     *
+     * in this function you add all the fields you need for your Form.
+     * Form this you have to call add method on $this->formBuilder attribute :
+     *
+     * $this->formBuilder->add("name", "text")
+     *   ->add("email", "email", array(
+     *           "attr" => array(
+     *               "class" => "field"
+     *           ),
+     *           "label" => "email",
+     *           "constraints" => array(
+     *               new \Symfony\Component\Validator\Constraints\NotBlank()
+     *           )
+     *       )
+     *   )
+     *   ->add('age', 'integer');
+     *
+     * @return null
      */
-    protected $dispatcher = null;
-
-
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    protected function buildForm()
     {
-        $this->dispatcher = $dispatcher;
+        parent::buildForm();
 
-        return $this;
+
     }
 
-    public function getDispatcher()
+    /**
+     * @return string the name of you form. This name must be unique
+     */
+    public function getName()
     {
-        return $this->dispatcher;
-    }
-
-    protected function dispatchEvent($eventName, ActionEvent $event)
-    {
-        if (!is_null($this->dispatcher)) {
-            $this->dispatcher->dispatch($eventName, $event);
-        }
+        return "thelia_address_update";
     }
 }

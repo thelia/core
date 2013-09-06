@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,42 +17,72 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model\Tools;
+namespace Thelia\Core\Event;
 
-use Thelia\Core\Event\ActionEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Thelia\Model\Config;
 
-/**
- * A trait to provide event dispatching mechanism to Model objects
- */
-trait ModelEventDispatcherTrait {
+class ConfigUpdateEvent extends ConfigCreateEvent
+{
+    protected $config_id;
 
-    /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-     */
-    protected $dispatcher = null;
+    protected $description;
+    protected $chapo;
+    protected $postscriptum;
 
-
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    public function __construct($config_id)
     {
-        $this->dispatcher = $dispatcher;
+        $this->setConfigId($config_id);
+    }
+
+    public function getConfigId()
+    {
+        return $this->config_id;
+    }
+
+    public function setConfigId($config_id)
+    {
+        $this->config_id = $config_id;
 
         return $this;
     }
 
-    public function getDispatcher()
+    public function getDescription()
     {
-        return $this->dispatcher;
+        return $this->description;
     }
 
-    protected function dispatchEvent($eventName, ActionEvent $event)
+    public function setDescription($description)
     {
-        if (!is_null($this->dispatcher)) {
-            $this->dispatcher->dispatch($eventName, $event);
-        }
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getChapo()
+    {
+        return $this->chapo;
+    }
+
+    public function setChapo($chapo)
+    {
+        $this->chapo = $chapo;
+
+        return $this;
+    }
+
+    public function getPostscriptum()
+    {
+        return $this->postscriptum;
+    }
+
+    public function setPostscriptum($postscriptum)
+    {
+        $this->postscriptum = $postscriptum;
+
+        return $this;
     }
 }

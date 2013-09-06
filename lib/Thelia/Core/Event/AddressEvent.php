@@ -21,38 +21,34 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Model\Tools;
+namespace Thelia\Core\Event;
+use Symfony\Component\EventDispatcher\Event;
+use Thelia\Model\Address;
 
-use Thelia\Core\Event\ActionEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * A trait to provide event dispatching mechanism to Model objects
+ * Class AddressEvent
+ * @package Thelia\Core\Event
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-trait ModelEventDispatcherTrait {
+class AddressEvent extends ActionEvent
+{
+    /**
+     * @var \Thelia\Model\Address
+     */
+    protected $address;
+
+    function __construct(Address $address)
+    {
+        $this->address = $address;
+    }
+
 
     /**
-     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     * @return \Thelia\Model\Address
      */
-    protected $dispatcher = null;
-
-
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    public function getAddress()
     {
-        $this->dispatcher = $dispatcher;
-
-        return $this;
-    }
-
-    public function getDispatcher()
-    {
-        return $this->dispatcher;
-    }
-
-    protected function dispatchEvent($eventName, ActionEvent $event)
-    {
-        if (!is_null($this->dispatcher)) {
-            $this->dispatcher->dispatch($eventName, $event);
-        }
+        return $this->address;
     }
 }
