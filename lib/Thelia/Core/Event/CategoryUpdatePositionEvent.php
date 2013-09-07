@@ -23,51 +23,6 @@
 
 namespace Thelia\Core\Event;
 
-use Thelia\Model\Category;
-
-class CategoryCreateEvent extends CategoryEvent
+class CategoryUpdatePositionEvent extends BaseUpdatePositionEvent
 {
-    protected $title;
-    protected $parent;
-    protected $locale;
-
-    public function __construct($title, $parent, $locale)
-    {
-        $this->title = $title;
-        $this->parent = $parent;
-        $this->locale = $locale;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-        return $this;
-    }
-
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-        return $this;
-    }
-
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-        return $this;
-    }
 }
