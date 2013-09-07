@@ -21,53 +21,36 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Event;
+namespace Thelia\Controller\Front;
+use Thelia\Model\ModuleQuery;
+use Thelia\Tools\URL;
 
-use Thelia\Model\Category;
 
-class CategoryCreateEvent extends CategoryEvent
+/**
+ * Class DeliveryController
+ * @package Thelia\Controller\Front
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class DeliveryController extends BaseFrontController
 {
-    protected $title;
-    protected $parent;
-    protected $locale;
-
-    public function __construct($title, $parent, $locale)
+    public function select($delivery_id)
     {
-        $this->title = $title;
-        $this->parent = $parent;
-        $this->locale = $locale;
-    }
+        if ($this->getSecurityContext()->hasCustomerUser() === false) {
+            $this->redirect(URL::getInstance()->getIndexPage());
+        }
 
-    public function getTitle()
-    {
-        return $this->title;
-    }
+        $request = $this->getRequest();
 
-    public function setTitle($title)
-    {
-        $this->title = $title;
-        return $this;
-    }
+        $deliveryModule = ModuleQuery::create()
+            ->filterById($delivery_id)
+            ->filterByActivate(1)
+            ->findOne()
+        ;
 
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-        return $this;
-    }
-
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-        return $this;
+        if ($deliveryModule) {
+            $request->getSession()->setDelivery($delivery_id);
+        } else {
+            $this->pageNotFound();
+        }
     }
 }
