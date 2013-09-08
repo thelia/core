@@ -21,53 +21,43 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Event;
+namespace Thelia\Controller\Admin;
 
-use Thelia\Model\Category;
+use Thelia\Core\Event\MessageDeleteEvent;
+use Thelia\Core\Event\TheliaEvents;
+use Thelia\Tools\URL;
+use Thelia\Core\Event\MessageUpdateEvent;
+use Thelia\Core\Event\MessageCreateEvent;
+use Thelia\Log\Tlog;
+use Thelia\Form\Exception\FormValidationException;
+use Thelia\Core\Security\Exception\AuthorizationException;
+use Thelia\Model\MessageQuery;
+use Thelia\Form\MessageModificationForm;
+use Thelia\Form\MessageCreationForm;
 
-class CategoryCreateEvent extends CategoryEvent
+/**
+ * Manages messages sent by mail
+ *
+ * @author Franck Allimant <franck@cqfdev.fr>
+ */
+class AttributeController extends BaseAdminController
 {
-    protected $title;
-    protected $parent;
-    protected $locale;
+    /**
+     * The default action is displaying the attributes list.
+     *
+     * @return Symfony\Component\HttpFoundation\Response the response
+     */
+    public function defaultAction() {
 
-    public function __construct($title, $parent, $locale)
-    {
-        $this->title = $title;
-        $this->parent = $parent;
-        $this->locale = $locale;
+        if (null !== $response = $this->checkAuth("admin.configuration.attributes.view")) return $response;
+
+        return $this->render('product-attributes');
     }
 
-    public function getTitle()
-    {
-        return $this->title;
-    }
+    public function updateAction() {
 
-    public function setTitle($title)
-    {
-        $this->title = $title;
-        return $this;
-    }
+        if (null !== $response = $this->checkAuth("admin.configuration.attributes.update")) return $response;
 
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-        return $this;
-    }
-
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-        return $this;
+        return $this->render('product-attributes-edit');
     }
 }

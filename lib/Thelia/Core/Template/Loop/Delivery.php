@@ -22,75 +22,60 @@
 /*************************************************************************************/
 
 namespace Thelia\Core\Template\Loop;
-
-use Propel\Runtime\ActiveQuery\Criteria;
-use Thelia\Core\Template\Element\BaseI18nLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
-
-use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 use Thelia\Core\Template\Loop\Argument\Argument;
 
-use Thelia\Model\CustomerTitleQuery;
-use Thelia\Model\ConfigQuery;
 
 /**
- *
- * Title loop
- *
- *
- * Class Title
+ * Class Delivery
  * @package Thelia\Core\Template\Loop
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class Title extends BaseI18nLoop
+class Delivery extends BaseSpecificModule
 {
-    public $timestampable = true;
 
-    /**
-     * @return ArgumentCollection
-     */
-    protected function getArgDefinitions()
+    public function getArgDefinitions()
     {
-        return new ArgumentCollection(
-            Argument::createIntListTypeArgument('id')
+        $collection = parent::getArgDefinitions();
+
+        $collection->addArgument(
+            Argument::createIntTypeArgument("country")
         );
+
+        return $collection;
     }
 
-    /**
-     * @param $pagination
-     *
-     * @return \Thelia\Core\Template\Element\LoopResult
-     */
     public function exec(&$pagination)
     {
-        $search = CustomerTitleQuery::create();
-
+        $search = parent::exec($pagination);
         /* manage translations */
-        $locale = $this->configureI18nProcessing($search, array('SHORT', 'LONG'));
-
-        $id = $this->getId();
-
-        if (null !== $id) {
-            $search->filterById($id, Criteria::IN);
-        }
-
-        $search->orderByPosition();
-
+        $locale = $this->configureI18nProcessing($search);
         /* perform search */
-        $titles = $this->search($search, $pagination);
+        $deliveryModules = $this->search($search, $pagination);
 
-        $loopResult = new LoopResult($titles);
+        $loopResult = new LoopResult($deliveryModules);
 
-        foreach ($titles as $title) {
-            $loopResultRow = new LoopResultRow($loopResult, $title, $this->versionable, $this->timestampable, $this->countable);
-            $loopResultRow->set("ID", $title->getId())
-                ->set("IS_TRANSLATED",$title->getVirtualColumn('IS_TRANSLATED'))
-                ->set("LOCALE",$locale)
-                ->set("DEFAULT", $title->getByDefault())
-                ->set("SHORT", $title->getVirtualColumn('i18n_SHORT'))
-                ->set("LONG", $title->getVirtualColumn('i18n_LONG'))
-                ->set("POSITION", $title->getPosition());
+        foreach ($deliveryModules as $deliveryModule) {
+            $loopResultRow = new LoopResultRow($loopResult, $deliveryModule, $this->versionable, $this->timestampable, $this->countable);
+
+            $moduleReflection = new \ReflectionClass($deliveryModule->getFullNamespace());
+            if($moduleReflection->isSubclassOf("Thelia\Module\DeliveryModuleInterface") === false) {
+                throw new \RuntimeException(sprintf("delivery module %s is not a Thelia\Module\DeliveryModuleInterface", $deliveryModule->getCode()));
+            }
+            $moduleInstance = $moduleReflection->newInstance();
+
+            $moduleInstance->setRequest($this->request);
+            $moduleInstance->setDispatcher($this->dispatcher);
+
+            $loopResultRow
+                ->set('ID', $deliveryModule->getId())
+                ->set('TITLE', $deliveryModule->getVirtualColumn('i18n_TITLE'))
+                ->set('CHAPO', $deliveryModule->getVirtualColumn('i18n_CHAPO'))
+                ->set('DESCRIPTION', $deliveryModule->getVirtualColumn('i18n_DESCRIPTION'))
+                ->set('POSTSCRIPTUM', $deliveryModule->getVirtualColumn('i18n_POSTSCRIPTUM'))
+                ->set('PRICE', $moduleInstance->calculate($this->getCountry()))
+            ;
 
             $loopResult->addRow($loopResultRow);
         }
