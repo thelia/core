@@ -22,105 +22,88 @@
 /*************************************************************************************/
 
 namespace Thelia\Core\Template\Loop;
-
 use Propel\Runtime\ActiveQuery\Criteria;
 use Thelia\Core\Template\Element\BaseI18nLoop;
-use Thelia\Core\Template\Element\LoopResult;
-use Thelia\Core\Template\Element\LoopResultRow;
-
-use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 use Thelia\Core\Template\Loop\Argument\Argument;
+use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
+use Thelia\Model\ModuleQuery;
 
-use Thelia\Model\CountryQuery;
-use Thelia\Model\ConfigQuery;
 
 /**
- *
- * Country loop
- *
- *
- * Class Country
+ * Class Delivery
  * @package Thelia\Core\Template\Loop
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class Country extends BaseI18nLoop
-{
+class BaseSpecificModule extends BaseI18nLoop {
     public $timestampable = true;
 
     /**
-     * @return ArgumentCollection
+     *
+     * define all args used in your loop
+     *
+     *
+     * example :
+     *
+     * public function getArgDefinitions()
+     * {
+     *  return new ArgumentCollection(
+     *       Argument::createIntListTypeArgument('id'),
+     *           new Argument(
+     *           'ref',
+     *           new TypeCollection(
+     *               new Type\AlphaNumStringListType()
+     *           )
+     *       ),
+     *       Argument::createIntListTypeArgument('category'),
+     *       Argument::createBooleanTypeArgument('new'),
+     *       Argument::createBooleanTypeArgument('promo'),
+     *       Argument::createFloatTypeArgument('min_price'),
+     *       Argument::createFloatTypeArgument('max_price'),
+     *       Argument::createIntTypeArgument('min_stock'),
+     *       Argument::createFloatTypeArgument('min_weight'),
+     *       Argument::createFloatTypeArgument('max_weight'),
+     *       Argument::createBooleanTypeArgument('current'),
+     *
+     *   );
+     * }
+     *
+     * @return \Thelia\Core\Template\Loop\Argument\ArgumentCollection
      */
     protected function getArgDefinitions()
     {
         return new ArgumentCollection(
-            Argument::createIntListTypeArgument('id'),
-            Argument::createIntListTypeArgument('area'),
-            Argument::createBooleanTypeArgument('with_area'),
+            Argument::createIntTypeArgument('id'),
             Argument::createIntListTypeArgument('exclude')
         );
     }
 
     /**
+     *
+     * this function have to be implement in your own loop class.
+     *
+     * All loops parameters can be accesible via getter.
+     *
+     * for example, ref parameter is accessible through getRef method
+     *
      * @param $pagination
      *
-     * @return \Thelia\Core\Template\Element\LoopResult
+     * @return \Thelia\Model\ModuleQuery
      */
     public function exec(&$pagination)
     {
-        $search = CountryQuery::create();
+        $search = ModuleQuery::create();
 
-        /* manage translations */
-        $locale = $this->configureI18nProcessing($search);
-
-        $id = $this->getId();
-
-        if (null !== $id) {
-            $search->filterById($id, Criteria::IN);
+        if(null !== $id = $this->getId())
+        {
+            $search->filterById($id);
         }
 
-        $area = $this->getArea();
 
-        if (null !== $area) {
-            $search->filterByAreaId($area, Criteria::IN);
-        }
-
-        $withArea = $this->getWith_area();
-
-        if (true === $withArea) {
-            $search->filterByAreaId(null, Criteria::ISNOTNULL);
-        } elseif (false == $withArea) {
-            $search->filterByAreaId(null, Criteria::ISNULL);
-        }
-
-        $exclude = $this->getExclude();
-
-        if (!is_null($exclude)) {
+        if (null !== $exclude = $this->getExclude()) {
             $search->filterById($exclude, Criteria::NOT_IN);
         }
 
-        $search->addAscendingOrderByColumn('i18n_TITLE');
-
-        /* perform search */
-        $countries = $this->search($search, $pagination);
-
-        $loopResult = new LoopResult($countries);
-
-        foreach ($countries as $country) {
-            $loopResultRow = new LoopResultRow($loopResult, $country, $this->versionable, $this->timestampable, $this->countable);
-            $loopResultRow->set("ID", $country->getId())
-                ->set("IS_TRANSLATED",$country->getVirtualColumn('IS_TRANSLATED'))
-                ->set("LOCALE",$locale)
-                ->set("TITLE",$country->getVirtualColumn('i18n_TITLE'))
-                ->set("CHAPO", $country->getVirtualColumn('i18n_CHAPO'))
-                ->set("DESCRIPTION", $country->getVirtualColumn('i18n_DESCRIPTION'))
-                ->set("POSTSCRIPTUM", $country->getVirtualColumn('i18n_POSTSCRIPTUM'))
-                ->set("ISOCODE", $country->getIsocode())
-                ->set("ISOALPHA2", $country->getIsoalpha2())
-                ->set("ISOALPHA3", $country->getIsoalpha3());
-
-            $loopResult->addRow($loopResultRow);
-        }
-
-        return $loopResult;
+        return $search;
     }
+
 }

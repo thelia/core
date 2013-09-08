@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*      email : info@thelia.net                                                      */
+/*	    email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,53 +21,46 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Event;
+namespace Thelia\Tools;
 
-use Thelia\Model\Category;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class CategoryCreateEvent extends CategoryEvent
+class DateTimeFormat
 {
-    protected $title;
-    protected $parent;
-    protected $locale;
+    protected $request;
 
-    public function __construct($title, $parent, $locale)
+    public function __construct(Request $request)
     {
-        $this->title = $title;
-        $this->parent = $parent;
-        $this->locale = $locale;
+        $this->request = $request;
     }
 
-    public function getTitle()
+    public static function getInstance(Request $request)
     {
-        return $this->title;
+        return new DateTimeFormat($request);
     }
 
-    public function setTitle($title)
+    public function getFormat($output = null)
     {
-        $this->title = $title;
-        return $this;
-    }
+        $lang = $this->request->getSession()->getLang();
 
-    public function getParent()
-    {
-        return $this->parent;
-    }
+        $format = null;
 
-    public function setParent($parent)
-    {
-        $this->parent = $parent;
-        return $this;
-    }
+        if($lang) {
+            switch ($output) {
+                case "date" :
+                    $format = $lang->getDateFormat();
+                    break;
+                case "time" :
+                    $format = $lang->getTimeFormat();
+                    break;
+                default:
+                case "datetime" :
+                    $format = $lang->getDateTimeFormat();
+                    break;
+            }
+        }
 
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-        return $this;
+        return $format;
     }
 }
