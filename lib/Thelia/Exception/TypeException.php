@@ -21,44 +21,19 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Core\Template\Loop;
+namespace Thelia\Exception;
 
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
-
-/**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
- */
-class FolderTest extends BaseLoopTestor
+class TypeException extends \RuntimeException
 {
-    public function getTestedClassName()
-    {
-        return 'Thelia\Core\Template\Loop\Folder';
-    }
+    const UNKNOWN_EXCEPTION = 0;
 
-    public function getTestedInstance()
-    {
-        return new Folder($this->container);
-    }
+    const MODEL_NOT_FOUND = 404;
 
-    public function getMandatoryArguments()
+    public function __construct($message, $code = null, $previous = null)
     {
-        return array();
-    }
-
-    public function testSearchById()
-    {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
+        if ($code === null) {
+            $code = self::UNKNOWN_EXCEPTION;
+        }
+        parent::__construct($message, $code, $previous);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,48 +17,31 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Core\Template\Loop;
-
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
+namespace Thelia\Controller\Admin;
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class OrderController
+ * @package Thelia\Controller\Admin
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class FolderTest extends BaseLoopTestor
+class OrderController extends BaseAdminController
 {
-    public function getTestedClassName()
+    public function indexAction()
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        if (null !== $response = $this->checkAuth("admin.orders.view")) return $response;
+        return $this->render("orders", array("display_order" => 20));
     }
 
-    public function getTestedInstance()
+    public function viewAction($order_id)
     {
-        return new Folder($this->container);
+
+    	return $this->render("order-edit", array(
+    		"order_id" => $order_id
+    	));
     }
 
-    public function getMandatoryArguments()
-    {
-        return array();
-    }
-
-    public function testSearchById()
-    {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
-    }
 }
