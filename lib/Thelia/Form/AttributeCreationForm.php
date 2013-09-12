@@ -20,45 +20,47 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Form;
 
-namespace Thelia\Tests\Core\Template\Loop;
+use Symfony\Component\Validator\Constraints;
+use Thelia\Model\CurrencyQuery;
+use Symfony\Component\Validator\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Thelia\Core\Translation\Translator;
 
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
-
-/**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
- */
-class FolderTest extends BaseLoopTestor
+class AttributeCreationForm extends BaseForm
 {
-    public function getTestedClassName()
+    protected function buildForm()
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        $this->formBuilder
+            ->add("title"   , "text"  , array(
+                "constraints" => array(
+                    new NotBlank()
+                ),
+                "label" => Translator::getInstance()->trans("Title *"),
+                "label_attr" => array(
+                    "for" => "title"
+                ))
+            )
+            ->add("locale" , "text"  , array(
+                "constraints" => array(
+                    new NotBlank()
+                ))
+            )
+            ->add("add_to_all"   , "checkbox"  , array(
+                "constraints" => array(
+                    new NotBlank()
+                ),
+                "label" => Translator::getInstance()->trans("Add to all product templates"),
+                "label_attr" => array(
+                    "for" => "add_to_all"
+                ))
+            )
+        ;
     }
 
-    public function getTestedInstance()
+    public function getName()
     {
-        return new Folder($this->container);
-    }
-
-    public function getMandatoryArguments()
-    {
-        return array();
-    }
-
-    public function testSearchById()
-    {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
+        return "thelia_attribute_creation";
     }
 }

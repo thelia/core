@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,48 +17,36 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Core\Template\Loop;
+namespace Thelia\Core\Event;
+use Thelia\Model\AttributeAv;
 
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
-
-/**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
- */
-class FolderTest extends BaseLoopTestor
+class AttributeAvEvent extends ActionEvent
 {
-    public function getTestedClassName()
+    protected $attributeAv = null;
+
+    public function __construct(AttributeAv $attributeAv = null)
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        $this->attributeAv = $attributeAv;
     }
 
-    public function getTestedInstance()
+    public function hasAttributeAv()
     {
-        return new Folder($this->container);
+        return ! is_null($this->attributeAv);
     }
 
-    public function getMandatoryArguments()
+    public function getAttributeAv()
     {
-        return array();
+        return $this->attributeAv;
     }
 
-    public function testSearchById()
+    public function setAttributeAv($attributeAv)
     {
-        $folder = FolderQuery::create()->findOne();
+        $this->attributeAv = $attributeAv;
 
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
+        return $this;
     }
 }

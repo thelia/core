@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,48 +17,70 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Core\Template\Loop;
+namespace Thelia\Core\Event;
 
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
-
-/**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
- */
-class FolderTest extends BaseLoopTestor
+class AttributeAvUpdateEvent extends AttributeAvCreateEvent
 {
-    public function getTestedClassName()
+    protected $attributeAv_id;
+
+    protected $description;
+    protected $chapo;
+    protected $postscriptum;
+
+    public function __construct($attributeAv_id)
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        $this->setAttributeAvId($attributeAv_id);
     }
 
-    public function getTestedInstance()
+    public function getAttributeAvId()
     {
-        return new Folder($this->container);
+        return $this->attributeAv_id;
     }
 
-    public function getMandatoryArguments()
+    public function setAttributeAvId($attributeAv_id)
     {
-        return array();
+        $this->attributeAv_id = $attributeAv_id;
+
+        return $this;
     }
 
-    public function testSearchById()
+    public function getDescription()
     {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
+        return $this->description;
     }
 
-    public function testSearchLimit()
+    public function setDescription($description)
     {
-        $this->baseTestSearchWithLimit(3);
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getChapo()
+    {
+        return $this->chapo;
+    }
+
+    public function setChapo($chapo)
+    {
+        $this->chapo = $chapo;
+
+        return $this;
+    }
+
+    public function getPostscriptum()
+    {
+        return $this->postscriptum;
+    }
+
+    public function setPostscriptum($postscriptum)
+    {
+        $this->postscriptum = $postscriptum;
+
+        return $this;
     }
 }

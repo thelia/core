@@ -21,44 +21,60 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Core\Template\Loop;
+namespace Thelia\Core\Event;
 
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
-
-/**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
- */
-class FolderTest extends BaseLoopTestor
+class UpdatePositionEvent extends ActionEvent
 {
-    public function getTestedClassName()
+    const POSITION_UP = 1;
+    const POSITION_DOWN = 2;
+    const POSITION_ABSOLUTE = 3;
+
+    protected $object_id;
+    protected $mode;
+    protected $position;
+
+    protected $object;
+
+    public function __construct($object_id, $mode, $position = null)
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        $this->object_id = $object_id;
+        $this->mode = $mode;
+        $this->position = $position;
     }
 
-    public function getTestedInstance()
+    public function getMode()
     {
-        return new Folder($this->container);
+        return $this->mode;
     }
 
-    public function getMandatoryArguments()
+    public function setMode($mode)
     {
-        return array();
+        $this->mode = $mode;
+
+        return $this;
     }
 
-    public function testSearchById()
+    public function getPosition()
     {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
+        return $this->position;
     }
 
-    public function testSearchLimit()
+    public function setPosition($position)
     {
-        $this->baseTestSearchWithLimit(3);
+        $this->position = $position;
+
+        return $this;
+    }
+
+    public function getObjectId()
+    {
+        return $this->object_id;
+    }
+
+    public function setObjectId($object_id)
+    {
+        $this->object_id = $object_id;
+
+        return $this;
     }
 }
