@@ -20,45 +20,28 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\TaxEngine\TaxType;
 
-namespace Thelia\Tests\Core\Template\Loop;
-
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
+use Thelia\Type\FloatToFloatArrayType;
+use Thelia\Type\ModelType;
 
 /**
  *
  * @author Etienne Roudeix <eroudeix@openstudio.fr>
  *
  */
-class FolderTest extends BaseLoopTestor
+class featureSlicePercentTaxType extends  BaseTaxType
 {
-    public function getTestedClassName()
+    public function calculate($untaxedPrice)
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+
     }
 
-    public function getTestedInstance()
+    public function getRequirementsList()
     {
-        return new Folder($this->container);
-    }
-
-    public function getMandatoryArguments()
-    {
-        return array();
-    }
-
-    public function testSearchById()
-    {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
+        return array(
+            'featureId' => new ModelType('Currency'),
+            'slices' => new FloatToFloatArrayType(),
+        );
     }
 }
