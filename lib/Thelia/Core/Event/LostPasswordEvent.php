@@ -21,44 +21,31 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Core\Template\Loop;
+namespace Thelia\Core\Event;
 
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class LostPasswordEvent
+ * @package Thelia\Core\Event
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class FolderTest extends BaseLoopTestor
-{
-    public function getTestedClassName()
+class LostPasswordEvent extends ActionEvent {
+
+    protected $email;
+
+    public function __construct($email)
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        $this->email = $email;
     }
 
-    public function getTestedInstance()
+    /**
+     * @return mixed
+     */
+    public function getEmail()
     {
-        return new Folder($this->container);
+        return $this->email;
     }
 
-    public function getMandatoryArguments()
-    {
-        return array();
-    }
 
-    public function testSearchById()
-    {
-        $folder = FolderQuery::create()->findOne();
 
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
-    }
 }

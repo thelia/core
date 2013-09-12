@@ -20,45 +20,37 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-
-namespace Thelia\Tests\Core\Template\Loop;
-
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
+namespace Thelia\Type;
 
 /**
  *
  * @author Etienne Roudeix <eroudeix@openstudio.fr>
  *
  */
-class FolderTest extends BaseLoopTestor
+
+class FloatToFloatArrayType implements TypeInterface
 {
-    public function getTestedClassName()
+    public function getType()
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        return 'Float key to float value array type';
     }
 
-    public function getTestedInstance()
+    public function isValid($value)
     {
-        return new Folder($this->container);
+        if(!is_array($value))
+            return false;
+
+        foreach($value as $key => $value) {
+            if( filter_var($key, FILTER_VALIDATE_FLOAT) === false || filter_var($value, FILTER_VALIDATE_FLOAT) === false ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public function getMandatoryArguments()
+    public function getFormattedValue($value)
     {
-        return array();
-    }
-
-    public function testSearchById()
-    {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
+        return $this->isValid($value) ? $value : null;
     }
 }

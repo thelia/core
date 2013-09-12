@@ -20,45 +20,47 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Type;
 
-namespace Thelia\Tests\Core\Template\Loop;
-
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
+use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
+use Thelia\Exception\TypeException;
 
 /**
  *
  * @author Etienne Roudeix <eroudeix@openstudio.fr>
  *
  */
-class FolderTest extends BaseLoopTestor
+class ModelType implements TypeInterface
 {
-    public function getTestedClassName()
+    protected $expectedModelActiveRecord = null;
+
+    /**
+     * @param $expectedModelActiveRecord
+     * @throws TypeException
+     */
+    public function __construct($expectedModelActiveRecord)
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        $class = '\\Thelia\\Model\\' . $expectedModelActiveRecord;
+
+        if(!(class_exists($class) && new $class instanceof ActiveRecordInterface)) {
+            throw new TypeException('MODEL NOT FOUND', TypeException::MODEL_NOT_FOUND);
+        }
+
+        $this->expectedModelActiveRecord = $class;
     }
 
-    public function getTestedInstance()
+    public function getType()
     {
-        return new Folder($this->container);
+        return 'Model type';
     }
 
-    public function getMandatoryArguments()
+    public function isValid($value)
     {
-        return array();
+        return $value instanceof $this->expectedModelActiveRecord;
     }
 
-    public function testSearchById()
+    public function getFormattedValue($value)
     {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
+        return $this->isValid($value) ? $value : null;
     }
 }
