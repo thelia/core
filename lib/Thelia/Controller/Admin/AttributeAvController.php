@@ -23,100 +23,97 @@
 
 namespace Thelia\Controller\Admin;
 
-use Thelia\Core\Event\ConfigDeleteEvent;
+use Thelia\Core\Event\AttributeAvDeleteEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\Event\ConfigUpdateEvent;
-use Thelia\Core\Event\ConfigCreateEvent;
-use Thelia\Model\ConfigQuery;
-use Thelia\Form\ConfigModificationForm;
-use Thelia\Form\ConfigCreationForm;
+use Thelia\Core\Event\AttributeAvUpdateEvent;
+use Thelia\Core\Event\AttributeAvCreateEvent;
+use Thelia\Model\AttributeAvQuery;
+use Thelia\Form\AttributeAvModificationForm;
+use Thelia\Form\AttributeAvCreationForm;
 use Thelia\Core\Event\UpdatePositionEvent;
 
 /**
- * Manages variables sent by mail
+ * Manages attributes-av sent by mail
  *
  * @author Franck Allimant <franck@cqfdev.fr>
  */
-class ConfigController extends AbstractCrudController
+class AttributeAvController extends AbstractCrudController
 {
     public function __construct() {
         parent::__construct(
-            'variable',
-            'name',
+            'attribute',
+            'manual',
 
-            'admin.configuration.variables.view',
-            'admin.configuration.variables.create',
-            'admin.configuration.variables.update',
-            'admin.configuration.variables.delete',
+            'admin.configuration.attributes-av.view',
+            'admin.configuration.attributes-av.create',
+            'admin.configuration.attributes-av.update',
+            'admin.configuration.attributes-av.delete',
 
-            TheliaEvents::CONFIG_CREATE,
-            TheliaEvents::CONFIG_UPDATE,
-            TheliaEvents::CONFIG_DELETE,
+            TheliaEvents::ATTRIBUTE_AV_CREATE,
+            TheliaEvents::ATTRIBUTE_AV_UPDATE,
+            TheliaEvents::ATTRIBUTE_AV_DELETE,
             null, // No visibility toggle
-            null // no position change
+            TheliaEvents::ATTRIBUTE_AV_UPDATE_POSITION
         );
     }
 
     protected function getCreationForm() {
-        return new ConfigCreationForm($this->getRequest());
+        return new AttributeAvCreationForm($this->getRequest());
     }
 
     protected function getUpdateForm() {
-        return new ConfigModificationForm($this->getRequest());
+        return new AttributeAvModificationForm($this->getRequest());
     }
 
-    protected function getCreationEvent($data) {
-        $createEvent = new ConfigCreateEvent();
+    protected function getCreationEvent($formData) {
+        $createEvent = new AttributeAvCreateEvent();
 
         $createEvent
-            ->setEventName($data['name'])
-            ->setValue($data['value'])
-            ->setLocale($data["locale"])
-            ->setTitle($data['title'])
-            ->setHidden($data['hidden'])
-            ->setSecured($data['secured'])
-            ;
-
+            ->setAttributeId($formData['attribute_id'])
+            ->setTitle($formData['title'])
+            ->setLocale($formData["locale"])
+        ;
 
         return $createEvent;
     }
 
-    protected function getUpdateEvent($data) {
-        $changeEvent = new ConfigUpdateEvent($data['id']);
+    protected function getUpdateEvent($formData) {
+
+        $changeEvent = new AttributeAvUpdateEvent($formData['id']);
 
         // Create and dispatch the change event
         $changeEvent
-            ->setEventName($data['name'])
-            ->setValue($data['value'])
-            ->setHidden($data['hidden'])
-            ->setSecured($data['secured'])
-            ->setLocale($data["locale"])
-            ->setTitle($data['title'])
-            ->setChapo($data['chapo'])
-            ->setDescription($data['description'])
-            ->setPostscriptum($data['postscriptum'])
+            ->setLocale($formData["locale"])
+            ->setTitle($formData['title'])
+            ->setChapo($formData['chapo'])
+            ->setDescription($formData['description'])
+            ->setPostscriptum($formData['postscriptum'])
         ;
 
         return $changeEvent;
     }
 
+    protected function createUpdatePositionEvent($positionChangeMode, $positionValue) {
+
+        return new UpdatePositionEvent(
+                $this->getRequest()->get('attributeav_id', null),
+                $positionChangeMode,
+                $positionValue
+        );
+    }
+
     protected function getDeleteEvent() {
-        return new ConfigDeleteEvent($this->getRequest()->get('variable_id'));
+        return new AttributeAvDeleteEvent($this->getRequest()->get('attributeav_id'));
     }
 
     protected function eventContainsObject($event) {
-        return $event->hasConfig();
+        return $event->hasAttributeAv();
     }
 
     protected function hydrateObjectForm($object) {
 
-        // Prepare the data that will hydrate the form
         $data = array(
             'id'           => $object->getId(),
-            'name'         => $object->getName(),
-            'value'        => $object->getValue(),
-            'hidden'       => $object->getHidden(),
-            'secured'      => $object->getSecured(),
             'locale'       => $object->getLocale(),
             'title'        => $object->getTitle(),
             'chapo'        => $object->getChapo(),
@@ -125,66 +122,59 @@ class ConfigController extends AbstractCrudController
         );
 
         // Setup the object form
-        return new ConfigModificationForm($this->getRequest(), "form", $data);
+        return new AttributeAvModificationForm($this->getRequest(), "form", $data);
     }
 
     protected function getObjectFromEvent($event) {
-        return $event->hasConfig() ? $event->getConfig() : null;
+        return $event->hasAttributeAv() ? $event->getAttributeAv() : null;
     }
 
     protected function getExistingObject() {
-        return ConfigQuery::create()
+        return AttributeAvQuery::create()
         ->joinWithI18n($this->getCurrentEditionLocale())
-        ->findOneById($this->getRequest()->get('variable_id'));
+        ->findOneById($this->getRequest()->get('attributeav_id'));
     }
 
     protected function getObjectLabel($object) {
-        return $object->getName();
+        return $object->getTitle();
     }
 
     protected function getObjectId($object) {
         return $object->getId();
     }
 
+    protected function getViewArguments() {
+        return array(
+            'attribute_id' => $this->getRequest()->get('attribute_id'),
+            'order' => $this->getCurrentListOrder()
+        );
+    }
+
     protected function renderListTemplate($currentOrder) {
-        return $this->render('variables', array('order' => $currentOrder));
+        // We always return to the attribute edition form
+        return $this->render(
+                'attribute-edit',
+                $this->getViewArguments()
+        );
     }
 
     protected function renderEditionTemplate() {
-        return $this->render('variable-edit', array('variable_id' => $this->getRequest()->get('variable_id')));
+        // We always return to the attribute edition form
+        return $this->render('attribute-edit', $this->getViewArguments());
     }
 
     protected function redirectToEditionTemplate() {
+        // We always return to the attribute edition form
         $this->redirectToRoute(
-                "admin.configuration.variables.update",
-                array('variable_id' => $this->getRequest()->get('variable_id'))
+                "admin.configuration.attributes.update",
+                $this->getViewArguments()
         );
     }
 
     protected function redirectToListTemplate() {
-        $this->redirectToRoute('admin.configuration.variables.default');
-    }
-
-    /**
-     * Change values modified directly from the variable list
-     *
-     * @return Symfony\Component\HttpFoundation\Response the response
-     */
-    public function changeValuesAction()
-    {
-        // Check current user authorization
-        if (null !== $response = $this->checkAuth("admin.configuration.variables.update")) return $response;
-
-        $variables = $this->getRequest()->get('variable', array());
-
-        // Process all changed variables
-        foreach ($variables as $id => $value) {
-            $event = new ConfigUpdateEvent($id);
-            $event->setValue($value);
-
-            $this->dispatch(TheliaEvents::CONFIG_SETVALUE, $event);
-        }
-
-        $this->redirectToRoute('admin.configuration.variables.default');
-    }
+        $this->redirectToRoute(
+                "admin.configuration.attributes.update",
+                $this->getViewArguments()
+        );
+     }
 }

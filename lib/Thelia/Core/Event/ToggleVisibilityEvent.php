@@ -21,44 +21,28 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Core\Template\Loop;
+namespace Thelia\Core\Event;
 
-use Thelia\Model\FolderQuery;
-use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
-
-use Thelia\Core\Template\Loop\Folder;
-
-/**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
- */
-class FolderTest extends BaseLoopTestor
+class ToggleVisibilityEvent  extends ActionEvent
 {
-    public function getTestedClassName()
+    protected $object_id;
+
+    protected $object;
+
+    public function __construct($object_id)
     {
-        return 'Thelia\Core\Template\Loop\Folder';
+        $this->object_id = $object_id;
     }
 
-    public function getTestedInstance()
+    public function getObjectId()
     {
-        return new Folder($this->container);
+        return $this->object_id;
     }
 
-    public function getMandatoryArguments()
+    public function setObjectId($object_id)
     {
-        return array();
-    }
+        $this->object_id = $object_id;
 
-    public function testSearchById()
-    {
-        $folder = FolderQuery::create()->findOne();
-
-        $this->baseTestSearchById($folder->getId());
-    }
-
-    public function testSearchLimit()
-    {
-        $this->baseTestSearchWithLimit(3);
+        return $this;
     }
 }
