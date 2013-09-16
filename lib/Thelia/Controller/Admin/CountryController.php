@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*	    email : info@thelia.net                                                      */
+/*      email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,59 +21,32 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Template\Element;
-
-use Symfony\Component\HttpFoundation\Request;
-use Thelia\Core\Template\Loop\Argument\Argument;
-use Propel\Runtime\ActiveQuery\ModelCriteria;
-use Thelia\Model\Tools\ModelCriteriaTools;
+namespace Thelia\Controller\Admin;
 
 /**
- *
- * Class BaseI18nLoop, imlplemented by loops providing internationalized data, such as title, description, etc.
- *
- * @package Thelia\Core\Template\Element
+ * Class CustomerController
+ * @package Thelia\Controller\Admin
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-abstract class BaseI18nLoop extends BaseLoop
+class CountryController extends BaseAdminController
 {
-    /**
-     * Define common loop arguments
-     *
-     * @return Argument[]
-     */
-    protected function getDefaultArgs()
+    public function indexAction()
     {
-        $args = parent::getDefaultArgs();
-
-        $args[] = Argument::createIntTypeArgument('lang');
-
-        return $args;
+        if (null !== $response = $this->checkAuth("admin.country.view")) return $response;
+        return $this->render("countries", array("display_country" => 20));
     }
 
     /**
-     * Setup ModelCriteria for proper i18n processing
+     * update country action
      *
-     * @param ModelCriteria $search       the Propel Criteria to configure
-     * @param array         $columns      the i18n columns
-     * @param string        $foreignTable the specified table (default  to criteria table)
-     * @param string        $foreignKey   the foreign key in this table (default to criteria table)
-     * @param bool          $forceReturn
-     *
-     * @return mixed the locale
+     * @param $country_id
+     * @return mixed|\Symfony\Component\HttpFoundation\Response
      */
-    protected function configureI18nProcessing(ModelCriteria $search, $columns = array('TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM'), $foreignTable = null, $foreignKey = 'ID', $forceReturn = false)
-    {
-        /* manage translations */
-
-        return ModelCriteriaTools::getI18n(
-            $this->getBackend_context(),
-            $this->getLang(),
-            $search,
-            $this->request->getSession()->getLang()->getLocale(),
-            $columns,
-            $foreignTable,
-            $foreignKey,
-            $this->getForce_return()
-        );
+    public function updateAction($country_id)
+    {        
+        return $this->render("country-edit", array(
+            "country_id" => $country_id
+        ));
     }
+
 }
