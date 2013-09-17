@@ -20,48 +20,90 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Controller\Front;
 
-use Symfony\Component\Routing\Router;
-use Thelia\Controller\BaseController;
-use Thelia\Tools\URL;
+namespace Thelia\Core\Event;
 
-class BaseFrontController extends BaseController
+use Thelia\Model\Address;
+use Thelia\Model\AddressQuery;
+use Thelia\Model\Module;
+use Thelia\Model\Order;
+
+class OrderEvent extends ActionEvent
 {
-    /**
-     * Return the route path defined for the givent route ID
-     *
-     * @param string $routeId a route ID, as defines in Config/Resources/routing/front.xml
-     *
-     * @see \Thelia\Controller\BaseController::getRouteFromRouter()
-     */
-    protected function getRoute($routeId, $parameters = array(), $referenceType = Router::ABSOLUTE_PATH)
-    {
-        return $this->getRouteFromRouter('router.front', $routeId, $parameters, $referenceType);
-    }
+    protected $order = null;
+    protected $billingAddress = null;
+    protected $deliveryAddress = null;
+    protected $deliveryModule = null;
 
     /**
-     * Redirect to à route ID related URL
-     *
-     * @param unknown $routeId       the route ID, as found in Config/Resources/routing/admin.xml
-     * @param unknown $urlParameters the URL parametrs, as a var/value pair array
+     * @param Order $order
      */
-    public function redirectToRoute($routeId, $urlParameters = array(), $referenceType = Router::ABSOLUTE_PATH)
+    public function __construct(Order $order)
     {
-        $this->redirect(URL::getInstance()->absoluteUrl($this->getRoute($routeId, array(), $referenceType), $urlParameters));
+        $this->setOrder($order);
     }
 
-    public function checkAuth()
+    /**
+     * @param Order $order
+     */
+    public function setOrder(Order $order)
     {
-        if($this->getSecurityContext()->hasCustomerUser() === false) {
-            $this->redirectToRoute("customer.login.view");
-        }
+        $this->order = $order;
     }
 
-    protected function checkCartNotEmpty()
+    /**
+     * @param $address
+     */
+    public function setBillingAddress($address)
     {
-        if($this->getSession()->getCart()->countCartItems() == 0) {
-            $this->redirectToRoute("cart.view");
-        }
+        $this->deliveryAddress = $address;
+    }
+
+    /**
+     * @param $address
+     */
+    public function setDeliveryAddress($address)
+    {
+        $this->deliveryAddress = $address;
+    }
+
+    /**
+     * @param $module
+     */
+    public function setDeliveryModule($module)
+    {
+        $this->deliveryModule = $module;
+    }
+
+    /**
+     * @return null|Order
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * @return array|mixed|Address
+     */
+    public function getBillingAddress()
+    {
+        return $this->billingAddress;
+    }
+
+    /**
+     * @return array|mixed|Address
+     */
+    public function getDeliveryAddress()
+    {
+        return $this->deliveryAddress;
+    }
+
+    /**
+     * @return array|mixed|Address
+     */
+    public function getDeliveryModule()
+    {
+        return $this->deliveryModule;
     }
 }
