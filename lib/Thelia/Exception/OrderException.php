@@ -21,39 +21,19 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Install;
-use Symfony\Component\HttpFoundation\Response;
-use Thelia\Controller\BaseController;
+namespace Thelia\Exception;
 
-/**
- * Class BaseInstallController
- * @package Thelia\Controller\Install
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class BaseInstallController extends BaseController
+class OrderException extends \RuntimeException
 {
-    /**
-     * @return a ParserInterface instance parser
-     */
-    protected function getParser()
+    const UNKNOWN_EXCEPTION = 0;
+
+    const CART_EMPTY = 100;
+
+    public function __construct($message, $code = null, $previous = null)
     {
-        $parser = $this->container->get("thelia.parser");
-
-        // Define the template that shoud be used
-        $parser->setTemplate("install");
-
-        return $parser;
-    }
-
-    public function render($templateName, $args = array())
-    {
-        return new Response($this->renderRaw($templateName, $args));
-    }
-
-    public function renderRaw($templateName, $args = array())
-    {
-        $data = $this->getParser()->render($templateName, $args);
-
-        return $data;
+        if ($code === null) {
+            $code = self::UNKNOWN_EXCEPTION;
+        }
+        parent::__construct($message, $code, $previous);
     }
 }
