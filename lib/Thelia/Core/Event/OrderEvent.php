@@ -20,47 +20,90 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Form;
 
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Thelia\Core\Translation\Translator;
+namespace Thelia\Core\Event;
 
-class CategoryCreationForm extends BaseForm
+use Thelia\Model\Address;
+use Thelia\Model\AddressQuery;
+use Thelia\Model\Module;
+use Thelia\Model\Order;
+
+class OrderEvent extends ActionEvent
 {
-    protected function buildForm()
+    protected $order = null;
+    protected $billingAddress = null;
+    protected $deliveryAddress = null;
+    protected $deliveryModule = null;
+
+    /**
+     * @param Order $order
+     */
+    public function __construct(Order $order)
     {
-        $this->formBuilder
-            ->add("title", "text", array(
-                "constraints" => array(
-                    new NotBlank()
-                ),
-                "label" => Translator::getInstance()->trans("Category title *"),
-                "label_attr" => array(
-                    "for" => "title"
-                )
-            ))
-            ->add("parent", "text", array(
-                "label" => Translator::getInstance()->trans("Parent category *"),
-                "constraints" => array(
-                    new NotBlank()
-                ),
-               "label_attr" => array("for" => "parent_create")
-            ))
-            ->add("locale", "text", array(
-                "constraints" => array(
-                    new NotBlank()
-                ),
-               "label_attr" => array("for" => "locale_create")
-            ))
-            ->add("visible", "integer", array(
-                "label" => Translator::getInstance()->trans("This category is online on the front office."),
-                "label_attr" => array("for" => "visible_create")
-            ))
-        ;
+        $this->setOrder($order);
     }
 
-    public function getName()
+    /**
+     * @param Order $order
+     */
+    public function setOrder(Order $order)
     {
-        return "thelia_category_creation";
+        $this->order = $order;
+    }
+
+    /**
+     * @param $address
+     */
+    public function setBillingAddress($address)
+    {
+        $this->deliveryAddress = $address;
+    }
+
+    /**
+     * @param $address
+     */
+    public function setDeliveryAddress($address)
+    {
+        $this->deliveryAddress = $address;
+    }
+
+    /**
+     * @param $module
+     */
+    public function setDeliveryModule($module)
+    {
+        $this->deliveryModule = $module;
+    }
+
+    /**
+     * @return null|Order
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * @return array|mixed|Address
+     */
+    public function getBillingAddress()
+    {
+        return $this->billingAddress;
+    }
+
+    /**
+     * @return array|mixed|Address
+     */
+    public function getDeliveryAddress()
+    {
+        return $this->deliveryAddress;
+    }
+
+    /**
+     * @return array|mixed|Address
+     */
+    public function getDeliveryModule()
+    {
+        return $this->deliveryModule;
     }
 }
