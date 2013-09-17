@@ -21,91 +21,69 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Install;
-use Thelia\Install\CheckPermission;
+namespace Thelia\Tests\Core\Template\Loop;
+
+use Thelia\Model\DocumentQuery;
+use Thelia\Tests\Core\Template\Element\BaseLoopTestor;
+
+use Thelia\Core\Template\Loop\Document;
+use Thelia\Model\ProductDocumentQuery;
+use Thelia\Model\CategoryDocumentQuery;
+use Thelia\Model\ContentDocumentQuery;
+use Thelia\Model\FolderDocumentQuery;
 
 /**
- * Class InstallController
- * @package Thelia\Controller\Install
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ *
+ * @author Etienne Roudeix <eroudeix@openstudio.fr>
+ *
  */
-class InstallController extends BaseInstallController
+class DocumentTest extends BaseLoopTestor
 {
-    public function index()
+    public function getTestedClassName()
     {
-        //$this->verifyStep(1);
-
-        $this->getSession()->set("step", 1);
-
-        return $this->render("index.html");
+        return 'Thelia\Core\Template\Loop\Document';
     }
 
-    public function checkPermission()
+    public function getTestedInstance()
     {
-        //$this->verifyStep(2);
-
-        //$permission = new CheckPermission();
-
-        $this->getSession()->set("step", 2);
-        return $this->render("step-2.html");
+        return new Document($this->container);
     }
 
-    public function databaseConnection()
+    public function getMandatoryArguments()
     {
-        //$this->verifyStep(2);
-
-        //$permission = new CheckPermission();
-
-        $this->getSession()->set("step", 3);
-        return $this->render("step-3.html");
+        return array('source' => 'product', 'id' => 1);
     }
 
-    public function databaseSelection()
+    public function testSearchByProductId()
     {
-        //$this->verifyStep(2);
+        $document = ProductDocumentQuery::create()->findOne();
 
-        //$permission = new CheckPermission();
-
-        $this->getSession()->set("step", 4);
-        return $this->render("step-4.html");
+        $this->baseTestSearchById($document->getId());
     }
 
-    public function generalInformation()
+    public function testSearchByFolderId()
     {
-        //$this->verifyStep(2);
+        $document = FolderDocumentQuery::create()->findOne();
 
-        //$permission = new CheckPermission();
-
-        $this->getSession()->set("step", 5);
-        return $this->render("step-5.html");
+        $this->baseTestSearchById($document->getId());
     }
 
-    public function thanks()
+    public function testSearchByContentId()
     {
-        //$this->verifyStep(2);
+        $document = ContentDocumentQuery::create()->findOne();
 
-        //$permission = new CheckPermission();
-
-        $this->getSession()->set("step", 6);
-        return $this->render("thanks.html");
+        $this->baseTestSearchById($document->getId());
     }
 
-    protected function verifyStep($step)
+    public function testSearchByCategoryId()
     {
-        $session = $this->getSession();
+        $document = CategoryDocumentQuery::create()->findOne();
 
-        if ($session->has("step")) {
-            $sessionStep = $session->get("step");
-        } else {
-           return true;
-        }
+        $this->baseTestSearchById($document->getId());
+    }
 
-        switch ($step) {
-            case "1" :
-                if ($sessionStep > 1) {
-                    $this->redirect("/install/step/2");
-                }
-                break;
-        }
+    public function testSearchLimit()
+    {
+        $this->baseTestSearchWithLimit(1);
     }
 }

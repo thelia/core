@@ -21,39 +21,28 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Install;
-use Symfony\Component\HttpFoundation\Response;
-use Thelia\Controller\BaseController;
+namespace Thelia\Core\Event;
 
-/**
- * Class BaseInstallController
- * @package Thelia\Controller\Install
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class BaseInstallController extends BaseController
+use Thelia\Model\Category;
+
+class CategoryAddContentEvent extends CategoryEvent
 {
-    /**
-     * @return a ParserInterface instance parser
-     */
-    protected function getParser()
+    protected $content_id;
+
+    public function __construct(Category $category, $content_id)
     {
-        $parser = $this->container->get("thelia.parser");
+        parent::__construct($category);
 
-        // Define the template that shoud be used
-        $parser->setTemplate("install");
-
-        return $parser;
+        $this->content_id = $content_id;
     }
 
-    public function render($templateName, $args = array())
+    public function getContentId()
     {
-        return new Response($this->renderRaw($templateName, $args));
+        return $this->content_id;
     }
 
-    public function renderRaw($templateName, $args = array())
+    public function setContentId($content_id)
     {
-        $data = $this->getParser()->render($templateName, $args);
-
-        return $data;
+        $this->content_id = $content_id;
     }
 }
