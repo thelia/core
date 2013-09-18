@@ -20,25 +20,47 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Form;
 
-namespace Thelia\Tests\Rewriting;
-use Thelia\Model\Product;
-use Thelia\Model\ProductQuery;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Thelia\Core\Translation\Translator;
 
-
-/**
- * Class ProductRewriteTest
- * @package Thelia\Tests\Rewriting
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class ProductRewriteTest extends BaseRewritingObject
+class FolderCreationForm extends BaseForm
 {
-
-    /**
-     * @return mixed an instance of Product, Folder, Content or Category Model
-     */
-    function getObject()
+    protected function buildForm()
     {
-        return new Product();
+        $this->formBuilder
+            ->add("title", "text", array(
+                "constraints" => array(
+                    new NotBlank()
+                ),
+                "label" => Translator::getInstance()->trans("Folder title *"),
+                "label_attr" => array(
+                    "for" => "title"
+                )
+            ))
+            ->add("parent", "text", array(
+                "label" => Translator::getInstance()->trans("Parent folder *"),
+                "constraints" => array(
+                    new NotBlank()
+                ),
+               "label_attr" => array("for" => "parent_create")
+            ))
+            ->add("locale", "text", array(
+                "constraints" => array(
+                    new NotBlank()
+                ),
+               "label_attr" => array("for" => "locale_create")
+            ))
+            ->add("visible", "integer", array(
+                "label" => Translator::getInstance()->trans("This folder is online."),
+                "label_attr" => array("for" => "visible_create")
+            ))
+        ;
+    }
+
+    public function getName()
+    {
+        return "thelia_folder_creation";
     }
 }

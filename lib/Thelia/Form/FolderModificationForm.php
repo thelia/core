@@ -20,25 +20,36 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Form;
 
-namespace Thelia\Tests\Rewriting;
-use Thelia\Model\Product;
-use Thelia\Model\ProductQuery;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Thelia\Core\Translation\Translator;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-
-/**
- * Class ProductRewriteTest
- * @package Thelia\Tests\Rewriting
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class ProductRewriteTest extends BaseRewritingObject
+class FolderModificationForm extends FolderCreationForm
 {
+    use StandardDescriptionFieldsTrait;
 
-    /**
-     * @return mixed an instance of Product, Folder, Content or Category Model
-     */
-    function getObject()
+    protected function buildForm()
     {
-        return new Product();
+        parent::buildForm(true);
+
+        $this->formBuilder
+            ->add("id", "hidden", array("constraints" => array(new GreaterThan(array('value' => 0)))))
+
+            ->add("url", "text", array(
+                "label"       => Translator::getInstance()->trans("Rewriten URL *"),
+                "constraints" => array(new NotBlank()),
+                "label_attr" => array("for" => "rewriten_url")
+            ))
+        ;
+
+        // Add standard description fields, excluding title and locale, which a re defined in parent class
+        $this->addStandardDescFields(array('title', 'locale'));
+    }
+
+    public function getName()
+    {
+        return "thelia_folder_modification";
     }
 }
