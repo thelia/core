@@ -21,24 +21,26 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Rewriting;
-use Thelia\Model\Product;
-use Thelia\Model\ProductQuery;
-
+namespace Thelia\Controller\Admin;
 
 /**
- * Class ProductRewriteTest
- * @package Thelia\Tests\Rewriting
+ * Class FolderController
+ * @package Thelia\Controller\Admin
  * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class ProductRewriteTest extends BaseRewritingObject
+class ShippingZoneController extends BaseAdminController
 {
-
-    /**
-     * @return mixed an instance of Product, Folder, Content or Category Model
-     */
-    function getObject()
+    public function indexAction()
     {
-        return new Product();
+        if (null !== $response = $this->checkAuth("admin.shipping-zones.view")) return $response;
+        return $this->render("shipping-zones", array("display_shipping_zone" => 20));
+    }
+    
+    public function updateAction($shipping_zones_id)
+    {
+
+    	return $this->render("shipping-zones-edit", array(
+    		"shipping_zones_id" => $shipping_zones_id
+    	));
     }
 }

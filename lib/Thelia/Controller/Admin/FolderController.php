@@ -21,24 +21,26 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Tests\Rewriting;
-use Thelia\Model\Product;
-use Thelia\Model\ProductQuery;
-
+namespace Thelia\Controller\Admin;
 
 /**
- * Class ProductRewriteTest
- * @package Thelia\Tests\Rewriting
+ * Class FolderController
+ * @package Thelia\Controller\Admin
  * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class ProductRewriteTest extends BaseRewritingObject
+class FolderController extends BaseAdminController
 {
-
-    /**
-     * @return mixed an instance of Product, Folder, Content or Category Model
-     */
-    function getObject()
+    public function indexAction()
     {
-        return new Product();
+        if (null !== $response = $this->checkAuth("admin.folder.view")) return $response;
+        return $this->render("folders", array("display_folder" => 20));
+    }
+    
+    public function updateAction($folder_id)
+    {
+
+    	return $this->render("folder-edit", array(
+    		"folder_id" => $folder_id
+    	));
     }
 }
