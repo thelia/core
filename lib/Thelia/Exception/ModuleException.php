@@ -21,26 +21,19 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Admin;
+namespace Thelia\Exception;
 
-/**
- * Class ShippingZoneController
- * @package Thelia\Controller\Admin
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class ShippingZoneController extends BaseAdminController
+class ModuleException extends \RuntimeException
 {
-    public function indexAction()
-    {
-        if (null !== $response = $this->checkAuth("admin.shipping-zones.view")) return $response;
-        return $this->render("shipping-zones", array("display_shipping_zone" => 20));
-    }
-    
-    public function updateAction($shipping_zones_id)
-    {
+    const UNKNOWN_EXCEPTION = 0;
 
-    	return $this->render("shipping-zones-edit", array(
-    		"shipping_zones_id" => $shipping_zones_id
-    	));
+    const CODE_NOT_FOUND = 404;
+
+    public function __construct($message, $code = null, $previous = null)
+    {
+        if ($code === null) {
+            $code = self::UNKNOWN_EXCEPTION;
+        }
+        parent::__construct($message, $code, $previous);
     }
 }

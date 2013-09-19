@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*      email : info@thelia.net                                                      */
+/*	    email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,26 +21,24 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Admin;
+namespace Thelia\Tools;
 
-/**
- * Class ShippingZoneController
- * @package Thelia\Controller\Admin
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class ShippingZoneController extends BaseAdminController
+class Image
 {
-    public function indexAction()
+    static public function isImage($filePath, $allowedImageTypes = null)
     {
-        if (null !== $response = $this->checkAuth("admin.shipping-zones.view")) return $response;
-        return $this->render("shipping-zones", array("display_shipping_zone" => 20));
-    }
-    
-    public function updateAction($shipping_zones_id)
-    {
+        $imageFile = getimagesize($filePath);
+        $imageType = $imageFile[2];
 
-    	return $this->render("shipping-zones-edit", array(
-    		"shipping_zones_id" => $shipping_zones_id
-    	));
+        if(!is_array($allowedImageTypes) && $imageType != IMAGETYPE_UNKNOWN) {
+            return true;
+        }
+
+        if(in_array($imageType , $allowedImageTypes))
+        {
+            return true;
+        }
+
+        return false;
     }
 }

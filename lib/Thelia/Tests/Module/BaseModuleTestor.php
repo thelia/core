@@ -21,26 +21,33 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Admin;
+namespace Thelia\Tests\Module;
+
 
 /**
- * Class ShippingZoneController
- * @package Thelia\Controller\Admin
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ *
+ * @author Etienne Roudeix <eroudeix@openstudio.fr>
+ *
  */
-class ShippingZoneController extends BaseAdminController
+abstract class BaseModuleTestor extends \PHPUnit_Framework_TestCase
 {
-    public function indexAction()
-    {
-        if (null !== $response = $this->checkAuth("admin.shipping-zones.view")) return $response;
-        return $this->render("shipping-zones", array("display_shipping_zone" => 20));
-    }
-    
-    public function updateAction($shipping_zones_id)
-    {
+    protected $instance;
 
-    	return $this->render("shipping-zones-edit", array(
-    		"shipping_zones_id" => $shipping_zones_id
-    	));
+    abstract public function getTestedClassName();
+    abstract public function getTestedInstance();
+
+    /*protected function getMethod($name)
+    {
+        $class = new \ReflectionClass($this->getTestedClassName());
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+
+        return $method;
+    }*/
+
+    public function setUp()
+    {
+        $this->instance = $this->getTestedInstance();
     }
 }
+
