@@ -24,23 +24,23 @@
 namespace Thelia\Controller\Admin;
 
 /**
- * Class ShippingZoneController
+ * Class ModuleController
  * @package Thelia\Controller\Admin
  * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class ShippingZoneController extends BaseAdminController
+class ModuleController extends BaseAdminController
 {
     public function indexAction()
     {
-        if (null !== $response = $this->checkAuth("admin.shipping-zones.view")) return $response;
-        return $this->render("shipping-zones", array("display_shipping_zone" => 20));
+        if (null !== $response = $this->checkAuth("admin.module.view")) return $response;
+        return $this->render("modules", array("display_module" => 20));
     }
     
-    public function updateAction($shipping_zones_id)
+    public function updateAction($module_id)
     {
 
-    	return $this->render("shipping-zones-edit", array(
-    		"shipping_zones_id" => $shipping_zones_id
+    	return $this->render("module-edit", array(
+    		"module_id" => $module_id
     	));
     }
 }

@@ -21,26 +21,14 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Admin;
+namespace Thelia\Module;
 
-/**
- * Class ShippingZoneController
- * @package Thelia\Controller\Admin
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class ShippingZoneController extends BaseAdminController
+use Thelia\Model\Country;
+
+interface PaymentModuleInterface extends BaseModuleInterface
 {
-    public function indexAction()
-    {
-        if (null !== $response = $this->checkAuth("admin.shipping-zones.view")) return $response;
-        return $this->render("shipping-zones", array("display_shipping_zone" => 20));
-    }
-    
-    public function updateAction($shipping_zones_id)
-    {
-
-    	return $this->render("shipping-zones-edit", array(
-    		"shipping_zones_id" => $shipping_zones_id
-    	));
-    }
+    /**
+     * @return mixed
+     */
+    public function pay();
 }
