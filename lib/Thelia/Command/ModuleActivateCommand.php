@@ -23,6 +23,7 @@
 
 namespace Thelia\Command;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,66 +31,60 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOException;
 
 use Thelia\Command\ContainerAwareCommand;
+use Thelia\Model\ModuleQuery;
 
 /**
- * clear the cache
+ * activates a module
  *
- * Class CacheClear
+ * Class ModuleActivateCommand
  * @package Thelia\Command
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ * @author Etienne Roudeix <eroudeix@openstudio.fr>
  *
  */
-class CacheClear extends ContainerAwareCommand
+class ModuleActivateCommand extends BaseModuleGenerate
 {
     protected function configure()
     {
         $this
-            ->setName("cache:clear")
-            ->setDescription("Invalidate all caches")
-            ->addOption(
-                "without-assets",
-                null,
-                InputOption::VALUE_NONE,
-                "remove cache assets"
+            ->setName("module:activate")
+            ->setDescription("Activates a module")
+            ->addArgument(
+                "module" ,
+                InputArgument::REQUIRED,
+                "module to activate"
             )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $moduleCode = $this->formatModuleName($input->getArgument("module"));
 
-        $cacheDir = $this->getContainer()->getParameter("kernel.cache_dir");
+        $module = ModuleQuery::create()->findOneByCode($moduleCode);
 
-        $this->clearCache($cacheDir, $output);
-        if (!$input->getOption("without-assets")) {
-            $this->clearCache(THELIA_WEB_DIR . "assets", $output);
+        if(null === $module) {
+            throw new \RuntimeException(sprintf("module %s not found", $moduleCode));
         }
 
-    }
-
-    protected function clearCache($dir, OutputInterface $output)
-    {
-        $output->writeln(sprintf("Clearing cache in <info>%s</info> directory", $dir));
-
         try {
-            $directoryBrowser = new \DirectoryIterator($dir);
-        } catch(\UnexpectedValueException $e) {
-            // throws same exception code for does not exist and permission denied ...
-            if(!file_exists($dir)) {
-                $output->writeln(sprintf("<info>%s cache dir already clear</info>", $dir));
-                return;
-            }
+            new \TheliaDebugBar\TheliaDebugBar();
 
-            throw $e;
+            $moduleReflection = new \ReflectionClass($module->getFullNamespace());
+
+            $moduleInstance = $moduleReflection->newInstance();
+
+            $moduleInstance->activate();
+        } catch(\Exception $e) {
+            throw new \RuntimeException(sprintf("Activation fail with Exception : [%d] %s", $e->getCode(), $e->getMessage()));
         }
 
-        $fs = new Filesystem();
-        try {
-            $fs->remove($dir);
-
-            $output->writeln(sprintf("<info>%s cache dir cleared successfully</info>", $dir));
-        } catch (IOException $e) {
-            $output->writeln(sprintf("Error during clearing cache : %s", $e->getMessage()));
+        //impossible to change output class in CommandTester...
+        if (method_exists($output, "renderBlock")) {
+            $output->renderBlock(array(
+                '',
+                sprintf("Activation succeed for module %s", $moduleCode),
+                ''
+            ), "bg=green;fg=black");
         }
     }
 }
