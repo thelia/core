@@ -23,27 +23,29 @@
 
 namespace Thelia\Exception;
 
-class OrderException extends \RuntimeException
+/**
+ * these exception are non fatal exception, due to thelia process exception
+ * or customer random navigation
+ *
+ * they redirect the customer who trig them to a specific error page // @todo
+ *
+ * Class TheliaProcessException
+ * @package Thelia\Exception
+ */
+class TheliaProcessException extends \RuntimeException
 {
-    /**
-     * @var string The cart template name
-     */
-    public $cartRoute = "cart.view";
-    public $orderDeliveryRoute = "order.delivery";
-
-    public $arguments = array();
+    public $data = null;
 
     const UNKNOWN_EXCEPTION = 0;
 
-    const CART_EMPTY = 100;
+    const CART_ITEM_NOT_ENOUGH_STOCK = 100;
+    const NO_PLACED_ORDER = 101;
+    const PLACED_ORDER_ID_BAD_CURRENT_CUSTOMER = 102;
 
-    const UNDEFINED_DELIVERY = 200;
-
-    public function __construct($message, $code = null, $arguments = array(), $previous = null)
+    public function __construct($message, $code = null, $data = null, $previous = null)
     {
-        if(is_array($arguments)) {
-            $this->arguments = $arguments;
-        }
+        $this->data = $data;
+
         if ($code === null) {
             $code = self::UNKNOWN_EXCEPTION;
         }
