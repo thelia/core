@@ -2,11 +2,11 @@
 
 namespace Thelia\Model;
 
-use Thelia\Model\Base\CouponRuleQuery as BaseCouponRuleQuery;
+use Thelia\Model\Base\ModuleImageQuery as BaseModuleImageQuery;
 
 
 /**
- * Skeleton subclass for performing query and update operations on the 'coupon_rule' table.
+ * Skeleton subclass for performing query and update operations on the 'module_image' table.
  *
  *
  *
@@ -15,6 +15,7 @@ use Thelia\Model\Base\CouponRuleQuery as BaseCouponRuleQuery;
  * long as it does not already exist in the output directory.
  *
  */
-class CouponRuleQuery extends BaseCouponRuleQuery {
+class ModuleImageQuery extends BaseModuleImageQuery
+{
 
-} // CouponRuleQuery
+} // ModuleImageQuery
