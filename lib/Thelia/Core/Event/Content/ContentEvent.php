@@ -21,35 +21,53 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Front;
-use Thelia\Model\ModuleQuery;
-use Thelia\Tools\URL;
+namespace Thelia\Core\Event\Content;
+use Thelia\Core\Event\ActionEvent;
+use Thelia\Model\Content;
+
 
 /**
- * Class DeliveryController
- * @package Thelia\Controller\Front
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ * Class ContentEvent
+ * @package Thelia\Core\Event\Content
+ * @author manuel raynaud <mraynaud@openstudio.fr>
  */
-class DeliveryController extends BaseFrontController
+class ContentEvent extends ActionEvent
 {
-    public function select($delivery_id)
+    /**
+     * @var \Thelia\Model\Content
+     */
+    protected $content;
+
+    function __construct(Content $content = null)
     {
-        if ($this->getSecurityContext()->hasCustomerUser() === false) {
-            $this->redirect(URL::getInstance()->getIndexPage());
-        }
+        $this->content = $content;
+    }
 
-        $request = $this->getRequest();
+    /**
+     * @param \Thelia\Model\Content $content
+     */
+    public function setContent(Content $content)
+    {
+        $this->content = $content;
 
-        $deliveryModule = ModuleQuery::create()
-            ->filterById($delivery_id)
-            ->filterByActivate(1)
-            ->findOne()
-        ;
+        return $this;
+    }
 
-        if ($deliveryModule) {
-            $request->getSession()->setDelivery($delivery_id);
-        } else {
-            $this->pageNotFound();
-        }
+    /**
+     * @return \Thelia\Model\Content
+     */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * check if content exists
+     *
+     * @return bool
+     */
+    public function hasContent()
+    {
+        return null !== $this->content;
     }
 }

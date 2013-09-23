@@ -10,12 +10,12 @@ use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Map\TableMapTrait;
-use Thelia\Model\AttributeCategory;
-use Thelia\Model\AttributeCategoryQuery;
+use Thelia\Model\ModuleImage;
+use Thelia\Model\ModuleImageQuery;
 
 
 /**
- * This class defines the structure of the 'attribute_category' table.
+ * This class defines the structure of the 'module_image' table.
  *
  *
  *
@@ -25,14 +25,14 @@ use Thelia\Model\AttributeCategoryQuery;
  * (i.e. if it's a text column type).
  *
  */
-class AttributeCategoryTableMap extends TableMap
+class ModuleImageTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'Thelia.Model.Map.AttributeCategoryTableMap';
+    const CLASS_NAME = 'Thelia.Model.Map.ModuleImageTableMap';
 
     /**
      * The default database name for this class
@@ -42,22 +42,22 @@ class AttributeCategoryTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'attribute_category';
+    const TABLE_NAME = 'module_image';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\Thelia\\Model\\AttributeCategory';
+    const OM_CLASS = '\\Thelia\\Model\\ModuleImage';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'Thelia.Model.AttributeCategory';
+    const CLASS_DEFAULT = 'Thelia.Model.ModuleImage';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 5;
+    const NUM_COLUMNS = 6;
 
     /**
      * The number of lazy-loaded columns
@@ -67,37 +67,51 @@ class AttributeCategoryTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 5;
+    const NUM_HYDRATE_COLUMNS = 6;
 
     /**
      * the column name for the ID field
      */
-    const ID = 'attribute_category.ID';
+    const ID = 'module_image.ID';
 
     /**
-     * the column name for the CATEGORY_ID field
+     * the column name for the MODULE_ID field
      */
-    const CATEGORY_ID = 'attribute_category.CATEGORY_ID';
+    const MODULE_ID = 'module_image.MODULE_ID';
 
     /**
-     * the column name for the ATTRIBUTE_ID field
+     * the column name for the FILE field
      */
-    const ATTRIBUTE_ID = 'attribute_category.ATTRIBUTE_ID';
+    const FILE = 'module_image.FILE';
+
+    /**
+     * the column name for the POSITION field
+     */
+    const POSITION = 'module_image.POSITION';
 
     /**
      * the column name for the CREATED_AT field
      */
-    const CREATED_AT = 'attribute_category.CREATED_AT';
+    const CREATED_AT = 'module_image.CREATED_AT';
 
     /**
      * the column name for the UPDATED_AT field
      */
-    const UPDATED_AT = 'attribute_category.UPDATED_AT';
+    const UPDATED_AT = 'module_image.UPDATED_AT';
 
     /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
+
+    // i18n behavior
+
+    /**
+     * The default locale to use for translations.
+     *
+     * @var string
+     */
+    const DEFAULT_LOCALE = 'en_US';
 
     /**
      * holds an array of fieldnames
@@ -106,12 +120,12 @@ class AttributeCategoryTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'CategoryId', 'AttributeId', 'CreatedAt', 'UpdatedAt', ),
-        self::TYPE_STUDLYPHPNAME => array('id', 'categoryId', 'attributeId', 'createdAt', 'updatedAt', ),
-        self::TYPE_COLNAME       => array(AttributeCategoryTableMap::ID, AttributeCategoryTableMap::CATEGORY_ID, AttributeCategoryTableMap::ATTRIBUTE_ID, AttributeCategoryTableMap::CREATED_AT, AttributeCategoryTableMap::UPDATED_AT, ),
-        self::TYPE_RAW_COLNAME   => array('ID', 'CATEGORY_ID', 'ATTRIBUTE_ID', 'CREATED_AT', 'UPDATED_AT', ),
-        self::TYPE_FIELDNAME     => array('id', 'category_id', 'attribute_id', 'created_at', 'updated_at', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id', 'ModuleId', 'File', 'Position', 'CreatedAt', 'UpdatedAt', ),
+        self::TYPE_STUDLYPHPNAME => array('id', 'moduleId', 'file', 'position', 'createdAt', 'updatedAt', ),
+        self::TYPE_COLNAME       => array(ModuleImageTableMap::ID, ModuleImageTableMap::MODULE_ID, ModuleImageTableMap::FILE, ModuleImageTableMap::POSITION, ModuleImageTableMap::CREATED_AT, ModuleImageTableMap::UPDATED_AT, ),
+        self::TYPE_RAW_COLNAME   => array('ID', 'MODULE_ID', 'FILE', 'POSITION', 'CREATED_AT', 'UPDATED_AT', ),
+        self::TYPE_FIELDNAME     => array('id', 'module_id', 'file', 'position', 'created_at', 'updated_at', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -121,12 +135,12 @@ class AttributeCategoryTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'CategoryId' => 1, 'AttributeId' => 2, 'CreatedAt' => 3, 'UpdatedAt' => 4, ),
-        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'categoryId' => 1, 'attributeId' => 2, 'createdAt' => 3, 'updatedAt' => 4, ),
-        self::TYPE_COLNAME       => array(AttributeCategoryTableMap::ID => 0, AttributeCategoryTableMap::CATEGORY_ID => 1, AttributeCategoryTableMap::ATTRIBUTE_ID => 2, AttributeCategoryTableMap::CREATED_AT => 3, AttributeCategoryTableMap::UPDATED_AT => 4, ),
-        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'CATEGORY_ID' => 1, 'ATTRIBUTE_ID' => 2, 'CREATED_AT' => 3, 'UPDATED_AT' => 4, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'category_id' => 1, 'attribute_id' => 2, 'created_at' => 3, 'updated_at' => 4, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'ModuleId' => 1, 'File' => 2, 'Position' => 3, 'CreatedAt' => 4, 'UpdatedAt' => 5, ),
+        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'moduleId' => 1, 'file' => 2, 'position' => 3, 'createdAt' => 4, 'updatedAt' => 5, ),
+        self::TYPE_COLNAME       => array(ModuleImageTableMap::ID => 0, ModuleImageTableMap::MODULE_ID => 1, ModuleImageTableMap::FILE => 2, ModuleImageTableMap::POSITION => 3, ModuleImageTableMap::CREATED_AT => 4, ModuleImageTableMap::UPDATED_AT => 5, ),
+        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'MODULE_ID' => 1, 'FILE' => 2, 'POSITION' => 3, 'CREATED_AT' => 4, 'UPDATED_AT' => 5, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'module_id' => 1, 'file' => 2, 'position' => 3, 'created_at' => 4, 'updated_at' => 5, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -139,16 +153,16 @@ class AttributeCategoryTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('attribute_category');
-        $this->setPhpName('AttributeCategory');
-        $this->setClassName('\\Thelia\\Model\\AttributeCategory');
+        $this->setName('module_image');
+        $this->setPhpName('ModuleImage');
+        $this->setClassName('\\Thelia\\Model\\ModuleImage');
         $this->setPackage('Thelia.Model');
         $this->setUseIdGenerator(true);
-        $this->setIsCrossRef(true);
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
-        $this->addForeignKey('CATEGORY_ID', 'CategoryId', 'INTEGER', 'category', 'ID', true, null, null);
-        $this->addForeignKey('ATTRIBUTE_ID', 'AttributeId', 'INTEGER', 'attribute', 'ID', true, null, null);
+        $this->addForeignKey('MODULE_ID', 'ModuleId', 'INTEGER', 'module', 'ID', true, null, null);
+        $this->addColumn('FILE', 'File', 'VARCHAR', true, 255, null);
+        $this->addColumn('POSITION', 'Position', 'INTEGER', false, null, null);
         $this->addColumn('CREATED_AT', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('UPDATED_AT', 'UpdatedAt', 'TIMESTAMP', false, null, null);
     } // initialize()
@@ -158,8 +172,8 @@ class AttributeCategoryTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Category', '\\Thelia\\Model\\Category', RelationMap::MANY_TO_ONE, array('category_id' => 'id', ), 'CASCADE', 'RESTRICT');
-        $this->addRelation('Attribute', '\\Thelia\\Model\\Attribute', RelationMap::MANY_TO_ONE, array('attribute_id' => 'id', ), 'CASCADE', 'RESTRICT');
+        $this->addRelation('Module', '\\Thelia\\Model\\Module', RelationMap::MANY_TO_ONE, array('module_id' => 'id', ), 'CASCADE', 'RESTRICT');
+        $this->addRelation('ModuleImageI18n', '\\Thelia\\Model\\ModuleImageI18n', RelationMap::ONE_TO_MANY, array('id' => 'id', ), 'CASCADE', null, 'ModuleImageI18ns');
     } // buildRelations()
 
     /**
@@ -172,8 +186,18 @@ class AttributeCategoryTableMap extends TableMap
     {
         return array(
             'timestampable' => array('create_column' => 'created_at', 'update_column' => 'updated_at', ),
+            'i18n' => array('i18n_table' => '%TABLE%_i18n', 'i18n_phpname' => '%PHPNAME%I18n', 'i18n_columns' => 'title, description, chapo, postscriptum', 'locale_column' => 'locale', 'locale_length' => '5', 'default_locale' => '', 'locale_alias' => '', ),
         );
     } // getBehaviors()
+    /**
+     * Method to invalidate the instance pool of all tables related to module_image     * by a foreign key with ON DELETE CASCADE
+     */
+    public static function clearRelatedInstancePool()
+    {
+        // Invalidate objects in ".$this->getClassNameFromBuilder($joinedTableTableMapBuilder)." instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+                ModuleImageI18nTableMap::clearInstancePool();
+            }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -231,7 +255,7 @@ class AttributeCategoryTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? AttributeCategoryTableMap::CLASS_DEFAULT : AttributeCategoryTableMap::OM_CLASS;
+        return $withPrefix ? ModuleImageTableMap::CLASS_DEFAULT : ModuleImageTableMap::OM_CLASS;
     }
 
     /**
@@ -245,21 +269,21 @@ class AttributeCategoryTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *         rethrown wrapped into a PropelException.
-     * @return array (AttributeCategory object, last column rank)
+     * @return array (ModuleImage object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = AttributeCategoryTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = AttributeCategoryTableMap::getInstanceFromPool($key))) {
+        $key = ModuleImageTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = ModuleImageTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + AttributeCategoryTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + ModuleImageTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = AttributeCategoryTableMap::OM_CLASS;
+            $cls = ModuleImageTableMap::OM_CLASS;
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            AttributeCategoryTableMap::addInstanceToPool($obj, $key);
+            ModuleImageTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -282,8 +306,8 @@ class AttributeCategoryTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = AttributeCategoryTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = AttributeCategoryTableMap::getInstanceFromPool($key))) {
+            $key = ModuleImageTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = ModuleImageTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
@@ -292,7 +316,7 @@ class AttributeCategoryTableMap extends TableMap
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                AttributeCategoryTableMap::addInstanceToPool($obj, $key);
+                ModuleImageTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -313,15 +337,17 @@ class AttributeCategoryTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(AttributeCategoryTableMap::ID);
-            $criteria->addSelectColumn(AttributeCategoryTableMap::CATEGORY_ID);
-            $criteria->addSelectColumn(AttributeCategoryTableMap::ATTRIBUTE_ID);
-            $criteria->addSelectColumn(AttributeCategoryTableMap::CREATED_AT);
-            $criteria->addSelectColumn(AttributeCategoryTableMap::UPDATED_AT);
+            $criteria->addSelectColumn(ModuleImageTableMap::ID);
+            $criteria->addSelectColumn(ModuleImageTableMap::MODULE_ID);
+            $criteria->addSelectColumn(ModuleImageTableMap::FILE);
+            $criteria->addSelectColumn(ModuleImageTableMap::POSITION);
+            $criteria->addSelectColumn(ModuleImageTableMap::CREATED_AT);
+            $criteria->addSelectColumn(ModuleImageTableMap::UPDATED_AT);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
-            $criteria->addSelectColumn($alias . '.CATEGORY_ID');
-            $criteria->addSelectColumn($alias . '.ATTRIBUTE_ID');
+            $criteria->addSelectColumn($alias . '.MODULE_ID');
+            $criteria->addSelectColumn($alias . '.FILE');
+            $criteria->addSelectColumn($alias . '.POSITION');
             $criteria->addSelectColumn($alias . '.CREATED_AT');
             $criteria->addSelectColumn($alias . '.UPDATED_AT');
         }
@@ -336,7 +362,7 @@ class AttributeCategoryTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(AttributeCategoryTableMap::DATABASE_NAME)->getTable(AttributeCategoryTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(ModuleImageTableMap::DATABASE_NAME)->getTable(ModuleImageTableMap::TABLE_NAME);
     }
 
     /**
@@ -344,16 +370,16 @@ class AttributeCategoryTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getServiceContainer()->getDatabaseMap(AttributeCategoryTableMap::DATABASE_NAME);
-      if (!$dbMap->hasTable(AttributeCategoryTableMap::TABLE_NAME)) {
-        $dbMap->addTableObject(new AttributeCategoryTableMap());
+      $dbMap = Propel::getServiceContainer()->getDatabaseMap(ModuleImageTableMap::DATABASE_NAME);
+      if (!$dbMap->hasTable(ModuleImageTableMap::TABLE_NAME)) {
+        $dbMap->addTableObject(new ModuleImageTableMap());
       }
     }
 
     /**
-     * Performs a DELETE on the database, given a AttributeCategory or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a ModuleImage or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or AttributeCategory object or primary key or array of primary keys
+     * @param mixed               $values Criteria or ModuleImage object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -364,25 +390,25 @@ class AttributeCategoryTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeCategoryTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ModuleImageTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \Thelia\Model\AttributeCategory) { // it's a model object
+        } elseif ($values instanceof \Thelia\Model\ModuleImage) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(AttributeCategoryTableMap::DATABASE_NAME);
-            $criteria->add(AttributeCategoryTableMap::ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(ModuleImageTableMap::DATABASE_NAME);
+            $criteria->add(ModuleImageTableMap::ID, (array) $values, Criteria::IN);
         }
 
-        $query = AttributeCategoryQuery::create()->mergeWith($criteria);
+        $query = ModuleImageQuery::create()->mergeWith($criteria);
 
-        if ($values instanceof Criteria) { AttributeCategoryTableMap::clearInstancePool();
+        if ($values instanceof Criteria) { ModuleImageTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
-            foreach ((array) $values as $singleval) { AttributeCategoryTableMap::removeInstanceFromPool($singleval);
+            foreach ((array) $values as $singleval) { ModuleImageTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -390,20 +416,20 @@ class AttributeCategoryTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the attribute_category table.
+     * Deletes all rows from the module_image table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return AttributeCategoryQuery::create()->doDeleteAll($con);
+        return ModuleImageQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a AttributeCategory or Criteria object.
+     * Performs an INSERT on the database, given a ModuleImage or Criteria object.
      *
-     * @param mixed               $criteria Criteria or AttributeCategory object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or ModuleImage object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -412,22 +438,22 @@ class AttributeCategoryTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeCategoryTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(ModuleImageTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from AttributeCategory object
+            $criteria = $criteria->buildCriteria(); // build Criteria from ModuleImage object
         }
 
-        if ($criteria->containsKey(AttributeCategoryTableMap::ID) && $criteria->keyContainsValue(AttributeCategoryTableMap::ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.AttributeCategoryTableMap::ID.')');
+        if ($criteria->containsKey(ModuleImageTableMap::ID) && $criteria->keyContainsValue(ModuleImageTableMap::ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.ModuleImageTableMap::ID.')');
         }
 
 
         // Set the correct dbName
-        $query = AttributeCategoryQuery::create()->mergeWith($criteria);
+        $query = ModuleImageQuery::create()->mergeWith($criteria);
 
         try {
             // use transaction because $criteria could contain info
@@ -443,7 +469,7 @@ class AttributeCategoryTableMap extends TableMap
         return $pk;
     }
 
-} // AttributeCategoryTableMap
+} // ModuleImageTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-AttributeCategoryTableMap::buildTableMap();
+ModuleImageTableMap::buildTableMap();
