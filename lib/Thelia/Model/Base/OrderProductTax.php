@@ -16,20 +16,18 @@ use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
 use Propel\Runtime\Util\PropelDateTime;
-use Thelia\Model\Attribute as ChildAttribute;
-use Thelia\Model\AttributeCategory as ChildAttributeCategory;
-use Thelia\Model\AttributeCategoryQuery as ChildAttributeCategoryQuery;
-use Thelia\Model\AttributeQuery as ChildAttributeQuery;
-use Thelia\Model\Category as ChildCategory;
-use Thelia\Model\CategoryQuery as ChildCategoryQuery;
-use Thelia\Model\Map\AttributeCategoryTableMap;
+use Thelia\Model\OrderProduct as ChildOrderProduct;
+use Thelia\Model\OrderProductQuery as ChildOrderProductQuery;
+use Thelia\Model\OrderProductTax as ChildOrderProductTax;
+use Thelia\Model\OrderProductTaxQuery as ChildOrderProductTaxQuery;
+use Thelia\Model\Map\OrderProductTaxTableMap;
 
-abstract class AttributeCategory implements ActiveRecordInterface
+abstract class OrderProductTax implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\Thelia\\Model\\Map\\AttributeCategoryTableMap';
+    const TABLE_MAP = '\\Thelia\\Model\\Map\\OrderProductTaxTableMap';
 
 
     /**
@@ -65,16 +63,28 @@ abstract class AttributeCategory implements ActiveRecordInterface
     protected $id;
 
     /**
-     * The value for the category_id field.
+     * The value for the order_product_id field.
      * @var        int
      */
-    protected $category_id;
+    protected $order_product_id;
 
     /**
-     * The value for the attribute_id field.
-     * @var        int
+     * The value for the title field.
+     * @var        string
      */
-    protected $attribute_id;
+    protected $title;
+
+    /**
+     * The value for the description field.
+     * @var        string
+     */
+    protected $description;
+
+    /**
+     * The value for the amount field.
+     * @var        double
+     */
+    protected $amount;
 
     /**
      * The value for the created_at field.
@@ -89,14 +99,9 @@ abstract class AttributeCategory implements ActiveRecordInterface
     protected $updated_at;
 
     /**
-     * @var        Category
+     * @var        OrderProduct
      */
-    protected $aCategory;
-
-    /**
-     * @var        Attribute
-     */
-    protected $aAttribute;
+    protected $aOrderProduct;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -107,7 +112,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
-     * Initializes internal state of Thelia\Model\Base\AttributeCategory object.
+     * Initializes internal state of Thelia\Model\Base\OrderProductTax object.
      */
     public function __construct()
     {
@@ -202,9 +207,9 @@ abstract class AttributeCategory implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>AttributeCategory</code> instance.  If
-     * <code>obj</code> is an instance of <code>AttributeCategory</code>, delegates to
-     * <code>equals(AttributeCategory)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>OrderProductTax</code> instance.  If
+     * <code>obj</code> is an instance of <code>OrderProductTax</code>, delegates to
+     * <code>equals(OrderProductTax)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param      obj The object to compare to.
      * @return Whether equal to the object specified.
@@ -285,7 +290,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return AttributeCategory The current object, for fluid interface
+     * @return OrderProductTax The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -317,7 +322,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      *                       or a format name ('XML', 'YAML', 'JSON', 'CSV')
      * @param string $data The source data to import from
      *
-     * @return AttributeCategory The current object, for fluid interface
+     * @return OrderProductTax The current object, for fluid interface
      */
     public function importFrom($parser, $data)
     {
@@ -372,25 +377,47 @@ abstract class AttributeCategory implements ActiveRecordInterface
     }
 
     /**
-     * Get the [category_id] column value.
+     * Get the [order_product_id] column value.
      *
      * @return   int
      */
-    public function getCategoryId()
+    public function getOrderProductId()
     {
 
-        return $this->category_id;
+        return $this->order_product_id;
     }
 
     /**
-     * Get the [attribute_id] column value.
+     * Get the [title] column value.
      *
-     * @return   int
+     * @return   string
      */
-    public function getAttributeId()
+    public function getTitle()
     {
 
-        return $this->attribute_id;
+        return $this->title;
+    }
+
+    /**
+     * Get the [description] column value.
+     *
+     * @return   string
+     */
+    public function getDescription()
+    {
+
+        return $this->description;
+    }
+
+    /**
+     * Get the [amount] column value.
+     *
+     * @return   double
+     */
+    public function getAmount()
+    {
+
+        return $this->amount;
     }
 
     /**
@@ -437,7 +464,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      * Set the value of [id] column.
      *
      * @param      int $v new value
-     * @return   \Thelia\Model\AttributeCategory The current object (for fluent API support)
+     * @return   \Thelia\Model\OrderProductTax The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -447,7 +474,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[] = AttributeCategoryTableMap::ID;
+            $this->modifiedColumns[] = OrderProductTaxTableMap::ID;
         }
 
 
@@ -455,61 +482,99 @@ abstract class AttributeCategory implements ActiveRecordInterface
     } // setId()
 
     /**
-     * Set the value of [category_id] column.
+     * Set the value of [order_product_id] column.
      *
      * @param      int $v new value
-     * @return   \Thelia\Model\AttributeCategory The current object (for fluent API support)
+     * @return   \Thelia\Model\OrderProductTax The current object (for fluent API support)
      */
-    public function setCategoryId($v)
+    public function setOrderProductId($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->category_id !== $v) {
-            $this->category_id = $v;
-            $this->modifiedColumns[] = AttributeCategoryTableMap::CATEGORY_ID;
+        if ($this->order_product_id !== $v) {
+            $this->order_product_id = $v;
+            $this->modifiedColumns[] = OrderProductTaxTableMap::ORDER_PRODUCT_ID;
         }
 
-        if ($this->aCategory !== null && $this->aCategory->getId() !== $v) {
-            $this->aCategory = null;
+        if ($this->aOrderProduct !== null && $this->aOrderProduct->getId() !== $v) {
+            $this->aOrderProduct = null;
         }
 
 
         return $this;
-    } // setCategoryId()
+    } // setOrderProductId()
 
     /**
-     * Set the value of [attribute_id] column.
+     * Set the value of [title] column.
      *
-     * @param      int $v new value
-     * @return   \Thelia\Model\AttributeCategory The current object (for fluent API support)
+     * @param      string $v new value
+     * @return   \Thelia\Model\OrderProductTax The current object (for fluent API support)
      */
-    public function setAttributeId($v)
+    public function setTitle($v)
     {
         if ($v !== null) {
-            $v = (int) $v;
+            $v = (string) $v;
         }
 
-        if ($this->attribute_id !== $v) {
-            $this->attribute_id = $v;
-            $this->modifiedColumns[] = AttributeCategoryTableMap::ATTRIBUTE_ID;
-        }
-
-        if ($this->aAttribute !== null && $this->aAttribute->getId() !== $v) {
-            $this->aAttribute = null;
+        if ($this->title !== $v) {
+            $this->title = $v;
+            $this->modifiedColumns[] = OrderProductTaxTableMap::TITLE;
         }
 
 
         return $this;
-    } // setAttributeId()
+    } // setTitle()
+
+    /**
+     * Set the value of [description] column.
+     *
+     * @param      string $v new value
+     * @return   \Thelia\Model\OrderProductTax The current object (for fluent API support)
+     */
+    public function setDescription($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->description !== $v) {
+            $this->description = $v;
+            $this->modifiedColumns[] = OrderProductTaxTableMap::DESCRIPTION;
+        }
+
+
+        return $this;
+    } // setDescription()
+
+    /**
+     * Set the value of [amount] column.
+     *
+     * @param      double $v new value
+     * @return   \Thelia\Model\OrderProductTax The current object (for fluent API support)
+     */
+    public function setAmount($v)
+    {
+        if ($v !== null) {
+            $v = (double) $v;
+        }
+
+        if ($this->amount !== $v) {
+            $this->amount = $v;
+            $this->modifiedColumns[] = OrderProductTaxTableMap::AMOUNT;
+        }
+
+
+        return $this;
+    } // setAmount()
 
     /**
      * Sets the value of [created_at] column to a normalized version of the date/time value specified.
      *
      * @param      mixed $v string, integer (timestamp), or \DateTime value.
      *               Empty strings are treated as NULL.
-     * @return   \Thelia\Model\AttributeCategory The current object (for fluent API support)
+     * @return   \Thelia\Model\OrderProductTax The current object (for fluent API support)
      */
     public function setCreatedAt($v)
     {
@@ -517,7 +582,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
         if ($this->created_at !== null || $dt !== null) {
             if ($dt !== $this->created_at) {
                 $this->created_at = $dt;
-                $this->modifiedColumns[] = AttributeCategoryTableMap::CREATED_AT;
+                $this->modifiedColumns[] = OrderProductTaxTableMap::CREATED_AT;
             }
         } // if either are not null
 
@@ -530,7 +595,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      *
      * @param      mixed $v string, integer (timestamp), or \DateTime value.
      *               Empty strings are treated as NULL.
-     * @return   \Thelia\Model\AttributeCategory The current object (for fluent API support)
+     * @return   \Thelia\Model\OrderProductTax The current object (for fluent API support)
      */
     public function setUpdatedAt($v)
     {
@@ -538,7 +603,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
         if ($this->updated_at !== null || $dt !== null) {
             if ($dt !== $this->updated_at) {
                 $this->updated_at = $dt;
-                $this->modifiedColumns[] = AttributeCategoryTableMap::UPDATED_AT;
+                $this->modifiedColumns[] = OrderProductTaxTableMap::UPDATED_AT;
             }
         } // if either are not null
 
@@ -583,22 +648,28 @@ abstract class AttributeCategory implements ActiveRecordInterface
         try {
 
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : AttributeCategoryTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : OrderProductTaxTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : AttributeCategoryTableMap::translateFieldName('CategoryId', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->category_id = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : OrderProductTaxTableMap::translateFieldName('OrderProductId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->order_product_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : AttributeCategoryTableMap::translateFieldName('AttributeId', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->attribute_id = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : OrderProductTaxTableMap::translateFieldName('Title', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->title = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : AttributeCategoryTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : OrderProductTaxTableMap::translateFieldName('Description', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->description = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : OrderProductTaxTableMap::translateFieldName('Amount', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->amount = (null !== $col) ? (double) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : OrderProductTaxTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, '\DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : AttributeCategoryTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : OrderProductTaxTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -611,10 +682,10 @@ abstract class AttributeCategory implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 5; // 5 = AttributeCategoryTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = OrderProductTaxTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException("Error populating \Thelia\Model\AttributeCategory object", 0, $e);
+            throw new PropelException("Error populating \Thelia\Model\OrderProductTax object", 0, $e);
         }
     }
 
@@ -633,11 +704,8 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aCategory !== null && $this->category_id !== $this->aCategory->getId()) {
-            $this->aCategory = null;
-        }
-        if ($this->aAttribute !== null && $this->attribute_id !== $this->aAttribute->getId()) {
-            $this->aAttribute = null;
+        if ($this->aOrderProduct !== null && $this->order_product_id !== $this->aOrderProduct->getId()) {
+            $this->aOrderProduct = null;
         }
     } // ensureConsistency
 
@@ -662,13 +730,13 @@ abstract class AttributeCategory implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(AttributeCategoryTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(OrderProductTaxTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildAttributeCategoryQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildOrderProductTaxQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -678,8 +746,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aCategory = null;
-            $this->aAttribute = null;
+            $this->aOrderProduct = null;
         } // if (deep)
     }
 
@@ -689,8 +756,8 @@ abstract class AttributeCategory implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see AttributeCategory::setDeleted()
-     * @see AttributeCategory::isDeleted()
+     * @see OrderProductTax::setDeleted()
+     * @see OrderProductTax::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -699,12 +766,12 @@ abstract class AttributeCategory implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeCategoryTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(OrderProductTaxTableMap::DATABASE_NAME);
         }
 
         $con->beginTransaction();
         try {
-            $deleteQuery = ChildAttributeCategoryQuery::create()
+            $deleteQuery = ChildOrderProductTaxQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -741,7 +808,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeCategoryTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(OrderProductTaxTableMap::DATABASE_NAME);
         }
 
         $con->beginTransaction();
@@ -751,16 +818,16 @@ abstract class AttributeCategory implements ActiveRecordInterface
             if ($isInsert) {
                 $ret = $ret && $this->preInsert($con);
                 // timestampable behavior
-                if (!$this->isColumnModified(AttributeCategoryTableMap::CREATED_AT)) {
+                if (!$this->isColumnModified(OrderProductTaxTableMap::CREATED_AT)) {
                     $this->setCreatedAt(time());
                 }
-                if (!$this->isColumnModified(AttributeCategoryTableMap::UPDATED_AT)) {
+                if (!$this->isColumnModified(OrderProductTaxTableMap::UPDATED_AT)) {
                     $this->setUpdatedAt(time());
                 }
             } else {
                 $ret = $ret && $this->preUpdate($con);
                 // timestampable behavior
-                if ($this->isModified() && !$this->isColumnModified(AttributeCategoryTableMap::UPDATED_AT)) {
+                if ($this->isModified() && !$this->isColumnModified(OrderProductTaxTableMap::UPDATED_AT)) {
                     $this->setUpdatedAt(time());
                 }
             }
@@ -772,7 +839,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                AttributeCategoryTableMap::addInstanceToPool($this);
+                OrderProductTaxTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -807,18 +874,11 @@ abstract class AttributeCategory implements ActiveRecordInterface
             // method.  This object relates to these object(s) by a
             // foreign key reference.
 
-            if ($this->aCategory !== null) {
-                if ($this->aCategory->isModified() || $this->aCategory->isNew()) {
-                    $affectedRows += $this->aCategory->save($con);
+            if ($this->aOrderProduct !== null) {
+                if ($this->aOrderProduct->isModified() || $this->aOrderProduct->isNew()) {
+                    $affectedRows += $this->aOrderProduct->save($con);
                 }
-                $this->setCategory($this->aCategory);
-            }
-
-            if ($this->aAttribute !== null) {
-                if ($this->aAttribute->isModified() || $this->aAttribute->isNew()) {
-                    $affectedRows += $this->aAttribute->save($con);
-                }
-                $this->setAttribute($this->aAttribute);
+                $this->setOrderProduct($this->aOrderProduct);
             }
 
             if ($this->isNew() || $this->isModified()) {
@@ -852,30 +912,36 @@ abstract class AttributeCategory implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[] = AttributeCategoryTableMap::ID;
+        $this->modifiedColumns[] = OrderProductTaxTableMap::ID;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . AttributeCategoryTableMap::ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . OrderProductTaxTableMap::ID . ')');
         }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(AttributeCategoryTableMap::ID)) {
+        if ($this->isColumnModified(OrderProductTaxTableMap::ID)) {
             $modifiedColumns[':p' . $index++]  = 'ID';
         }
-        if ($this->isColumnModified(AttributeCategoryTableMap::CATEGORY_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'CATEGORY_ID';
+        if ($this->isColumnModified(OrderProductTaxTableMap::ORDER_PRODUCT_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'ORDER_PRODUCT_ID';
         }
-        if ($this->isColumnModified(AttributeCategoryTableMap::ATTRIBUTE_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'ATTRIBUTE_ID';
+        if ($this->isColumnModified(OrderProductTaxTableMap::TITLE)) {
+            $modifiedColumns[':p' . $index++]  = 'TITLE';
         }
-        if ($this->isColumnModified(AttributeCategoryTableMap::CREATED_AT)) {
+        if ($this->isColumnModified(OrderProductTaxTableMap::DESCRIPTION)) {
+            $modifiedColumns[':p' . $index++]  = 'DESCRIPTION';
+        }
+        if ($this->isColumnModified(OrderProductTaxTableMap::AMOUNT)) {
+            $modifiedColumns[':p' . $index++]  = 'AMOUNT';
+        }
+        if ($this->isColumnModified(OrderProductTaxTableMap::CREATED_AT)) {
             $modifiedColumns[':p' . $index++]  = 'CREATED_AT';
         }
-        if ($this->isColumnModified(AttributeCategoryTableMap::UPDATED_AT)) {
+        if ($this->isColumnModified(OrderProductTaxTableMap::UPDATED_AT)) {
             $modifiedColumns[':p' . $index++]  = 'UPDATED_AT';
         }
 
         $sql = sprintf(
-            'INSERT INTO attribute_category (%s) VALUES (%s)',
+            'INSERT INTO order_product_tax (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -887,11 +953,17 @@ abstract class AttributeCategory implements ActiveRecordInterface
                     case 'ID':
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case 'CATEGORY_ID':
-                        $stmt->bindValue($identifier, $this->category_id, PDO::PARAM_INT);
+                    case 'ORDER_PRODUCT_ID':
+                        $stmt->bindValue($identifier, $this->order_product_id, PDO::PARAM_INT);
                         break;
-                    case 'ATTRIBUTE_ID':
-                        $stmt->bindValue($identifier, $this->attribute_id, PDO::PARAM_INT);
+                    case 'TITLE':
+                        $stmt->bindValue($identifier, $this->title, PDO::PARAM_STR);
+                        break;
+                    case 'DESCRIPTION':
+                        $stmt->bindValue($identifier, $this->description, PDO::PARAM_STR);
+                        break;
+                    case 'AMOUNT':
+                        $stmt->bindValue($identifier, $this->amount, PDO::PARAM_STR);
                         break;
                     case 'CREATED_AT':
                         $stmt->bindValue($identifier, $this->created_at ? $this->created_at->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
@@ -945,7 +1017,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = AttributeCategoryTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = OrderProductTaxTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -965,15 +1037,21 @@ abstract class AttributeCategory implements ActiveRecordInterface
                 return $this->getId();
                 break;
             case 1:
-                return $this->getCategoryId();
+                return $this->getOrderProductId();
                 break;
             case 2:
-                return $this->getAttributeId();
+                return $this->getTitle();
                 break;
             case 3:
-                return $this->getCreatedAt();
+                return $this->getDescription();
                 break;
             case 4:
+                return $this->getAmount();
+                break;
+            case 5:
+                return $this->getCreatedAt();
+                break;
+            case 6:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -999,17 +1077,19 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
-        if (isset($alreadyDumpedObjects['AttributeCategory'][$this->getPrimaryKey()])) {
+        if (isset($alreadyDumpedObjects['OrderProductTax'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['AttributeCategory'][$this->getPrimaryKey()] = true;
-        $keys = AttributeCategoryTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['OrderProductTax'][$this->getPrimaryKey()] = true;
+        $keys = OrderProductTaxTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getCategoryId(),
-            $keys[2] => $this->getAttributeId(),
-            $keys[3] => $this->getCreatedAt(),
-            $keys[4] => $this->getUpdatedAt(),
+            $keys[1] => $this->getOrderProductId(),
+            $keys[2] => $this->getTitle(),
+            $keys[3] => $this->getDescription(),
+            $keys[4] => $this->getAmount(),
+            $keys[5] => $this->getCreatedAt(),
+            $keys[6] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach($virtualColumns as $key => $virtualColumn)
@@ -1018,11 +1098,8 @@ abstract class AttributeCategory implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aCategory) {
-                $result['Category'] = $this->aCategory->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
-            }
-            if (null !== $this->aAttribute) {
-                $result['Attribute'] = $this->aAttribute->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            if (null !== $this->aOrderProduct) {
+                $result['OrderProduct'] = $this->aOrderProduct->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
         }
 
@@ -1042,7 +1119,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = AttributeCategoryTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = OrderProductTaxTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -1062,15 +1139,21 @@ abstract class AttributeCategory implements ActiveRecordInterface
                 $this->setId($value);
                 break;
             case 1:
-                $this->setCategoryId($value);
+                $this->setOrderProductId($value);
                 break;
             case 2:
-                $this->setAttributeId($value);
+                $this->setTitle($value);
                 break;
             case 3:
-                $this->setCreatedAt($value);
+                $this->setDescription($value);
                 break;
             case 4:
+                $this->setAmount($value);
+                break;
+            case 5:
+                $this->setCreatedAt($value);
+                break;
+            case 6:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1095,13 +1178,15 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = AttributeCategoryTableMap::getFieldNames($keyType);
+        $keys = OrderProductTaxTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setCategoryId($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setAttributeId($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setCreatedAt($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setUpdatedAt($arr[$keys[4]]);
+        if (array_key_exists($keys[1], $arr)) $this->setOrderProductId($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setTitle($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setDescription($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setAmount($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setCreatedAt($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setUpdatedAt($arr[$keys[6]]);
     }
 
     /**
@@ -1111,13 +1196,15 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(AttributeCategoryTableMap::DATABASE_NAME);
+        $criteria = new Criteria(OrderProductTaxTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(AttributeCategoryTableMap::ID)) $criteria->add(AttributeCategoryTableMap::ID, $this->id);
-        if ($this->isColumnModified(AttributeCategoryTableMap::CATEGORY_ID)) $criteria->add(AttributeCategoryTableMap::CATEGORY_ID, $this->category_id);
-        if ($this->isColumnModified(AttributeCategoryTableMap::ATTRIBUTE_ID)) $criteria->add(AttributeCategoryTableMap::ATTRIBUTE_ID, $this->attribute_id);
-        if ($this->isColumnModified(AttributeCategoryTableMap::CREATED_AT)) $criteria->add(AttributeCategoryTableMap::CREATED_AT, $this->created_at);
-        if ($this->isColumnModified(AttributeCategoryTableMap::UPDATED_AT)) $criteria->add(AttributeCategoryTableMap::UPDATED_AT, $this->updated_at);
+        if ($this->isColumnModified(OrderProductTaxTableMap::ID)) $criteria->add(OrderProductTaxTableMap::ID, $this->id);
+        if ($this->isColumnModified(OrderProductTaxTableMap::ORDER_PRODUCT_ID)) $criteria->add(OrderProductTaxTableMap::ORDER_PRODUCT_ID, $this->order_product_id);
+        if ($this->isColumnModified(OrderProductTaxTableMap::TITLE)) $criteria->add(OrderProductTaxTableMap::TITLE, $this->title);
+        if ($this->isColumnModified(OrderProductTaxTableMap::DESCRIPTION)) $criteria->add(OrderProductTaxTableMap::DESCRIPTION, $this->description);
+        if ($this->isColumnModified(OrderProductTaxTableMap::AMOUNT)) $criteria->add(OrderProductTaxTableMap::AMOUNT, $this->amount);
+        if ($this->isColumnModified(OrderProductTaxTableMap::CREATED_AT)) $criteria->add(OrderProductTaxTableMap::CREATED_AT, $this->created_at);
+        if ($this->isColumnModified(OrderProductTaxTableMap::UPDATED_AT)) $criteria->add(OrderProductTaxTableMap::UPDATED_AT, $this->updated_at);
 
         return $criteria;
     }
@@ -1132,8 +1219,8 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = new Criteria(AttributeCategoryTableMap::DATABASE_NAME);
-        $criteria->add(AttributeCategoryTableMap::ID, $this->id);
+        $criteria = new Criteria(OrderProductTaxTableMap::DATABASE_NAME);
+        $criteria->add(OrderProductTaxTableMap::ID, $this->id);
 
         return $criteria;
     }
@@ -1174,15 +1261,17 @@ abstract class AttributeCategory implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \Thelia\Model\AttributeCategory (or compatible) type.
+     * @param      object $copyObj An object of \Thelia\Model\OrderProductTax (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setCategoryId($this->getCategoryId());
-        $copyObj->setAttributeId($this->getAttributeId());
+        $copyObj->setOrderProductId($this->getOrderProductId());
+        $copyObj->setTitle($this->getTitle());
+        $copyObj->setDescription($this->getDescription());
+        $copyObj->setAmount($this->getAmount());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
         if ($makeNew) {
@@ -1200,7 +1289,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      * objects.
      *
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return                 \Thelia\Model\AttributeCategory Clone of current object.
+     * @return                 \Thelia\Model\OrderProductTax Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1214,26 +1303,26 @@ abstract class AttributeCategory implements ActiveRecordInterface
     }
 
     /**
-     * Declares an association between this object and a ChildCategory object.
+     * Declares an association between this object and a ChildOrderProduct object.
      *
-     * @param                  ChildCategory $v
-     * @return                 \Thelia\Model\AttributeCategory The current object (for fluent API support)
+     * @param                  ChildOrderProduct $v
+     * @return                 \Thelia\Model\OrderProductTax The current object (for fluent API support)
      * @throws PropelException
      */
-    public function setCategory(ChildCategory $v = null)
+    public function setOrderProduct(ChildOrderProduct $v = null)
     {
         if ($v === null) {
-            $this->setCategoryId(NULL);
+            $this->setOrderProductId(NULL);
         } else {
-            $this->setCategoryId($v->getId());
+            $this->setOrderProductId($v->getId());
         }
 
-        $this->aCategory = $v;
+        $this->aOrderProduct = $v;
 
         // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the ChildCategory object, it will not be re-added.
+        // If this object has already been added to the ChildOrderProduct object, it will not be re-added.
         if ($v !== null) {
-            $v->addAttributeCategory($this);
+            $v->addOrderProductTax($this);
         }
 
 
@@ -1242,77 +1331,26 @@ abstract class AttributeCategory implements ActiveRecordInterface
 
 
     /**
-     * Get the associated ChildCategory object
+     * Get the associated ChildOrderProduct object
      *
      * @param      ConnectionInterface $con Optional Connection object.
-     * @return                 ChildCategory The associated ChildCategory object.
+     * @return                 ChildOrderProduct The associated ChildOrderProduct object.
      * @throws PropelException
      */
-    public function getCategory(ConnectionInterface $con = null)
+    public function getOrderProduct(ConnectionInterface $con = null)
     {
-        if ($this->aCategory === null && ($this->category_id !== null)) {
-            $this->aCategory = ChildCategoryQuery::create()->findPk($this->category_id, $con);
+        if ($this->aOrderProduct === null && ($this->order_product_id !== null)) {
+            $this->aOrderProduct = ChildOrderProductQuery::create()->findPk($this->order_product_id, $con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be
                 undesirable since it could result in an only partially populated collection
                 in the referenced object.
-                $this->aCategory->addAttributeCategories($this);
+                $this->aOrderProduct->addOrderProductTaxes($this);
              */
         }
 
-        return $this->aCategory;
-    }
-
-    /**
-     * Declares an association between this object and a ChildAttribute object.
-     *
-     * @param                  ChildAttribute $v
-     * @return                 \Thelia\Model\AttributeCategory The current object (for fluent API support)
-     * @throws PropelException
-     */
-    public function setAttribute(ChildAttribute $v = null)
-    {
-        if ($v === null) {
-            $this->setAttributeId(NULL);
-        } else {
-            $this->setAttributeId($v->getId());
-        }
-
-        $this->aAttribute = $v;
-
-        // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the ChildAttribute object, it will not be re-added.
-        if ($v !== null) {
-            $v->addAttributeCategory($this);
-        }
-
-
-        return $this;
-    }
-
-
-    /**
-     * Get the associated ChildAttribute object
-     *
-     * @param      ConnectionInterface $con Optional Connection object.
-     * @return                 ChildAttribute The associated ChildAttribute object.
-     * @throws PropelException
-     */
-    public function getAttribute(ConnectionInterface $con = null)
-    {
-        if ($this->aAttribute === null && ($this->attribute_id !== null)) {
-            $this->aAttribute = ChildAttributeQuery::create()->findPk($this->attribute_id, $con);
-            /* The following can be used additionally to
-                guarantee the related object contains a reference
-                to this object.  This level of coupling may, however, be
-                undesirable since it could result in an only partially populated collection
-                in the referenced object.
-                $this->aAttribute->addAttributeCategories($this);
-             */
-        }
-
-        return $this->aAttribute;
+        return $this->aOrderProduct;
     }
 
     /**
@@ -1321,8 +1359,10 @@ abstract class AttributeCategory implements ActiveRecordInterface
     public function clear()
     {
         $this->id = null;
-        $this->category_id = null;
-        $this->attribute_id = null;
+        $this->order_product_id = null;
+        $this->title = null;
+        $this->description = null;
+        $this->amount = null;
         $this->created_at = null;
         $this->updated_at = null;
         $this->alreadyInSave = false;
@@ -1346,8 +1386,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
         if ($deep) {
         } // if ($deep)
 
-        $this->aCategory = null;
-        $this->aAttribute = null;
+        $this->aOrderProduct = null;
     }
 
     /**
@@ -1357,7 +1396,7 @@ abstract class AttributeCategory implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(AttributeCategoryTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(OrderProductTaxTableMap::DEFAULT_STRING_FORMAT);
     }
 
     // timestampable behavior
@@ -1365,11 +1404,11 @@ abstract class AttributeCategory implements ActiveRecordInterface
     /**
      * Mark the current object so that the update date doesn't get updated during next save
      *
-     * @return     ChildAttributeCategory The current object (for fluent API support)
+     * @return     ChildOrderProductTax The current object (for fluent API support)
      */
     public function keepUpdateDateUnchanged()
     {
-        $this->modifiedColumns[] = AttributeCategoryTableMap::UPDATED_AT;
+        $this->modifiedColumns[] = OrderProductTaxTableMap::UPDATED_AT;
 
         return $this;
     }

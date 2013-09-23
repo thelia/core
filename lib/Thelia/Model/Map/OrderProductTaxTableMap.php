@@ -10,12 +10,12 @@ use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Map\TableMapTrait;
-use Thelia\Model\FeatureCategory;
-use Thelia\Model\FeatureCategoryQuery;
+use Thelia\Model\OrderProductTax;
+use Thelia\Model\OrderProductTaxQuery;
 
 
 /**
- * This class defines the structure of the 'feature_category' table.
+ * This class defines the structure of the 'order_product_tax' table.
  *
  *
  *
@@ -25,14 +25,14 @@ use Thelia\Model\FeatureCategoryQuery;
  * (i.e. if it's a text column type).
  *
  */
-class FeatureCategoryTableMap extends TableMap
+class OrderProductTaxTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'Thelia.Model.Map.FeatureCategoryTableMap';
+    const CLASS_NAME = 'Thelia.Model.Map.OrderProductTaxTableMap';
 
     /**
      * The default database name for this class
@@ -42,22 +42,22 @@ class FeatureCategoryTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'feature_category';
+    const TABLE_NAME = 'order_product_tax';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\Thelia\\Model\\FeatureCategory';
+    const OM_CLASS = '\\Thelia\\Model\\OrderProductTax';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'Thelia.Model.FeatureCategory';
+    const CLASS_DEFAULT = 'Thelia.Model.OrderProductTax';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 5;
+    const NUM_COLUMNS = 7;
 
     /**
      * The number of lazy-loaded columns
@@ -67,32 +67,42 @@ class FeatureCategoryTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 5;
+    const NUM_HYDRATE_COLUMNS = 7;
 
     /**
      * the column name for the ID field
      */
-    const ID = 'feature_category.ID';
+    const ID = 'order_product_tax.ID';
 
     /**
-     * the column name for the FEATURE_ID field
+     * the column name for the ORDER_PRODUCT_ID field
      */
-    const FEATURE_ID = 'feature_category.FEATURE_ID';
+    const ORDER_PRODUCT_ID = 'order_product_tax.ORDER_PRODUCT_ID';
 
     /**
-     * the column name for the CATEGORY_ID field
+     * the column name for the TITLE field
      */
-    const CATEGORY_ID = 'feature_category.CATEGORY_ID';
+    const TITLE = 'order_product_tax.TITLE';
+
+    /**
+     * the column name for the DESCRIPTION field
+     */
+    const DESCRIPTION = 'order_product_tax.DESCRIPTION';
+
+    /**
+     * the column name for the AMOUNT field
+     */
+    const AMOUNT = 'order_product_tax.AMOUNT';
 
     /**
      * the column name for the CREATED_AT field
      */
-    const CREATED_AT = 'feature_category.CREATED_AT';
+    const CREATED_AT = 'order_product_tax.CREATED_AT';
 
     /**
      * the column name for the UPDATED_AT field
      */
-    const UPDATED_AT = 'feature_category.UPDATED_AT';
+    const UPDATED_AT = 'order_product_tax.UPDATED_AT';
 
     /**
      * The default string format for model objects of the related table
@@ -106,12 +116,12 @@ class FeatureCategoryTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'FeatureId', 'CategoryId', 'CreatedAt', 'UpdatedAt', ),
-        self::TYPE_STUDLYPHPNAME => array('id', 'featureId', 'categoryId', 'createdAt', 'updatedAt', ),
-        self::TYPE_COLNAME       => array(FeatureCategoryTableMap::ID, FeatureCategoryTableMap::FEATURE_ID, FeatureCategoryTableMap::CATEGORY_ID, FeatureCategoryTableMap::CREATED_AT, FeatureCategoryTableMap::UPDATED_AT, ),
-        self::TYPE_RAW_COLNAME   => array('ID', 'FEATURE_ID', 'CATEGORY_ID', 'CREATED_AT', 'UPDATED_AT', ),
-        self::TYPE_FIELDNAME     => array('id', 'feature_id', 'category_id', 'created_at', 'updated_at', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id', 'OrderProductId', 'Title', 'Description', 'Amount', 'CreatedAt', 'UpdatedAt', ),
+        self::TYPE_STUDLYPHPNAME => array('id', 'orderProductId', 'title', 'description', 'amount', 'createdAt', 'updatedAt', ),
+        self::TYPE_COLNAME       => array(OrderProductTaxTableMap::ID, OrderProductTaxTableMap::ORDER_PRODUCT_ID, OrderProductTaxTableMap::TITLE, OrderProductTaxTableMap::DESCRIPTION, OrderProductTaxTableMap::AMOUNT, OrderProductTaxTableMap::CREATED_AT, OrderProductTaxTableMap::UPDATED_AT, ),
+        self::TYPE_RAW_COLNAME   => array('ID', 'ORDER_PRODUCT_ID', 'TITLE', 'DESCRIPTION', 'AMOUNT', 'CREATED_AT', 'UPDATED_AT', ),
+        self::TYPE_FIELDNAME     => array('id', 'order_product_id', 'title', 'description', 'amount', 'created_at', 'updated_at', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
     );
 
     /**
@@ -121,12 +131,12 @@ class FeatureCategoryTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'FeatureId' => 1, 'CategoryId' => 2, 'CreatedAt' => 3, 'UpdatedAt' => 4, ),
-        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'featureId' => 1, 'categoryId' => 2, 'createdAt' => 3, 'updatedAt' => 4, ),
-        self::TYPE_COLNAME       => array(FeatureCategoryTableMap::ID => 0, FeatureCategoryTableMap::FEATURE_ID => 1, FeatureCategoryTableMap::CATEGORY_ID => 2, FeatureCategoryTableMap::CREATED_AT => 3, FeatureCategoryTableMap::UPDATED_AT => 4, ),
-        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'FEATURE_ID' => 1, 'CATEGORY_ID' => 2, 'CREATED_AT' => 3, 'UPDATED_AT' => 4, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'feature_id' => 1, 'category_id' => 2, 'created_at' => 3, 'updated_at' => 4, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'OrderProductId' => 1, 'Title' => 2, 'Description' => 3, 'Amount' => 4, 'CreatedAt' => 5, 'UpdatedAt' => 6, ),
+        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'orderProductId' => 1, 'title' => 2, 'description' => 3, 'amount' => 4, 'createdAt' => 5, 'updatedAt' => 6, ),
+        self::TYPE_COLNAME       => array(OrderProductTaxTableMap::ID => 0, OrderProductTaxTableMap::ORDER_PRODUCT_ID => 1, OrderProductTaxTableMap::TITLE => 2, OrderProductTaxTableMap::DESCRIPTION => 3, OrderProductTaxTableMap::AMOUNT => 4, OrderProductTaxTableMap::CREATED_AT => 5, OrderProductTaxTableMap::UPDATED_AT => 6, ),
+        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'ORDER_PRODUCT_ID' => 1, 'TITLE' => 2, 'DESCRIPTION' => 3, 'AMOUNT' => 4, 'CREATED_AT' => 5, 'UPDATED_AT' => 6, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'order_product_id' => 1, 'title' => 2, 'description' => 3, 'amount' => 4, 'created_at' => 5, 'updated_at' => 6, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
     );
 
     /**
@@ -139,16 +149,17 @@ class FeatureCategoryTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('feature_category');
-        $this->setPhpName('FeatureCategory');
-        $this->setClassName('\\Thelia\\Model\\FeatureCategory');
+        $this->setName('order_product_tax');
+        $this->setPhpName('OrderProductTax');
+        $this->setClassName('\\Thelia\\Model\\OrderProductTax');
         $this->setPackage('Thelia.Model');
         $this->setUseIdGenerator(true);
-        $this->setIsCrossRef(true);
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
-        $this->addForeignKey('FEATURE_ID', 'FeatureId', 'INTEGER', 'feature', 'ID', true, null, null);
-        $this->addForeignKey('CATEGORY_ID', 'CategoryId', 'INTEGER', 'category', 'ID', true, null, null);
+        $this->addForeignKey('ORDER_PRODUCT_ID', 'OrderProductId', 'INTEGER', 'order_product', 'ID', true, null, null);
+        $this->addColumn('TITLE', 'Title', 'VARCHAR', true, 255, null);
+        $this->addColumn('DESCRIPTION', 'Description', 'CLOB', false, null, null);
+        $this->addColumn('AMOUNT', 'Amount', 'FLOAT', true, null, null);
         $this->addColumn('CREATED_AT', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('UPDATED_AT', 'UpdatedAt', 'TIMESTAMP', false, null, null);
     } // initialize()
@@ -158,8 +169,7 @@ class FeatureCategoryTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Category', '\\Thelia\\Model\\Category', RelationMap::MANY_TO_ONE, array('category_id' => 'id', ), 'CASCADE', 'RESTRICT');
-        $this->addRelation('Feature', '\\Thelia\\Model\\Feature', RelationMap::MANY_TO_ONE, array('feature_id' => 'id', ), 'CASCADE', 'RESTRICT');
+        $this->addRelation('OrderProduct', '\\Thelia\\Model\\OrderProduct', RelationMap::MANY_TO_ONE, array('order_product_id' => 'id', ), 'CASCADE', 'RESTRICT');
     } // buildRelations()
 
     /**
@@ -231,7 +241,7 @@ class FeatureCategoryTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? FeatureCategoryTableMap::CLASS_DEFAULT : FeatureCategoryTableMap::OM_CLASS;
+        return $withPrefix ? OrderProductTaxTableMap::CLASS_DEFAULT : OrderProductTaxTableMap::OM_CLASS;
     }
 
     /**
@@ -245,21 +255,21 @@ class FeatureCategoryTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *         rethrown wrapped into a PropelException.
-     * @return array (FeatureCategory object, last column rank)
+     * @return array (OrderProductTax object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = FeatureCategoryTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = FeatureCategoryTableMap::getInstanceFromPool($key))) {
+        $key = OrderProductTaxTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = OrderProductTaxTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + FeatureCategoryTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + OrderProductTaxTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = FeatureCategoryTableMap::OM_CLASS;
+            $cls = OrderProductTaxTableMap::OM_CLASS;
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            FeatureCategoryTableMap::addInstanceToPool($obj, $key);
+            OrderProductTaxTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -282,8 +292,8 @@ class FeatureCategoryTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = FeatureCategoryTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = FeatureCategoryTableMap::getInstanceFromPool($key))) {
+            $key = OrderProductTaxTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = OrderProductTaxTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
@@ -292,7 +302,7 @@ class FeatureCategoryTableMap extends TableMap
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                FeatureCategoryTableMap::addInstanceToPool($obj, $key);
+                OrderProductTaxTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -313,15 +323,19 @@ class FeatureCategoryTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(FeatureCategoryTableMap::ID);
-            $criteria->addSelectColumn(FeatureCategoryTableMap::FEATURE_ID);
-            $criteria->addSelectColumn(FeatureCategoryTableMap::CATEGORY_ID);
-            $criteria->addSelectColumn(FeatureCategoryTableMap::CREATED_AT);
-            $criteria->addSelectColumn(FeatureCategoryTableMap::UPDATED_AT);
+            $criteria->addSelectColumn(OrderProductTaxTableMap::ID);
+            $criteria->addSelectColumn(OrderProductTaxTableMap::ORDER_PRODUCT_ID);
+            $criteria->addSelectColumn(OrderProductTaxTableMap::TITLE);
+            $criteria->addSelectColumn(OrderProductTaxTableMap::DESCRIPTION);
+            $criteria->addSelectColumn(OrderProductTaxTableMap::AMOUNT);
+            $criteria->addSelectColumn(OrderProductTaxTableMap::CREATED_AT);
+            $criteria->addSelectColumn(OrderProductTaxTableMap::UPDATED_AT);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
-            $criteria->addSelectColumn($alias . '.FEATURE_ID');
-            $criteria->addSelectColumn($alias . '.CATEGORY_ID');
+            $criteria->addSelectColumn($alias . '.ORDER_PRODUCT_ID');
+            $criteria->addSelectColumn($alias . '.TITLE');
+            $criteria->addSelectColumn($alias . '.DESCRIPTION');
+            $criteria->addSelectColumn($alias . '.AMOUNT');
             $criteria->addSelectColumn($alias . '.CREATED_AT');
             $criteria->addSelectColumn($alias . '.UPDATED_AT');
         }
@@ -336,7 +350,7 @@ class FeatureCategoryTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(FeatureCategoryTableMap::DATABASE_NAME)->getTable(FeatureCategoryTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(OrderProductTaxTableMap::DATABASE_NAME)->getTable(OrderProductTaxTableMap::TABLE_NAME);
     }
 
     /**
@@ -344,16 +358,16 @@ class FeatureCategoryTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getServiceContainer()->getDatabaseMap(FeatureCategoryTableMap::DATABASE_NAME);
-      if (!$dbMap->hasTable(FeatureCategoryTableMap::TABLE_NAME)) {
-        $dbMap->addTableObject(new FeatureCategoryTableMap());
+      $dbMap = Propel::getServiceContainer()->getDatabaseMap(OrderProductTaxTableMap::DATABASE_NAME);
+      if (!$dbMap->hasTable(OrderProductTaxTableMap::TABLE_NAME)) {
+        $dbMap->addTableObject(new OrderProductTaxTableMap());
       }
     }
 
     /**
-     * Performs a DELETE on the database, given a FeatureCategory or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a OrderProductTax or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or FeatureCategory object or primary key or array of primary keys
+     * @param mixed               $values Criteria or OrderProductTax object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -364,25 +378,25 @@ class FeatureCategoryTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(FeatureCategoryTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(OrderProductTaxTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \Thelia\Model\FeatureCategory) { // it's a model object
+        } elseif ($values instanceof \Thelia\Model\OrderProductTax) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(FeatureCategoryTableMap::DATABASE_NAME);
-            $criteria->add(FeatureCategoryTableMap::ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(OrderProductTaxTableMap::DATABASE_NAME);
+            $criteria->add(OrderProductTaxTableMap::ID, (array) $values, Criteria::IN);
         }
 
-        $query = FeatureCategoryQuery::create()->mergeWith($criteria);
+        $query = OrderProductTaxQuery::create()->mergeWith($criteria);
 
-        if ($values instanceof Criteria) { FeatureCategoryTableMap::clearInstancePool();
+        if ($values instanceof Criteria) { OrderProductTaxTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
-            foreach ((array) $values as $singleval) { FeatureCategoryTableMap::removeInstanceFromPool($singleval);
+            foreach ((array) $values as $singleval) { OrderProductTaxTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -390,20 +404,20 @@ class FeatureCategoryTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the feature_category table.
+     * Deletes all rows from the order_product_tax table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return FeatureCategoryQuery::create()->doDeleteAll($con);
+        return OrderProductTaxQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a FeatureCategory or Criteria object.
+     * Performs an INSERT on the database, given a OrderProductTax or Criteria object.
      *
-     * @param mixed               $criteria Criteria or FeatureCategory object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or OrderProductTax object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -412,22 +426,22 @@ class FeatureCategoryTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(FeatureCategoryTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(OrderProductTaxTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from FeatureCategory object
+            $criteria = $criteria->buildCriteria(); // build Criteria from OrderProductTax object
         }
 
-        if ($criteria->containsKey(FeatureCategoryTableMap::ID) && $criteria->keyContainsValue(FeatureCategoryTableMap::ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.FeatureCategoryTableMap::ID.')');
+        if ($criteria->containsKey(OrderProductTaxTableMap::ID) && $criteria->keyContainsValue(OrderProductTaxTableMap::ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.OrderProductTaxTableMap::ID.')');
         }
 
 
         // Set the correct dbName
-        $query = FeatureCategoryQuery::create()->mergeWith($criteria);
+        $query = OrderProductTaxQuery::create()->mergeWith($criteria);
 
         try {
             // use transaction because $criteria could contain info
@@ -443,7 +457,7 @@ class FeatureCategoryTableMap extends TableMap
         return $pk;
     }
 
-} // FeatureCategoryTableMap
+} // OrderProductTaxTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-FeatureCategoryTableMap::buildTableMap();
+OrderProductTaxTableMap::buildTableMap();
