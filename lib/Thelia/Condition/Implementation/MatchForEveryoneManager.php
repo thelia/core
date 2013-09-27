@@ -21,27 +21,108 @@
 /*                                                                                */
 /**********************************************************************************/
 
-namespace Thelia\Coupon;
+namespace Thelia\Condition\Implementation;
+
+use InvalidArgumentException;
+use Thelia\Condition\ConditionManagerAbstract;
 
 /**
  * Created by JetBrains PhpStorm.
  * Date: 8/19/13
  * Time: 3:24 PM
  *
- * Manage how Condition could interact with a Checkout
+ * Allow every one, perform no check
  *
  * @package Condition
  * @author  Guillaume MOREL <gmorel@openstudio.fr>
  *
  */
-interface RuleOrganizerInterface
+class MatchForEveryoneManager extends ConditionManagerAbstract
 {
+    /** @var string Service Id from Resources/config.xml  */
+    protected $serviceId = 'thelia.condition.match_for_everyone';
+
+    /** @var array Available Operators (Operators::CONST) */
+    protected $availableOperators = array();
+
     /**
-     * Organize ConditionManagerInterface
+     * Check validators relevancy and store them
      *
-     * @param array $conditions Array of ConditionManagerInterface
+     * @param array $operators Operators the Admin set in BackOffice
+     * @param array $values    Values the Admin set in BackOffice
      *
-     * @return array Array of ConditionManagerInterface sorted
+     * @throws \InvalidArgumentException
+     * @return $this
      */
-    public function organize(array $conditions);
+    public function setValidatorsFromForm(array $operators, array $values)
+    {
+        $this->setValidators();
+
+        return $this;
+    }
+
+    /**
+     * Check validators relevancy and store them
+     *
+     * @throws \InvalidArgumentException
+     * @return $this
+     */
+    protected function setValidators()
+    {
+        $this->operators = array();
+        $this->values = array();
+
+        return $this;
+    }
+
+    /**
+     * Test if Customer meets conditions
+     *
+     * @return bool
+     */
+    public function isMatching()
+    {
+        return true;
+    }
+
+    /**
+     * Get I18n name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->translator->trans(
+            'Everybody can use it (no condition)',
+            array(),
+            'condition'
+        );
+    }
+
+    /**
+     * Get I18n tooltip
+     *
+     * @return string
+     */
+    public function getToolTip()
+    {
+        $toolTip = $this->translator->trans(
+            'Will return always true',
+            array(),
+            'condition'
+        );
+
+        return $toolTip;
+    }
+
+    /**
+     * Generate inputs ready to be drawn
+     *
+     * @return array
+     */
+    protected function generateInputs()
+    {
+        return array();
+    }
+
 }

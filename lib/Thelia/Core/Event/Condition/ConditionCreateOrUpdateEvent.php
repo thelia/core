@@ -21,66 +21,86 @@
 /*                                                                                */
 /**********************************************************************************/
 
-namespace Thelia\Coupon;
+namespace Thelia\Core\Event\Condition;
 
-use Thelia\Constraint\Validator\PriceParam;
-use Thelia\Constraint\Validator\RuleValidator;
-use Thelia\Constraint\Rule\AvailableForTotalAmount;
-use Thelia\Constraint\Rule\Operators;
+use Thelia\Core\Event\ActionEvent;
+use Thelia\Coupon\ConditionCollection;
+use Thelia\Coupon\Type\CouponInterface;
 
 /**
  * Created by JetBrains PhpStorm.
- * Date: 8/19/13
- * Time: 3:24 PM
+ * Date: 8/29/13
+ * Time: 3:45 PM
  *
- * Unit Test ConditionCollection Class
+ * Occurring when a Condition is created or updated
  *
  * @package Coupon
  * @author  Guillaume MOREL <gmorel@openstudio.fr>
  *
  */
-class CouponRuleCollectionTest extends \PHPUnit_Framework_TestCase
+class ConditionCreateOrUpdateEvent extends ActionEvent
 {
-    public function testSomething()
+    /** @var ConditionCollection Array of ConditionManagerInterface */
+    protected $conditions = null;
+
+    /** @var CouponInterface Coupon model associated with this conditions */
+    protected $couponModel = null;
+
+    /**
+     * Constructor
+     *
+     * @param ConditionCollection $conditions Array of ConditionManagerInterface
+     */
+    public function __construct(ConditionCollection $conditions)
     {
-        // Stop here and mark this test as incomplete.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->conditions = $conditions;
     }
-//    /**
-//     *
-//     */
-//    public function testRuleSerialisation()
-//    {
-////        $rule1 = new AvailableForTotalAmount(
-////            , array(
-////                AvailableForTotalAmount::PARAM1_PRICE => new RuleValidator(
-////                    Operators::SUPERIOR,
-////                    new PriceParam(
-////                        , 40.00, 'EUR'
-////                    )
-////                )
-////            )
-////        );
-////        $rule2 = new AvailableForTotalAmount(
-////            , array(
-////                AvailableForTotalAmount::PARAM1_PRICE => new RuleValidator(
-////                    Operators::INFERIOR,
-////                    new PriceParam(
-////                        , 400.00, 'EUR'
-////                    )
-////                )
-////            )
-////        );
-////        $rules = new ConditionCollection(array($rule1, $rule2));
-////
-////        $serializedRules = base64_encode(serialize($rules));
-////        $unserializedRules = unserialize(base64_decode($serializedRules));
-////
-////        $expected = $rules;
-////        $actual = $unserializedRules;
-////
-////        $this->assertEquals($expected, $actual);
-//    }
+
+    /**
+     * Get Conditions
+     *
+     * @return null|ConditionCollection Array of ConditionManagerInterface
+     */
+    public function getConditions()
+    {
+        return $this->conditions;
+    }
+
+    /**
+     * Set Conditions
+     *
+     * @param ConditionCollection $conditions Array of ConditionManagerInterface
+     *
+     * @return $this
+     */
+    public function setConditions(ConditionCollection $conditions)
+    {
+        $this->conditions = $conditions;
+
+        return $this;
+    }
+
+    /**
+     * Set Coupon Model associated to this condition
+     *
+     * @param CouponInterface $couponModel Coupon Model
+     *
+     * @return $this
+     */
+    public function setCouponModel($couponModel)
+    {
+        $this->couponModel = $couponModel;
+
+        return $this;
+    }
+
+    /**
+     * Get Coupon Model associated to this condition
+     *
+     * @return null|CouponInterface
+     */
+    public function getCouponModel()
+    {
+        return $this->couponModel;
+    }
 }
