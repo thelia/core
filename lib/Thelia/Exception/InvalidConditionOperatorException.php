@@ -21,66 +21,34 @@
 /*                                                                                */
 /**********************************************************************************/
 
-namespace Thelia\Coupon;
+namespace Thelia\Exception;
 
-use Thelia\Constraint\Validator\PriceParam;
-use Thelia\Constraint\Validator\RuleValidator;
-use Thelia\Constraint\Rule\AvailableForTotalAmount;
-use Thelia\Constraint\Rule\Operators;
+use Thelia\Log\Tlog;
 
 /**
  * Created by JetBrains PhpStorm.
  * Date: 8/19/13
  * Time: 3:24 PM
  *
- * Unit Test ConditionCollection Class
+ * Thrown when a Condition receive an invalid Operator
  *
- * @package Coupon
+ * @package Condition
  * @author  Guillaume MOREL <gmorel@openstudio.fr>
  *
  */
-class CouponRuleCollectionTest extends \PHPUnit_Framework_TestCase
+class InvalidConditionOperatorException extends \RuntimeException
 {
-    public function testSomething()
+    /**
+     * InvalidConditionOperatorException thrown when a Condition is given a bad Operator
+     *
+     * @param string $className Class name
+     * @param string $parameter array key parameter
+     */
+    public function __construct($className, $parameter)
     {
-        // Stop here and mark this test as incomplete.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $message = 'Invalid Operator for Condition ' . $className . ' on parameter ' . $parameter;
+        Tlog::getInstance()->addError($message);
+
+        parent::__construct($message);
     }
-//    /**
-//     *
-//     */
-//    public function testRuleSerialisation()
-//    {
-////        $rule1 = new AvailableForTotalAmount(
-////            , array(
-////                AvailableForTotalAmount::PARAM1_PRICE => new RuleValidator(
-////                    Operators::SUPERIOR,
-////                    new PriceParam(
-////                        , 40.00, 'EUR'
-////                    )
-////                )
-////            )
-////        );
-////        $rule2 = new AvailableForTotalAmount(
-////            , array(
-////                AvailableForTotalAmount::PARAM1_PRICE => new RuleValidator(
-////                    Operators::INFERIOR,
-////                    new PriceParam(
-////                        , 400.00, 'EUR'
-////                    )
-////                )
-////            )
-////        );
-////        $rules = new ConditionCollection(array($rule1, $rule2));
-////
-////        $serializedRules = base64_encode(serialize($rules));
-////        $unserializedRules = unserialize(base64_decode($serializedRules));
-////
-////        $expected = $rules;
-////        $actual = $unserializedRules;
-////
-////        $this->assertEquals($expected, $actual);
-//    }
 }

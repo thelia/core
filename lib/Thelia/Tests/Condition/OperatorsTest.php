@@ -21,26 +21,23 @@
 /*                                                                                */
 /**********************************************************************************/
 
-namespace Thelia\Coupon;
+namespace Thelia\Condition;
 
-use Thelia\Coupon\RuleOrganizer;
+use Thelia\Core\Translation\Translator;
+
 /**
  * Created by JetBrains PhpStorm.
  * Date: 8/19/13
  * Time: 3:24 PM
  *
- * Unit Test RuleOrganizer Class
+ * Unit Test Operators Class
  *
- * @package Coupon
+ * @package Condition
  * @author  Guillaume MOREL <gmorel@openstudio.fr>
  *
  */
-class RuleOrganizerTest extends \PHPUnit_Framework_TestCase
+class OperatorsTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var RuleOrganizer
-     */
-    protected $object;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -48,7 +45,54 @@ class RuleOrganizerTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new RuleOrganizer();
+    }
+
+    public function testOperatorI18n()
+    {
+        /** @var Translator $stubTranslator */
+        $stubTranslator = $this->getMockBuilder('\Thelia\Core\Translation\Translator')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $stubTranslator->expects($this->any())
+            ->method('trans')
+            ->will($this->returnCallback((array($this, 'callbackI18n'))));
+
+        $actual = Operators::getI18n($stubTranslator, Operators::INFERIOR);
+        $expected = 'inferior to';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, Operators::INFERIOR_OR_EQUAL);
+        $expected = 'inferior or equal to';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, Operators::EQUAL);
+        $expected = 'equal to';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, Operators::SUPERIOR_OR_EQUAL);
+        $expected = 'superior or equal to';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, Operators::SUPERIOR);
+        $expected = 'superior to';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, Operators::DIFFERENT);
+        $expected = 'different from';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, Operators::IN);
+        $expected = 'in';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, Operators::OUT);
+        $expected = 'not in';
+        $this->assertEquals($expected, $actual);
+
+        $actual = Operators::getI18n($stubTranslator, 'unexpected operator');
+        $expected = 'unexpected operator';
+        $this->assertEquals($expected, $actual);
     }
 
     /**
@@ -59,15 +103,12 @@ class RuleOrganizerTest extends \PHPUnit_Framework_TestCase
     {
     }
 
-    /**
-     * @covers Thelia\Coupon\RuleOrganizer::organize
-     * @todo   Implement testOrganize().
-     */
-    public function testOrganize()
+    function callbackI18n()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $args = func_get_args();
+
+        return $args[0];
     }
 }
+
+
