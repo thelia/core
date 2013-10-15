@@ -20,33 +20,60 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\TaxEngine\TaxType;
 
-use Thelia\Type\FloatToFloatArrayType;
-use Thelia\Type\ModelValidIdType;
+namespace Thelia\Form\Area;
+use Thelia\Core\Translation\Translator;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Thelia\Form\BaseForm;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class AreaCreateForm
+ * @package Thelia\Form\Shipping
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class featureSlicePercentTaxType extends  BaseTaxType
+class AreaCreateForm extends BaseForm
 {
-    public function pricePercentRetriever()
-    {
 
+    /**
+     *
+     * in this function you add all the fields you need for your Form.
+     * Form this you have to call add method on $this->formBuilder attribute :
+     *
+     * $this->formBuilder->add("name", "text")
+     *   ->add("email", "email", array(
+     *           "attr" => array(
+     *               "class" => "field"
+     *           ),
+     *           "label" => "email",
+     *           "constraints" => array(
+     *               new \Symfony\Component\Validator\Constraints\NotBlank()
+     *           )
+     *       )
+     *   )
+     *   ->add('age', 'integer');
+     *
+     * @return null
+     */
+    protected function buildForm()
+    {
+        $this->formBuilder
+            ->add('name', 'text', array(
+                'constraints' => array(
+                    new NotBlank()
+                ),
+                'label_attr' => array('for' => 'shipping_name'),
+                'label' => Translator::getInstance()->trans('shipping area name')
+            ))
+
+        ;
     }
 
-    public function fixAmountRetriever(\Thelia\Model\Product $product)
+    /**
+     * @return string the name of you form. This name must be unique
+     */
+    public function getName()
     {
-
-    }
-
-    public function getRequirementsList()
-    {
-        return array(
-            'featureId' => new ModelValidIdType('Currency'),
-            'slices' => new FloatToFloatArrayType(),
-        );
+        return 'thelia_area_creation';
     }
 }
