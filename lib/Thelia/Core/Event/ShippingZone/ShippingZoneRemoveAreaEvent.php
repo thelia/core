@@ -20,33 +20,16 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\TaxEngine\TaxType;
 
-use Thelia\Type\FloatToFloatArrayType;
-use Thelia\Type\ModelValidIdType;
+namespace Thelia\Core\Event\ShippingZone;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class ShippingZoneRemoveAreaEvent
+ * @package Thelia\Core\Event\ShippingZone
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class featureSlicePercentTaxType extends  BaseTaxType
+class ShippingZoneRemoveAreaEvent extends ShippingZoneAddAreaEvent
 {
-    public function pricePercentRetriever()
-    {
 
-    }
-
-    public function fixAmountRetriever(\Thelia\Model\Product $product)
-    {
-
-    }
-
-    public function getRequirementsList()
-    {
-        return array(
-            'featureId' => new ModelValidIdType('Currency'),
-            'slices' => new FloatToFloatArrayType(),
-        );
-    }
 }

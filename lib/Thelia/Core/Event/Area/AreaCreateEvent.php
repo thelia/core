@@ -20,33 +20,34 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\TaxEngine\TaxType;
 
-use Thelia\Type\FloatToFloatArrayType;
-use Thelia\Type\ModelValidIdType;
+namespace Thelia\Core\Event\Area;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class AreaCreateEvent
+ * @package Thelia\Core\Event\Area
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class featureSlicePercentTaxType extends  BaseTaxType
+class AreaCreateEvent extends AreaEvent
 {
-    public function pricePercentRetriever()
-    {
+    protected $name;
 
+    /**
+     * @param mixed $name
+     */
+    public function setAreaName($name)
+    {
+        $this->name = $name;
     }
 
-    public function fixAmountRetriever(\Thelia\Model\Product $product)
+    /**
+     * @return mixed
+     */
+    public function getAreaName()
     {
-
+        return $this->name;
     }
 
-    public function getRequirementsList()
-    {
-        return array(
-            'featureId' => new ModelValidIdType('Currency'),
-            'slices' => new FloatToFloatArrayType(),
-        );
-    }
+
 }

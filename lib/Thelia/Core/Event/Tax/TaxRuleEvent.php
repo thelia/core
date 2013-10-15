@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,104 +17,106 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Event\Country;
+namespace Thelia\Core\Event\Tax;
+use Thelia\Core\Event\ActionEvent;
+use Thelia\Model\TaxRule;
 
-
-/**
- * Class CountryUpdateEvent
- * @package Thelia\Core\Event\Country
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class CountryUpdateEvent extends CountryCreateEvent
+class TaxRuleEvent extends ActionEvent
 {
-    protected $country_id;
+    protected $taxRule = null;
 
-    protected $chapo;
+    protected $locale;
+    protected $id;
+    protected $title;
     protected $description;
-    protected $postscriptum;
+    protected $countryList;
+    protected $taxList;
 
-    function __construct($country_id)
+    public function __construct(TaxRule $taxRule = null)
     {
-        $this->country_id = $country_id;
+        $this->taxRule = $taxRule;
     }
 
-    /**
-     * @param mixed $chapo
-     */
-    public function setChapo($chapo)
+    public function hasTaxRule()
     {
-        $this->chapo = $chapo;
+        return ! is_null($this->taxRule);
+    }
+
+    public function getTaxRule()
+    {
+        return $this->taxRule;
+    }
+
+    public function setTaxRule(TaxRule $taxRule)
+    {
+        $this->taxRule = $taxRule;
 
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getChapo()
-    {
-        return $this->chapo;
-    }
-
-    /**
-     * @param mixed $description
-     */
     public function setDescription($description)
     {
         $this->description = $description;
-
-        return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDescription()
     {
         return $this->description;
     }
 
-    /**
-     * @param mixed $postscriptum
-     */
-    public function setPostscriptum($postscriptum)
+    public function setId($id)
     {
-        $this->postscriptum = $postscriptum;
-
-        return $this;
+        $this->id = $id;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getPostscriptum()
+    public function getId()
     {
-        return $this->postscriptum;
+        return $this->id;
     }
 
-    /**
-     * @param mixed $country_id
-     */
-    public function setCountryId($country_id)
+    public function setTitle($title)
     {
-        $this->country_id = $country_id;
-
-        return $this;
+        $this->title = $title;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCountryId()
+    public function getTitle()
     {
-        return $this->country_id;
+        return $this->title;
     }
 
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+    }
 
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    public function setCountryList($countryList)
+    {
+        $this->countryList = $countryList;
+    }
+
+    public function getCountryList()
+    {
+        return $this->countryList;
+    }
+
+    public function setTaxList($taxList)
+    {
+        $this->taxList = $taxList;
+    }
+
+    public function getTaxList()
+    {
+        return $this->taxList;
+    }
 
 
 }
