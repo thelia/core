@@ -20,33 +20,30 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\TaxEngine\TaxType;
 
-use Thelia\Type\FloatToFloatArrayType;
-use Thelia\Type\ModelValidIdType;
+namespace Thelia\Form\Area;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Thelia\Form\Area\AreaCreateForm;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class AreaModificationForm
+ * @package Thelia\Form\Shipping
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class featureSlicePercentTaxType extends  BaseTaxType
+class AreaModificationForm extends AreaCreateForm
 {
-    public function pricePercentRetriever()
+    public function buildForm()
     {
+        parent::buildForm();
 
+        $this->formBuilder
+            ->add("id", "hidden", array("constraints" => array(new GreaterThan(array('value' => 0)))))
+        ;
     }
 
-    public function fixAmountRetriever(\Thelia\Model\Product $product)
+    public function getName()
     {
-
-    }
-
-    public function getRequirementsList()
-    {
-        return array(
-            'featureId' => new ModelValidIdType('Currency'),
-            'slices' => new FloatToFloatArrayType(),
-        );
+        return 'thelia_area_modification';
     }
 }

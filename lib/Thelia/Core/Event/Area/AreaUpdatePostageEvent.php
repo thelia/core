@@ -20,33 +20,66 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\TaxEngine\TaxType;
 
-use Thelia\Type\FloatToFloatArrayType;
-use Thelia\Type\ModelValidIdType;
+namespace Thelia\Core\Event\Area;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class AreaUpdatePostageEvent
+ * @package Thelia\Core\Event\Area
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class featureSlicePercentTaxType extends  BaseTaxType
+class AreaUpdatePostageEvent extends AreaEvent
 {
-    public function pricePercentRetriever()
-    {
+    protected $area_id;
+    protected $postage;
 
+    function __construct($area_id)
+    {
+        $this->area_id = $area_id;
     }
 
-    public function fixAmountRetriever(\Thelia\Model\Product $product)
+    /**
+     * @param mixed $area_id
+     *
+     * @return $this
+     */
+    public function setAreaId($area_id)
     {
+        $this->area_id = $area_id;
 
+        return $this;
     }
 
-    public function getRequirementsList()
+    /**
+     * @return mixed
+     */
+    public function getAreaId()
     {
-        return array(
-            'featureId' => new ModelValidIdType('Currency'),
-            'slices' => new FloatToFloatArrayType(),
-        );
+        return $this->area_id;
     }
+
+    /**
+     * @param mixed $postage
+     *
+     * @return $this
+     */
+    public function setPostage($postage)
+    {
+        $this->postage = $postage;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPostage()
+    {
+        return $this->postage;
+    }
+
+
+
+
 }
