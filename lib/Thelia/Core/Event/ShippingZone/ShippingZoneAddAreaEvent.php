@@ -20,33 +20,68 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\TaxEngine\TaxType;
 
-use Thelia\Type\FloatToFloatArrayType;
-use Thelia\Type\ModelValidIdType;
+namespace Thelia\Core\Event\ShippingZone;
+use Thelia\Core\Event\ActionEvent;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class ShippingZoneAddAreaEvent
+ * @package Thelia\Core\Event\ShippingZone
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-class featureSlicePercentTaxType extends  BaseTaxType
+class ShippingZoneAddAreaEvent extends ActionEvent
 {
-    public function pricePercentRetriever()
-    {
+    protected $area_id;
+    protected $shopping_zone_id;
 
+    function __construct($area_id, $shopping_zone_id)
+    {
+        $this->area_id = $area_id;
+        $this->shopping_zone_id = $shopping_zone_id;
     }
 
-    public function fixAmountRetriever(\Thelia\Model\Product $product)
+    /**
+     * @param mixed $area_id
+     *
+     * @return $this
+     */
+    public function setAreaId($area_id)
     {
+        $this->area_id = $area_id;
 
+        return $this;
     }
 
-    public function getRequirementsList()
+    /**
+     * @return mixed
+     */
+    public function getAreaId()
     {
-        return array(
-            'featureId' => new ModelValidIdType('Currency'),
-            'slices' => new FloatToFloatArrayType(),
-        );
+        return $this->area_id;
     }
+
+    /**
+     * @param mixed $shopping_zone_id
+     *
+     * @return $this
+     */
+    public function setShoppingZoneId($shopping_zone_id)
+    {
+        $this->shopping_zone_id = $shopping_zone_id;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getShoppingZoneId()
+    {
+        return $this->shopping_zone_id;
+    }
+
+
+
+
 }
