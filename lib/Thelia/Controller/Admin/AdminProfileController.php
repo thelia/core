@@ -20,27 +20,20 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Type;
 
-use Symfony\Component\Validator\ExecutionContextInterface;
+namespace Thelia\Controller\Admin;
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class AdminProfileController
+ * @package Thelia\Controller\Admin
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-abstract class BaseType implements TypeInterface
+class AdminProfileController extends BaseAdminController
 {
-    abstract public function getType();
-    abstract public function isValid($value);
-    abstract public function getFormattedValue($value);
-    abstract public function getFormType();
-    abstract public function getFormOptions();
-
-    public function verifyForm($value, ExecutionContextInterface $context)
+    public function defaultAction()
     {
-        if( ! $this->isValid($value) ) {
-            $context->addViolation(sprintf("received value `%s` does not match `%s` type", $value, $this->getType()));
-        }
+        if (null !== $response = $this->checkAuth("admin.admin-profile.view")) return $response;
+        return $this->render("admin-profiles", array("display_admin_profile" => 20));
     }
+    
 }
