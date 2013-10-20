@@ -20,101 +20,56 @@
 /*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Form;
 
-namespace Thelia\Core\Event\Tax;
-use Thelia\Core\Event\ActionEvent;
-use Thelia\Model\Tax;
+use Symfony\Component\Validator\Constraints;
+use Thelia\Model\ConfigQuery;
+use Thelia\Core\Translation\Translator;
 
-class TaxEvent extends ActionEvent
+/**
+ * Class CustomerUpdateForm
+ * @package Thelia\Form
+ * @author Christophe Laffont <claffont@openstudio.fr>
+ */
+class CustomerUpdateForm extends CustomerCreation
 {
-    protected $tax = null;
 
-    protected $locale;
-    protected $id;
-    protected $title;
-    protected $description;
-    protected $type;
-    protected $requirements;
-
-    public function __construct(Tax $tax = null)
+    protected function buildForm()
     {
-        $this->tax = $tax;
+        parent::buildForm();
+
+
+        $this->formBuilder
+            ->remove("auto_login")
+            // Remove From Personal Informations
+            ->remove("phone")
+            ->remove("cellphone")
+            // Remove Delivery Informations
+            ->remove("company")
+            ->remove("address1")
+            ->remove("address2")
+            ->remove("address3")
+            ->remove("city")
+            ->remove("zipcode")
+            ->remove("country")
+            // Remove Login Information
+            ->remove("password")
+            ->remove("password_confirm")
+            // Remove Terms & conditions
+            ->remove("agreed")
+
+            // Add Newsletter
+            ->add("newsletter", "checkbox", array(
+                "label" => "I would like to receive the newsletter our the latest news.",
+                "label_attr" => array(
+                    "for" => "newsletter"
+                ),
+                "required" => false
+            ));
     }
 
-    public function hasTax()
+    public function getName()
     {
-        return ! is_null($this->tax);
-    }
-
-    public function getTax()
-    {
-        return $this->tax;
-    }
-
-    public function setTax(Tax $tax)
-    {
-        $this->tax = $tax;
-
-        return $this;
-    }
-
-    public function setDescription($description)
-    {
-        $this->description = $description;
-    }
-
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-    }
-
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function setRequirements($requirements)
-    {
-        $this->requirements = $requirements;
-    }
-
-    public function getRequirements()
-    {
-        return $this->requirements;
+        return "thelia_customer_update";
     }
 }
