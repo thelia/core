@@ -20,46 +20,39 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Type;
+namespace Thelia\Form;
 
-/**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
- */
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Thelia\Core\Translation\Translator;
 
-class EnumType extends BaseType
+class LanguageCreationForm extends BaseForm
 {
-    protected $values = array();
-
-    public function __construct($values = array())
+    protected function buildForm()
     {
-        if(is_array($values))
-            $this->values = $values;
+        $this->formBuilder
+            ->add("title", "text", array(
+                "constraints" => array(
+                    new NotBlank()
+                ),
+                "label" => Translator::getInstance()->trans("Language title *"),
+                "label_attr" => array(
+                    "for" => "title"
+                )
+            ))            
+            ->add("isocode", "text", array(
+                "constraints" => array(
+                    new NotBlank()
+                ),
+                "label" => Translator::getInstance()->trans("ISO Code *"),
+                "label_attr" => array(
+                    "for" => "isocode"
+                )
+            ))        
+        ;
     }
 
-    public function getType()
+    public function getName()
     {
-        return 'Enum type';
-    }
-
-    public function isValid($value)
-    {
-        return in_array($value, $this->values);
-    }
-
-    public function getFormattedValue($value)
-    {
-        return $this->isValid($value) ? $value : null;
-    }
-
-    public function getFormType()
-    {
-        return 'text';
-    }
-
-    public function getFormOptions()
-    {
-        return array();
+        return "thelia_language_creation";
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,49 +17,59 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Type;
+namespace Thelia\Form;
+
+use Symfony\Component\Validator\Constraints;
+use Thelia\Model\ConfigQuery;
+use Thelia\Core\Translation\Translator;
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class CustomerUpdateForm
+ * @package Thelia\Form
+ * @author Christophe Laffont <claffont@openstudio.fr>
  */
-
-class EnumType extends BaseType
+class CustomerUpdateForm extends CustomerCreation
 {
-    protected $values = array();
 
-    public function __construct($values = array())
+    protected function buildForm()
     {
-        if(is_array($values))
-            $this->values = $values;
+        parent::buildForm();
+
+
+        $this->formBuilder
+            ->remove("auto_login")
+            // Remove From Personal Informations
+            ->remove("phone")
+            ->remove("cellphone")
+            // Remove Delivery Informations
+            ->remove("company")
+            ->remove("address1")
+            ->remove("address2")
+            ->remove("address3")
+            ->remove("city")
+            ->remove("zipcode")
+            ->remove("country")
+            // Remove Login Information
+            ->remove("password")
+            ->remove("password_confirm")
+            // Remove Terms & conditions
+            ->remove("agreed")
+
+            // Add Newsletter
+            ->add("newsletter", "checkbox", array(
+                "label" => "I would like to receive the newsletter our the latest news.",
+                "label_attr" => array(
+                    "for" => "newsletter"
+                ),
+                "required" => false
+            ));
     }
 
-    public function getType()
+    public function getName()
     {
-        return 'Enum type';
-    }
-
-    public function isValid($value)
-    {
-        return in_array($value, $this->values);
-    }
-
-    public function getFormattedValue($value)
-    {
-        return $this->isValid($value) ? $value : null;
-    }
-
-    public function getFormType()
-    {
-        return 'text';
-    }
-
-    public function getFormOptions()
-    {
-        return array();
+        return "thelia_customer_update";
     }
 }
