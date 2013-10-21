@@ -20,46 +20,20 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Type;
+
+namespace Thelia\Controller\Admin;
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class LanguageController
+ * @package Thelia\Controller\Admin
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-
-class EnumType extends BaseType
+class LanguageController extends BaseAdminController
 {
-    protected $values = array();
-
-    public function __construct($values = array())
+    public function defaultAction()
     {
-        if(is_array($values))
-            $this->values = $values;
+        if (null !== $response = $this->checkAuth("admin.configuration.languages.view")) return $response;
+        return $this->render("languages");
     }
-
-    public function getType()
-    {
-        return 'Enum type';
-    }
-
-    public function isValid($value)
-    {
-        return in_array($value, $this->values);
-    }
-
-    public function getFormattedValue($value)
-    {
-        return $this->isValid($value) ? $value : null;
-    }
-
-    public function getFormType()
-    {
-        return 'text';
-    }
-
-    public function getFormOptions()
-    {
-        return array();
-    }
+    
 }
