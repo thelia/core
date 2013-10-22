@@ -24,76 +24,77 @@
 namespace Thelia\Controller\Admin;
 
 use Thelia\Core\Event\AdminResources;
-use Thelia\Core\Event\Tax\TaxEvent;
+use Thelia\Core\Event\Profile\ProfileEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Form\TaxCreationForm;
-use Thelia\Form\TaxModificationForm;
-use Thelia\Form\TaxTaxListUpdateForm;
-use Thelia\Model\TaxQuery;
+use Thelia\Form\ProfileCreationForm;
+use Thelia\Form\ProfileModificationForm;
+use Thelia\Form\ProfileProfileListUpdateForm;
+use Thelia\Model\ProfileQuery;
 
-class TaxController extends AbstractCrudController
+class ProfileController extends AbstractCrudController
 {
     public function __construct()
     {
         parent::__construct(
-            'tax',
+            'profile',
             'manual',
             'order',
 
-            AdminResources::TAX_VIEW,
-            AdminResources::TAX_CREATE,
-            AdminResources::TAX_UPDATE,
-            AdminResources::TAX_DELETE,
+            AdminResources::PRODUCT_VIEW,
+            AdminResources::PRODUCT_CREATE,
+            AdminResources::PRODUCT_UPDATE,
+            AdminResources::PRODUCT_DELETE,
 
-            TheliaEvents::TAX_CREATE,
-            TheliaEvents::TAX_UPDATE,
-            TheliaEvents::TAX_DELETE
+            TheliaEvents::PROFILE_CREATE,
+            TheliaEvents::PROFILE_UPDATE,
+            TheliaEvents::PROFILE_DELETE
         );
     }
 
     protected function getCreationForm()
     {
-        return new TaxCreationForm($this->getRequest());
+        return new ProfileCreationForm($this->getRequest());
     }
 
     protected function getUpdateForm()
     {
-        return new TaxModificationForm($this->getRequest());
+        return new ProfileModificationForm($this->getRequest());
     }
 
     protected function getCreationEvent($formData)
     {
-        $event = new TaxEvent();
+        $event = new ProfileEvent();
 
         $event->setLocale($formData['locale']);
+        $event->setCode($formData['code']);
         $event->setTitle($formData['title']);
+        $event->setChapo($formData['chapo']);
         $event->setDescription($formData['description']);
-        $event->setType($formData['type']);
-        $event->setRequirements($this->getRequirements($formData['type'], $formData));
+        $event->setPostscriptum($formData['postscriptum']);
 
         return $event;
     }
 
     protected function getUpdateEvent($formData)
     {
-        $event = new TaxEvent();
+        $event = new ProfileEvent();
 
         $event->setLocale($formData['locale']);
         $event->setId($formData['id']);
         $event->setTitle($formData['title']);
+        $event->setChapo($formData['chapo']);
         $event->setDescription($formData['description']);
-        $event->setType($formData['type']);
-        $event->setRequirements($this->getRequirements($formData['type'], $formData));
+        $event->setPostscriptum($formData['postscriptum']);
 
         return $event;
     }
 
     protected function getDeleteEvent()
     {
-        $event = new TaxEvent();
+        $event = new ProfileEvent();
 
         $event->setId(
-            $this->getRequest()->get('tax_id', 0)
+            $this->getRequest()->get('profile_id', 0)
         );
 
         return $event;
@@ -101,7 +102,7 @@ class TaxController extends AbstractCrudController
 
     protected function eventContainsObject($event)
     {
-        return $event->hasTax();
+        return $event->hasProfile();
     }
 
     protected function hydrateObjectForm($object)
@@ -111,23 +112,23 @@ class TaxController extends AbstractCrudController
             'locale'       => $object->getLocale(),
             'title'        => $object->getTitle(),
             'description'  => $object->getDescription(),
-            'type'         => $object->getType(),
+            'code'         => $object->getCode(),
         );
 
         // Setup the object form
-        return new TaxModificationForm($this->getRequest(), "form", $data);
+        return new ProfileModificationForm($this->getRequest(), "form", $data);
     }
 
     protected function getObjectFromEvent($event)
     {
-        return $event->hasTax() ? $event->getTax() : null;
+        return $event->hasProfile() ? $event->getProfile() : null;
     }
 
     protected function getExistingObject()
     {
-        return TaxQuery::create()
+        return ProfileQuery::create()
             ->joinWithI18n($this->getCurrentEditionLocale())
-            ->findOneById($this->getRequest()->get('tax_id'));
+            ->findOneById($this->getRequest()->get('profile_id'));
     }
 
     protected function getObjectLabel($object)
@@ -145,10 +146,10 @@ class TaxController extends AbstractCrudController
         return array();
     }
 
-    protected function getRouteArguments($tax_id = null)
+    protected function getRouteArguments($profile_id = null)
     {
         return array(
-            'tax_id' => $tax_id === null ? $this->getRequest()->get('tax_id') : $tax_id,
+            'profile_id' => $profile_id === null ? $this->getRequest()->get('profile_id') : $profile_id,
         );
     }
 
@@ -156,7 +157,7 @@ class TaxController extends AbstractCrudController
     {
         // We always return to the feature edition form
         return $this->render(
-            'taxes-rules',
+            'profiles',
             array()
         );
     }
@@ -164,14 +165,14 @@ class TaxController extends AbstractCrudController
     protected function renderEditionTemplate()
     {
         // We always return to the feature edition form
-        return $this->render('tax-edit', array_merge($this->getViewArguments(), $this->getRouteArguments()));
+        return $this->render('profile-edit', array_merge($this->getViewArguments(), $this->getRouteArguments()));
     }
 
     protected function redirectToEditionTemplate($request = null, $country = null)
     {
         // We always return to the feature edition form
         $this->redirectToRoute(
-            "admin.configuration.taxes.update",
+            "admin.configuration.profiles.update",
             $this->getViewArguments($country),
             $this->getRouteArguments()
         );
@@ -180,22 +181,22 @@ class TaxController extends AbstractCrudController
     /**
      * Put in this method post object creation processing if required.
      *
-     * @param  TaxEvent  $createEvent the create event
+     * @param  ProfileEvent  $createEvent the create event
      * @return Response a response, or null to continue normal processing
      */
     protected function performAdditionalCreateAction($createEvent)
     {
         $this->redirectToRoute(
-            "admin.configuration.taxes.update",
+            "admin.configuration.profiles.update",
             $this->getViewArguments(),
-            $this->getRouteArguments($createEvent->getTax()->getId())
+            $this->getRouteArguments($createEvent->getProfile()->getId())
         );
     }
 
     protected function redirectToListTemplate()
     {
         $this->redirectToRoute(
-            "admin.configuration.taxes-rules.list"
+            "admin.configuration.profiles.list"
         );
     }
 
