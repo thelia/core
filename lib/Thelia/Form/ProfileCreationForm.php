@@ -23,51 +23,58 @@
 namespace Thelia\Form;
 
 use Symfony\Component\Validator\Constraints;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ExecutionContextInterface;
+use Thelia\Core\Translation\Translator;
 use Thelia\Model\ProfileQuery;
 
 /**
- * Class ProfileModificationForm
+ * Class ProfileCreationForm
  * @package Thelia\Form
  * @author Etienne Roudeix <eroudeix@openstudio.fr>
  */
-class ProfileModificationForm extends ProfileCreationForm
+class ProfileCreationForm extends BaseForm
 {
-    protected function buildForm()
-    {
-        parent::buildForm(true);
+    use StandardDescriptionFieldsTrait;
 
+    protected function buildForm($change_mode = false)
+    {
         $this->formBuilder
-            ->add("id", "hidden", array(
-                "required" => true,
+            ->add("locale", "text", array(
+                "constraints" => array(new NotBlank())
+            ))
+            ->add("code", "text", array(
                 "constraints" => array(
-                    new Constraints\NotBlank(),
+                    new NotBlank(),
                     new Constraints\Callback(
                         array(
                             "methods" => array(
-                                array($this, "verifyProfileId"),
+                                array($this, "verifyCode"),
                             ),
                         )
                     ),
-                )
+                ),
+                "label" => Translator::getInstance()->trans("Profile Code"),
+                "label_attr" => array("for" => "profile_code_fiels"),
             ))
         ;
 
-        $this->formBuilder->remove("code");
+        $this->addStandardDescFields(array('locale'));
     }
 
     public function getName()
     {
-        return "thelia_profile_modification";
+        return "thelia_profile_creation";
     }
 
-    public function verifyProfileId($value, ExecutionContextInterface $context)
+    public function verifyCode($value, ExecutionContextInterface $context)
     {
+        /* check unicity */
         $profile = ProfileQuery::create()
-            ->findPk($value);
+            ->findOneByCode($value);
 
-        if (null === $profile) {
-            $context->addViolation("Profile ID not found");
+        if (null !== $profile) {
+            $context->addViolation("Profile `code` already exists");
         }
     }
 }
