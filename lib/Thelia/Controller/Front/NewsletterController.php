@@ -20,44 +20,59 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Type;
+
+namespace Thelia\Controller\Front;
+
+use Thelia\Core\Event\Newsletter\NewsletterEvent;
+use Thelia\Core\Event\TheliaEvents;
+use Thelia\Form\NewsletterForm;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class NewsletterController
+ * @package Thelia\Controller\Front
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-
-class AlphaNumStringListType extends BaseType
+class NewsletterController extends BaseFrontController
 {
-    public function getType()
-    {
-        return 'Alphanumeric string list type';
-    }
 
-    public function isValid($values)
+    public function subscribeAction()
     {
-        foreach (explode(',', $values) as $value) {
-            if(!preg_match('#^[a-zA-Z0-9\-_\.]+$#', $value))
+        $error_message = false;
+        $newsletterForm = new NewsletterForm($this->getRequest());
 
-                return false;
+        try {
+
+            $form = $this->validateForm($newsletterForm);
+
+            $event = new NewsletterEvent(
+                $form->get('email')->getData(),
+                $this->getRequest()->getSession()->getLang()->getLocale()
+            );
+
+            if (null !== $customer = $this->getSecurityContext()->getCustomerUser())
+            {
+                $event->setFirstname($customer->getFirstname());
+                $event->setLastname($customer->getLastname());
+            }
+
+            $this->dispatch(TheliaEvents::NEWSLETTER_SUBSCRIBE, $event);
+
+        } catch(\Exception $e) {
+            $error_message = $e->getMessage();
         }
 
-        return true;
-    }
+        if($error_message !== false) {
+            \Thelia\Log\Tlog::getInstance()->error(sprintf('Error during newsletter subscription : %s', $error_message));
 
-    public function getFormattedValue($values)
-    {
-        return $this->isValid($values) ? explode(',', $values) : null;
-    }
+            $newsletterForm->setErrorMessage($error_message);
 
-    public function getFormType()
-    {
-        return 'text';
-    }
-
-    public function getFormOptions()
-    {
-        return array();
+            $this->getParserContext()
+                ->addForm($newsletterForm)
+                ->setGeneralError($error_message)
+            ;
+        } else {
+            $this->redirectToRoute('newsletter.success');
+        }
     }
 }

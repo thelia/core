@@ -20,44 +20,59 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Type;
+
+namespace Thelia\Action;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Thelia\Core\Event\Newsletter\NewsletterEvent;
+use Thelia\Core\Event\TheliaEvents;
+use Thelia\Action\BaseAction;
+use Thelia\Model\Newsletter as NewsletterModel;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class Newsletter
+ * @package Thelia\Action
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-
-class AlphaNumStringListType extends BaseType
+class Newsletter extends BaseAction implements EventSubscriberInterface
 {
-    public function getType()
+
+    public function subscribe(NewsletterEvent $event)
     {
-        return 'Alphanumeric string list type';
+        $newsletter = new NewsletterModel();
+
+        $newsletter
+            ->setEmail($event->getEmail())
+            ->setFirstname($event->getFirstname())
+            ->setLastname($event->getLastname())
+            ->setLocale($event->getLocale())
+            ->save();
     }
 
-    public function isValid($values)
+    /**
+     * Returns an array of event names this subscriber wants to listen to.
+     *
+     * The array keys are event names and the value can be:
+     *
+     *  * The method name to call (priority defaults to 0)
+     *  * An array composed of the method name to call and the priority
+     *  * An array of arrays composed of the method names to call and respective
+     *    priorities, or 0 if unset
+     *
+     * For instance:
+     *
+     *  * array('eventName' => 'methodName')
+     *  * array('eventName' => array('methodName', $priority))
+     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2'))
+     *
+     * @return array The event names to listen to
+     *
+     * @api
+     */
+    public static function getSubscribedEvents()
     {
-        foreach (explode(',', $values) as $value) {
-            if(!preg_match('#^[a-zA-Z0-9\-_\.]+$#', $value))
-
-                return false;
-        }
-
-        return true;
-    }
-
-    public function getFormattedValue($values)
-    {
-        return $this->isValid($values) ? explode(',', $values) : null;
-    }
-
-    public function getFormType()
-    {
-        return 'text';
-    }
-
-    public function getFormOptions()
-    {
-        return array();
+        return array(
+            TheliaEvents::NEWSLETTER_SUBSCRIBE => array('subscribe', 128)
+        );
     }
 }

@@ -20,44 +20,126 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
-namespace Thelia\Type;
+
+namespace Thelia\Core\Event\Newsletter;
+use Thelia\Core\Event\ActionEvent;
+
 
 /**
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- *
+ * Class NewsletterEvent
+ * @package Thelia\Core\Event\Newsletter
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
  */
-
-class AlphaNumStringListType extends BaseType
+class NewsletterEvent extends ActionEvent
 {
-    public function getType()
+    /**
+     * @var string email to save
+     */
+    protected $email;
+
+    /**
+     * @var string first name subscriber
+     */
+    protected $firstname;
+
+    /**
+     * @var string last name subscriber
+     */
+    protected $lastname;
+
+    /**
+     * @var string current locale
+     */
+    protected $locale;
+
+    function __construct($email, $locale)
     {
-        return 'Alphanumeric string list type';
+        $this->email = $email;
+        $this->locale = $locale;
     }
 
-    public function isValid($values)
+    /**
+     * @param string $email
+     *
+     * @return $this
+     */
+    public function setEmail($email)
     {
-        foreach (explode(',', $values) as $value) {
-            if(!preg_match('#^[a-zA-Z0-9\-_\.]+$#', $value))
+        $this->email = $email;
 
-                return false;
-        }
-
-        return true;
+        return $this;
     }
 
-    public function getFormattedValue($values)
+    /**
+     * @return string
+     */
+    public function getEmail()
     {
-        return $this->isValid($values) ? explode(',', $values) : null;
+        return $this->email;
     }
 
-    public function getFormType()
+    /**
+     * @param string $firstname
+     *
+     * @return $this
+     */
+    public function setFirstname($firstname)
     {
-        return 'text';
+        $this->firstname = $firstname;
+
+        return $this;
     }
 
-    public function getFormOptions()
+    /**
+     * @return string
+     */
+    public function getFirstname()
     {
-        return array();
+        return $this->firstname;
     }
+
+    /**
+     * @param string $lastname
+     *
+     * @return $this
+     */
+    public function setLastname($lastname)
+    {
+        $this->lastname = $lastname;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastname()
+    {
+        return $this->lastname;
+    }
+
+    /**
+     * @param string $locale
+     *
+     * @return $this
+     */
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+
+
+
+
 }
