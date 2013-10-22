@@ -21,32 +21,125 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Config;
+namespace Thelia\Core\Event\Newsletter;
+use Thelia\Core\Event\ActionEvent;
 
-use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-class DefinePropel
+/**
+ * Class NewsletterEvent
+ * @package Thelia\Core\Event\Newsletter
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class NewsletterEvent extends ActionEvent
 {
-    private $processorConfig;
+    /**
+     * @var string email to save
+     */
+    protected $email;
 
-    public function __construct(ConfigurationInterface $configuration, array $propelConf)
+    /**
+     * @var string first name subscriber
+     */
+    protected $firstname;
+
+    /**
+     * @var string last name subscriber
+     */
+    protected $lastname;
+
+    /**
+     * @var string current locale
+     */
+    protected $locale;
+
+    function __construct($email, $locale)
     {
-        $processor = new Processor();
-        $this->processorConfig = $processor->processConfiguration($configuration, $propelConf);
+        $this->email = $email;
+        $this->locale = $locale;
     }
 
-    public function getConfig()
+    /**
+     * @param string $email
+     *
+     * @return $this
+     */
+    public function setEmail($email)
     {
-        $connection = $this->processorConfig["connection"];
+        $this->email = $email;
 
-        return $conf = array(
-            "dsn" => $connection["dsn"],
-            "user" => $connection["user"],
-            "password" => $connection["password"],
-            "classname" => $connection["classname"],
-            'options' => array(
-                \PDO::MYSQL_ATTR_INIT_COMMAND => array('value' =>'SET NAMES \'UTF8\''))
-        );
+        return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $firstname
+     *
+     * @return $this
+     */
+    public function setFirstname($firstname)
+    {
+        $this->firstname = $firstname;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * @param string $lastname
+     *
+     * @return $this
+     */
+    public function setLastname($lastname)
+    {
+        $this->lastname = $lastname;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastname()
+    {
+        return $this->lastname;
+    }
+
+    /**
+     * @param string $locale
+     *
+     * @return $this
+     */
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+
+
+
+
 }

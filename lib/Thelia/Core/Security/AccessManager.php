@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*      email : info@thelia.net                                                      */
+/*	    email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,32 +21,65 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Config;
+namespace Thelia\Core\Security;
 
-use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Propel\Runtime\ActiveQuery\Criteria;
+use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Core\Security\User\UserInterface;
+use Thelia\Core\HttpFoundation\Request;
+use Thelia\Model\ProfileQuery;
+use Thelia\Model\ProfileResourceQuery;
 
-class DefinePropel
+/**
+ * A simple security manager, in charge of checking user
+ *
+ * @author Etienne Roudeix <eroudeix@openstudio.fr>
+ */
+class AccessManager
 {
-    private $processorConfig;
+    const VIEW = 'VIEW';
+    const CREATE = 'CREATE';
+    const UPDATE = 'UPDATE';
+    const DELETE = 'DELETE';
 
-    public function __construct(ConfigurationInterface $configuration, array $propelConf)
+    protected $accessGranted = array(
+        self::VIEW      =>  false,
+        self::CREATE    =>  false,
+        self::UPDATE    =>  false,
+        self::DELETE    =>  false,
+    );
+
+    protected $accessPows = array(
+        self::VIEW      =>  3,
+        self::CREATE    =>  2,
+        self::UPDATE    =>  1,
+        self::DELETE    =>  0,
+    );
+
+    protected $accessValue;
+
+    public function __construct($accessValue)
     {
-        $processor = new Processor();
-        $this->processorConfig = $processor->processConfiguration($configuration, $propelConf);
+        $this->accessValue = $accessValue;
+
+        foreach($this->accessPows as $type => $value) {
+            $pow = pow(2, $value);
+            if($accessValue >= $pow) {
+                $accessValue -= $pow;
+                $this->accessGranted[$type] = true;
+            } else {
+                $this->accessGranted[$type] = false;
+            }
+        }
     }
 
-    public function getConfig()
+    public function can($type)
     {
-        $connection = $this->processorConfig["connection"];
+        if(!array_key_exists($type, $this->accessGranted)) {
+            return false;
+        }
 
-        return $conf = array(
-            "dsn" => $connection["dsn"],
-            "user" => $connection["user"],
-            "password" => $connection["password"],
-            "classname" => $connection["classname"],
-            'options' => array(
-                \PDO::MYSQL_ATTR_INIT_COMMAND => array('value' =>'SET NAMES \'UTF8\''))
-        );
+        return $this->accessGranted[$type];
+
     }
 }

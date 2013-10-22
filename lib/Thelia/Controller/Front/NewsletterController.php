@@ -21,32 +21,58 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Config;
+namespace Thelia\Controller\Front;
 
-use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Thelia\Core\Event\Newsletter\NewsletterEvent;
+use Thelia\Core\Event\TheliaEvents;
+use Thelia\Form\NewsletterForm;
 
-class DefinePropel
+
+/**
+ * Class NewsletterController
+ * @package Thelia\Controller\Front
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class NewsletterController extends BaseFrontController
 {
-    private $processorConfig;
 
-    public function __construct(ConfigurationInterface $configuration, array $propelConf)
+    public function subscribeAction()
     {
-        $processor = new Processor();
-        $this->processorConfig = $processor->processConfiguration($configuration, $propelConf);
-    }
+        $error_message = false;
+        $newsletterForm = new NewsletterForm($this->getRequest());
 
-    public function getConfig()
-    {
-        $connection = $this->processorConfig["connection"];
+        try {
 
-        return $conf = array(
-            "dsn" => $connection["dsn"],
-            "user" => $connection["user"],
-            "password" => $connection["password"],
-            "classname" => $connection["classname"],
-            'options' => array(
-                \PDO::MYSQL_ATTR_INIT_COMMAND => array('value' =>'SET NAMES \'UTF8\''))
-        );
+            $form = $this->validateForm($newsletterForm);
+
+            $event = new NewsletterEvent(
+                $form->get('email')->getData(),
+                $this->getRequest()->getSession()->getLang()->getLocale()
+            );
+
+            if (null !== $customer = $this->getSecurityContext()->getCustomerUser())
+            {
+                $event->setFirstname($customer->getFirstname());
+                $event->setLastname($customer->getLastname());
+            }
+
+            $this->dispatch(TheliaEvents::NEWSLETTER_SUBSCRIBE, $event);
+
+        } catch(\Exception $e) {
+            $error_message = $e->getMessage();
+        }
+
+        if($error_message !== false) {
+            \Thelia\Log\Tlog::getInstance()->error(sprintf('Error during newsletter subscription : %s', $error_message));
+
+            $newsletterForm->setErrorMessage($error_message);
+
+            $this->getParserContext()
+                ->addForm($newsletterForm)
+                ->setGeneralError($error_message)
+            ;
+        } else {
+            $this->redirectToRoute('newsletter.success');
+        }
     }
 }

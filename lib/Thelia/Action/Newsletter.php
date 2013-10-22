@@ -21,32 +21,58 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Config;
+namespace Thelia\Action;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Thelia\Core\Event\Newsletter\NewsletterEvent;
+use Thelia\Core\Event\TheliaEvents;
+use Thelia\Action\BaseAction;
+use Thelia\Model\Newsletter as NewsletterModel;
 
-use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-class DefinePropel
+/**
+ * Class Newsletter
+ * @package Thelia\Action
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class Newsletter extends BaseAction implements EventSubscriberInterface
 {
-    private $processorConfig;
 
-    public function __construct(ConfigurationInterface $configuration, array $propelConf)
+    public function subscribe(NewsletterEvent $event)
     {
-        $processor = new Processor();
-        $this->processorConfig = $processor->processConfiguration($configuration, $propelConf);
+        $newsletter = new NewsletterModel();
+
+        $newsletter
+            ->setEmail($event->getEmail())
+            ->setFirstname($event->getFirstname())
+            ->setLastname($event->getLastname())
+            ->setLocale($event->getLocale())
+            ->save();
     }
 
-    public function getConfig()
+    /**
+     * Returns an array of event names this subscriber wants to listen to.
+     *
+     * The array keys are event names and the value can be:
+     *
+     *  * The method name to call (priority defaults to 0)
+     *  * An array composed of the method name to call and the priority
+     *  * An array of arrays composed of the method names to call and respective
+     *    priorities, or 0 if unset
+     *
+     * For instance:
+     *
+     *  * array('eventName' => 'methodName')
+     *  * array('eventName' => array('methodName', $priority))
+     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2'))
+     *
+     * @return array The event names to listen to
+     *
+     * @api
+     */
+    public static function getSubscribedEvents()
     {
-        $connection = $this->processorConfig["connection"];
-
-        return $conf = array(
-            "dsn" => $connection["dsn"],
-            "user" => $connection["user"],
-            "password" => $connection["password"],
-            "classname" => $connection["classname"],
-            'options' => array(
-                \PDO::MYSQL_ATTR_INIT_COMMAND => array('value' =>'SET NAMES \'UTF8\''))
+        return array(
+            TheliaEvents::NEWSLETTER_SUBSCRIBE => array('subscribe', 128)
         );
     }
 }
