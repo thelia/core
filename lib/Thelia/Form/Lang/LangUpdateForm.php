@@ -21,45 +21,34 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Event\Product;
+namespace Thelia\Form\Lang;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-use Thelia\Model\Product;
 
-class ProductCreateCombinationEvent extends ProductEvent
+/**
+ * Class LangUpdateForm
+ * @package Thelia\Form\Lang
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class LangUpdateForm extends LangCreateForm
 {
-    protected $attribute_av_list;
-    protected $currency_id;
 
-    public function __construct(Product $product, $attribute_av_list, $currency_id)
+    public function buildForm()
     {
-        parent::__construct($product);
+        parent::buildForm();
 
-        $this->attribute_av_list = $attribute_av_list;
-        $this->currency_id = $currency_id;
+        $this->formBuilder
+            ->add('id', 'hidden', array(
+                'constraints' => array(
+                    new NotBlank(),
+                    new GreaterThan(array('value' => 0))
+                )
+            ));
     }
 
-    public function getAttributeAvList()
+    public function getName()
     {
-        return $this->attribute_av_list;
+        return 'thelia_lang_update';
     }
-
-    public function setAttributeAvList($attribute_av_list)
-    {
-        $this->attribute_av_list = $attribute_av_list;
-
-        return $this;
-    }
-
-    public function getCurrencyId()
-    {
-        return $this->currency_id;
-    }
-
-    public function setCurrencyId($currency_id)
-    {
-        $this->currency_id = $currency_id;
-
-        return $this;
-    }
-
 }
