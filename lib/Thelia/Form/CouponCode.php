@@ -1,7 +1,7 @@
 <?php
 /*************************************************************************************/
 /*                                                                                   */
-/*      Thelia	                                                                     */
+/*      Thelia                                                                       */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
 /*      email : info@thelia.net                                                      */
@@ -17,49 +17,47 @@
 /*      GNU General Public License for more details.                                 */
 /*                                                                                   */
 /*      You should have received a copy of the GNU General Public License            */
-/*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
+/*      along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
 namespace Thelia\Form;
 
 use Symfony\Component\Validator\Constraints;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Thelia\Core\Translation\Translator;
+use Thelia\Model\ModuleQuery;
+use Thelia\Module\BaseModule;
 
-class AdminProfileCreationForm extends BaseForm
+/**
+ * Class CouponCode
+ *
+ * Manage how a coupon is entered by a customer
+ *
+ * @package Thelia\Form
+ * @author Guillaume MOREL <gmorel@openstudio.fr>
+ */
+class CouponCode extends BaseForm
 {
+    /**
+     * Build form
+     */
     protected function buildForm()
     {
         $this->formBuilder
-            ->add("wording"   , "text"  , array(
+            ->add("coupon-code", "text", array(
+                "required" => true,
                 "constraints" => array(
-                    new NotBlank()
-                ),
-                "label" => Translator::getInstance()->trans("Wording *"),
-                "label_attr" => array(
-                    "for" => "wording"
-                ))
+                    new Constraints\NotBlank(),
+                )
             )
-            ->add("name"   , "text"  , array(
-                "constraints" => array(
-                    new NotBlank()
-                ),
-                "label" => Translator::getInstance()->trans("Name *"),
-                "label_attr" => array(
-                    "for" => "name"
-                ))
-            )
-            ->add("description"   , "text"  , array(
-                "label" => Translator::getInstance()->trans("Description"),
-                "label_attr" => array(
-                    "for" => "description"
-                ))
-            )
-        ;
+        );
     }
 
+    /**
+     * Form name
+     *
+     * @return string
+     */
     public function getName()
     {
-        return "thelia_admin_profile_creation";
+        return "thelia_coupon_code";
     }
 }
