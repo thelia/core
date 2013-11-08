@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*      email : info@thelia.net                                                      */
+/*	    email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,23 +21,55 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Module;
+namespace Thelia\Form;
 
-use Propel\Runtime\Connection\ConnectionInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints;
+use Symfony\Component\Validator\ExecutionContextInterface;
+use Thelia\Model\ModuleQuery;
 
-interface BaseModuleInterface
+class ModuleModificationForm extends BaseForm
 {
-    public function install(ConnectionInterface $con = null);
+    use StandardDescriptionFieldsTrait;
 
-    public function preActivation(ConnectionInterface $con = null);
+    protected function buildForm()
+    {
+        $this->addStandardDescFields();
 
-    public function postActivation(ConnectionInterface $con = null);
+        $this->formBuilder
+            ->add("id", "hidden", array(
+                "required" => true,
+                "constraints" => array(
+                    new Constraints\NotBlank(),
+                    new Constraints\Callback(
+                        array(
+                            "methods" => array(
+                                array($this, "verifyModuleId"),
+                            ),
+                        )
+                    ),
+                ),
+                "attr" => array(
+                    "id" => "module_update_id",
+                ),
+            ))
+        ;
+    }
 
-    public function preDeactivation(ConnectionInterface $con = null);
+    /**
+     * @return string the name of you form. This name must be unique
+     */
+    public function getName()
+    {
+        return "thelia_admin_module_modification";
+    }
 
-    public function postDeactivation(ConnectionInterface $con = null);
+    public function verifyModuleId($value, ExecutionContextInterface $context)
+    {
+        $module = ModuleQuery::create()
+            ->findPk($value);
 
-    public function destroy(ConnectionInterface $con = null, $deleteModuleData = false);
+        if (null === $module) {
+            $context->addViolation("Module ID not found");
+        }
+    }
 }
