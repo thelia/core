@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*      email : info@thelia.net                                                      */
+/*	    email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,52 +21,55 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Admin;
+namespace Thelia\Form;
 
-use Thelia\Core\Security\AccessManager;
-use Thelia\Model\AdminLogQuery;
+use Symfony\Component\Validator\Constraints;
+use Symfony\Component\Validator\ExecutionContextInterface;
+use Thelia\Model\ModuleQuery;
 
-class AdminLogsController extends BaseAdminController
+class ModuleModificationForm extends BaseForm
 {
-    const RESOURCE_CODE = "admin.admin-logs";
+    use StandardDescriptionFieldsTrait;
 
-    public function defaultAction()
+    protected function buildForm()
     {
-        if (null !== $response = $this->checkAuth(self::RESOURCE_CODE, array(), AccessManager::VIEW)) return $response;
+        $this->addStandardDescFields();
 
-        // Render the edition template.
-        return $this->render('admin-logs');
+        $this->formBuilder
+            ->add("id", "hidden", array(
+                "required" => true,
+                "constraints" => array(
+                    new Constraints\NotBlank(),
+                    new Constraints\Callback(
+                        array(
+                            "methods" => array(
+                                array($this, "verifyModuleId"),
+                            ),
+                        )
+                    ),
+                ),
+                "attr" => array(
+                    "id" => "module_update_id",
+                ),
+            ))
+        ;
     }
 
-    public function loadLoggerAjaxAction()
+    /**
+     * @return string the name of you form. This name must be unique
+     */
+    public function getName()
     {
-        $entries = array();
+        return "thelia_admin_module_modification";
+    }
 
-        foreach( AdminLogQuery::getEntries(
-                    $this->getRequest()->request->get('admins', array()),
-                    $this->getRequest()->request->get('fromDate', null),
-                    $this->getRequest()->request->get('toDate', null),
-                    array_merge($this->getRequest()->request->get('resources', array()), $this->getRequest()->request->get('modules', array())),
-                    null
-                ) as $entry) {
+    public function verifyModuleId($value, ExecutionContextInterface $context)
+    {
+        $module = ModuleQuery::create()
+            ->findPk($value);
 
-            $entries[] = array(
-                "head" => sprintf(
-                    "[%s][%s][%s:%s]",
-                    date('Y-m-d H:i:s', $entry->getCreatedAt()->getTimestamp()),
-                    $entry->getAdminLogin(),
-                    $entry->getResource(),
-                    $entry->getAction()
-                ),
-                "data" => $entry->getMessage(),
-            );
+        if (null === $module) {
+            $context->addViolation("Module ID not found");
         }
-
-        return $this->render(
-            'ajax/logger',
-            array(
-                'entries' => $entries,
-            )
-        );
     }
 }
