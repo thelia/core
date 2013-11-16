@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*      email : info@thelia.net                                                      */
+/*	    email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,28 +21,55 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Controller\Front;
+namespace Thelia\Form;
 
-/**
- * Class Mail
- * @package Thelia\Controller\Front
- * @author Manuel Raynaud <mraynaud@openstudio.fr>
- */
-class Mail extends BaseFrontController
+use Symfony\Component\Validator\Constraints;
+use Symfony\Component\Validator\ExecutionContextInterface;
+use Thelia\Model\ModuleQuery;
+
+class ModuleModificationForm extends BaseForm
 {
-    /**
-     * This is a demo how to send a mail using swiftmailer + smarty
-     */
-    public function test()
+    use StandardDescriptionFieldsTrait;
+
+    protected function buildForm()
     {
-        $message = \Swift_Message::newInstance('Wonderful Subject')
-            ->setFrom(array('john@doe.com' => 'John Doe'))
-            ->setTo(array('mraynaud@openstudio.fr' => 'name'))
-            ->setBody($this->render('Here is the message itself'))
+        $this->addStandardDescFields();
+
+        $this->formBuilder
+            ->add("id", "hidden", array(
+                "required" => true,
+                "constraints" => array(
+                    new Constraints\NotBlank(),
+                    new Constraints\Callback(
+                        array(
+                            "methods" => array(
+                                array($this, "verifyModuleId"),
+                            ),
+                        )
+                    ),
+                ),
+                "attr" => array(
+                    "id" => "module_update_id",
+                ),
+            ))
         ;
+    }
 
-        $this->getMailer()->send($message);
+    /**
+     * @return string the name of you form. This name must be unique
+     */
+    public function getName()
+    {
+        return "thelia_admin_module_modification";
+    }
 
-        exit;
+    public function verifyModuleId($value, ExecutionContextInterface $context)
+    {
+        $module = ModuleQuery::create()
+            ->findPk($value);
+
+        if (null === $module) {
+            $context->addViolation("Module ID not found");
+        }
     }
 }

@@ -23,14 +23,15 @@
 namespace Thelia\Form;
 
 use Symfony\Component\Validator\ExecutionContextInterface;
+use Thelia\Core\Translation\Translator;
 use Thelia\Model\CustomerQuery;
 
 /**
- * Class CustomerProfilUpdateForm
+ * Class CustomerProfileUpdateForm
  * @package Thelia\Form
  * @author Christophe Laffont <claffont@openstudio.fr>
  */
-class CustomerProfilUpdateForm extends CustomerCreateForm
+class CustomerProfileUpdateForm extends CustomerCreateForm
 {
 
     protected function buildForm()
@@ -54,16 +55,7 @@ class CustomerProfilUpdateForm extends CustomerCreateForm
             ->remove("password")
             ->remove("password_confirm")
             // Remove Terms & conditions
-            ->remove("agreed")
-
-            // Add Newsletter
-            ->add("newsletter", "checkbox", array(
-                "label" => Translator::getInstance()->trans('I would like to receive the newsletter or the latest news.'),
-                "label_attr" => array(
-                    "for" => "newsletter"
-                ),
-                "required" => false
-            ));
+            ->remove("agreed");
     }
 
     /**
@@ -81,6 +73,6 @@ class CustomerProfilUpdateForm extends CustomerCreateForm
 
     public function getName()
     {
-        return "thelia_customer_profil_update";
+        return "thelia_customer_profile_update";
     }
 }
