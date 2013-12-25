@@ -20,15 +20,62 @@
 /*	    along with this program. If not, see <http://www.gnu.org/licenses/>.         */
 /*                                                                                   */
 /*************************************************************************************/
+namespace Thelia\Form;
 
-namespace Thelia\Module;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-use Thelia\Model\Order;
-
-interface PaymentModuleInterface extends BaseModuleInterface
+/**
+ * Class SeoForm
+ * @package Thelia\Form
+ * @author Christophe Laffont <claffont@openstudio.fr>
+ */
+class SeoForm extends BaseForm
 {
+    use SeoFieldsTrait;
+
     /**
-     * @return mixed
+     *
+     * in this function you add all the fields you need for your Form.
+     * Form this you have to call add method on $this->formBuilder attribute :
+     *
+     * $this->formBuilder->add("name", "text")
+     *   ->add("email", "email", array(
+     *           "attr" => array(
+     *               "class" => "field"
+     *           ),
+     *           "label" => "email",
+     *           "constraints" => array(
+     *               new \Symfony\Component\Validator\Constraints\NotBlank()
+     *           )
+     *       )
+     *   )
+     *   ->add('age', 'integer');
+     *
+     * @return null
      */
-    public function pay(Order $order);
+    protected function buildForm()
+    {
+
+        $this->formBuilder
+            ->add("id", "hidden", array(
+                "constraints" => array(
+                    new GreaterThan(array('value' => 0))
+                )
+            ))
+            ->add("locale", "hidden", array(
+                "constraints" => array(
+                    new NotBlank()
+                )
+            ))
+        ;
+
+        // Add SEO Fields
+        $this->addSeoFields();
+    }
+
+    public function getName()
+    {
+        return "thelia_seo";
+    }
 }
