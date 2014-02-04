@@ -4,7 +4,7 @@
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*	    email : info@thelia.net                                                      */
+/*      email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -21,61 +21,32 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Template\Element;
+namespace Thelia\Core\Event\Order;
 
-
-use Thelia\Core\Template\Loop\Argument\Argument;
-use Propel\Runtime\ActiveQuery\ModelCriteria;
-use Thelia\Model\Tools\ModelCriteriaTools;
+use Thelia\Core\Event\ActionEvent;
+use Thelia\Model\Order;
 
 /**
- *
- * Class BaseI18nLoop, imlplemented by loops providing internationalized data, such as title, description, etc.
- *
- * @package Thelia\Core\Template\Element
+ * Class PaymentEvent
+ * @package Thelia\Core\Event\Module
+ * @author Franck Allimant <franck@cqfdev.fr>
  */
-abstract class BaseI18nLoop extends BaseLoop
+class OrderPaymentEvent extends ActionEvent
 {
-    protected $locale;
-
     /**
-     * Define common loop arguments
-     *
-     * @return Argument[]
+     * @var Order
      */
-    protected function getDefaultArgs()
-    {
-        $args = parent::getDefaultArgs();
+    protected $order;
 
-        $args[] = Argument::createIntTypeArgument('lang');
-
-        return $args;
+    public function __construct(Order $order) {
+        $this->order = $order;
     }
 
     /**
-     * Setup ModelCriteria for proper i18n processing
-     *
-     * @param ModelCriteria $search       the Propel Criteria to configure
-     * @param array         $columns      the i18n columns
-     * @param string        $foreignTable the specified table (default  to criteria table)
-     * @param string        $foreignKey   the foreign key in this table (default to criteria table)
-     * @param bool          $forceReturn
-     *
-     * @return mixed the locale
+     * @return \Thelia\Model\Order
      */
-    protected function configureI18nProcessing(ModelCriteria $search, $columns = array('TITLE', 'CHAPO', 'DESCRIPTION', 'POSTSCRIPTUM'), $foreignTable = null, $foreignKey = 'ID', $forceReturn = false)
+    public function getOrder()
     {
-        /* manage translations */
-
-        $this->locale = ModelCriteriaTools::getI18n(
-            $this->getBackend_context(),
-            $this->getLang(),
-            $search,
-            $this->request->getSession()->getLang()->getLocale(),
-            $columns,
-            $foreignTable,
-            $foreignKey,
-            $this->getForce_return()
-        );
+        return $this->order;
     }
 }

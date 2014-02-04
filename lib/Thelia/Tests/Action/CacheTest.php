@@ -1,11 +1,10 @@
 <?php
-
 /*************************************************************************************/
 /*                                                                                   */
 /*      Thelia	                                                                     */
 /*                                                                                   */
 /*      Copyright (c) OpenStudio                                                     */
-/*	    email : info@thelia.net                                                      */
+/*      email : info@thelia.net                                                      */
 /*      web : http://www.thelia.net                                                  */
 /*                                                                                   */
 /*      This program is free software; you can redistribute it and/or modify         */
@@ -22,23 +21,39 @@
 /*                                                                                   */
 /*************************************************************************************/
 
-namespace Thelia\Core\Security\Authentication;
+namespace Thelia\Tests\Action;
 
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Filesystem\Filesystem;
+use Thelia\Action\Cache;
+use Thelia\Core\Event\Cache\CacheEvent;
 
 
-use Thelia\Core\Security\UserProvider\AdminUserProvider;
-
-use Thelia\Form\AdminLogin;
-
-class AdminUsernamePasswordFormAuthenticator extends UsernamePasswordFormAuthenticator
+/**
+ * Class CacheTest
+ * @package Thelia\Tests\Action\assets
+ * @author Manuel Raynaud <mraynaud@openstudio.fr>
+ */
+class CacheTest extends \PHPUnit_Framework_TestCase
 {
-    public function __construct(Request $request, AdminLogin $loginForm)
+
+    protected $dir;
+
+    public function setUp()
     {
-        parent::__construct(
-            $request,
-            $loginForm,
-            new AdminUserProvider()
-        );
+        $this->dir = __DIR__ . '/test';
+
+        $fs = new Filesystem();
+        $fs->mkdir($this->dir);
     }
-}
+
+    public function testCacheClear()
+    {
+        $event = new CacheEvent($this->dir);
+
+        $action = new Cache();
+        $action->cacheClear($event);
+
+        $fs = new Filesystem();
+        $this->assertFalse($fs->exists($this->dir));
+    }
+} 
