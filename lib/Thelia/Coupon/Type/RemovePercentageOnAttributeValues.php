@@ -18,26 +18,31 @@ namespace Thelia\Coupon\Type;
  * @package Coupon
  * @author  Franck Allimant <franck@cqfdev.fr>
  */
-class RemoveAmountOnCategories extends AbstractRemoveOnCategories
+class RemovePercentageOnAttributeValues extends AbstractRemoveOnAttributeValues
 {
-    use AmountCouponTrait;
+    const PERCENTAGE = 'percentage';
+
+    use PercentageCouponTrait;
 
     /** @var string Service Id  */
-    protected $serviceId = 'thelia.coupon.type.remove_amount_on_categories';
-
-    protected function getAmountFieldName()
-    {
-        return self::AMOUNT_FIELD_NAME;
-    }
+    protected $serviceId = 'thelia.coupon.type.remove_percentage_on_attribute_av';
 
      /**
+     * @inheritdoc
+     */
+    protected function getPercentageFieldName()
+    {
+        return self::PERCENTAGE;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getName()
     {
         return $this->facade
             ->getTranslator()
-            ->trans('Fixed amount discount for selected categories', array(), 'coupon');
+            ->trans('Percentage discount for selected attribute values', array(), 'coupon');
     }
 
     /**
@@ -48,7 +53,7 @@ class RemoveAmountOnCategories extends AbstractRemoveOnCategories
         $toolTip = $this->facade
             ->getTranslator()
             ->trans(
-                'This coupon subtracts the specified amount from the order total for each product which belongs to the selected categories. If the discount is greater than the total order, the customer will only pay the shipping, or nothing if the coupon also provides free shipping.',
+                'This coupon subtracts from the order total the specified percentage of each product price which uses the selected attribute values. If the discount is greater than the total order, the customer will only pay the shipping, or nothing if the coupon also provides free shipping.',
                 array(),
                 'coupon'
             );
@@ -61,6 +66,6 @@ class RemoveAmountOnCategories extends AbstractRemoveOnCategories
      */
     public function drawBackOfficeInputs()
     {
-        return $this->callDrawBackOfficeInputs('coupon/type-fragments/remove-amount-on-categories.html');
+        return $this->callDrawBackOfficeInputs('coupon/type-fragments/remove-percentage-on-attributes.html');
     }
 }

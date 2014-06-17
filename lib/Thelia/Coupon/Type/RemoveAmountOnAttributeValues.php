@@ -18,26 +18,25 @@ namespace Thelia\Coupon\Type;
  * @package Coupon
  * @author  Franck Allimant <franck@cqfdev.fr>
  */
-class RemoveAmountOnCategories extends AbstractRemoveOnCategories
+class RemoveAmountOnAttributeValues extends AbstractRemoveOnAttributeValues
 {
     use AmountCouponTrait;
 
     /** @var string Service Id  */
-    protected $serviceId = 'thelia.coupon.type.remove_amount_on_categories';
+    protected $serviceId = 'thelia.coupon.type.remove_amount_on_attribute_av';
 
     protected function getAmountFieldName()
     {
         return self::AMOUNT_FIELD_NAME;
     }
-
-     /**
+    /**
      * @inheritdoc
      */
     public function getName()
     {
         return $this->facade
             ->getTranslator()
-            ->trans('Fixed amount discount for selected categories', array(), 'coupon');
+            ->trans('Fixed amount discount for selected attribute values', array(), 'coupon');
     }
 
     /**
@@ -48,7 +47,7 @@ class RemoveAmountOnCategories extends AbstractRemoveOnCategories
         $toolTip = $this->facade
             ->getTranslator()
             ->trans(
-                'This coupon subtracts the specified amount from the order total for each product which belongs to the selected categories. If the discount is greater than the total order, the customer will only pay the shipping, or nothing if the coupon also provides free shipping.',
+                'This coupon subtracts the specified amount from the order total for each product which uses the selected attribute values. If the discount is greater than the total order, the customer will only pay the shipping, or nothing if the coupon also provides free shipping.',
                 array(),
                 'coupon'
             );
@@ -61,6 +60,6 @@ class RemoveAmountOnCategories extends AbstractRemoveOnCategories
      */
     public function drawBackOfficeInputs()
     {
-        return $this->callDrawBackOfficeInputs('coupon/type-fragments/remove-amount-on-categories.html');
+        return $this->callDrawBackOfficeInputs('coupon/type-fragments/remove-amount-on-attributes.html');
     }
 }
