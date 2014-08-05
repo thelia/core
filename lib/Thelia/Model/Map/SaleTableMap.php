@@ -11,12 +11,12 @@ use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\RelationMap;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Map\TableMapTrait;
-use Thelia\Model\AttributeAv;
-use Thelia\Model\AttributeAvQuery;
+use Thelia\Model\Sale;
+use Thelia\Model\SaleQuery;
 
 
 /**
- * This class defines the structure of the 'attribute_av' table.
+ * This class defines the structure of the 'sale' table.
  *
  *
  *
@@ -26,14 +26,14 @@ use Thelia\Model\AttributeAvQuery;
  * (i.e. if it's a text column type).
  *
  */
-class AttributeAvTableMap extends TableMap
+class SaleTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'Thelia.Model.Map.AttributeAvTableMap';
+    const CLASS_NAME = 'Thelia.Model.Map.SaleTableMap';
 
     /**
      * The default database name for this class
@@ -43,22 +43,22 @@ class AttributeAvTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'attribute_av';
+    const TABLE_NAME = 'sale';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\Thelia\\Model\\AttributeAv';
+    const OM_CLASS = '\\Thelia\\Model\\Sale';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'Thelia.Model.AttributeAv';
+    const CLASS_DEFAULT = 'Thelia.Model.Sale';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 5;
+    const NUM_COLUMNS = 8;
 
     /**
      * The number of lazy-loaded columns
@@ -68,32 +68,47 @@ class AttributeAvTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 5;
+    const NUM_HYDRATE_COLUMNS = 8;
 
     /**
      * the column name for the ID field
      */
-    const ID = 'attribute_av.ID';
+    const ID = 'sale.ID';
 
     /**
-     * the column name for the ATTRIBUTE_ID field
+     * the column name for the ACTIVE field
      */
-    const ATTRIBUTE_ID = 'attribute_av.ATTRIBUTE_ID';
+    const ACTIVE = 'sale.ACTIVE';
 
     /**
-     * the column name for the POSITION field
+     * the column name for the DISPLAY_INITIAL_PRICE field
      */
-    const POSITION = 'attribute_av.POSITION';
+    const DISPLAY_INITIAL_PRICE = 'sale.DISPLAY_INITIAL_PRICE';
+
+    /**
+     * the column name for the START_DATE field
+     */
+    const START_DATE = 'sale.START_DATE';
+
+    /**
+     * the column name for the END_DATE field
+     */
+    const END_DATE = 'sale.END_DATE';
+
+    /**
+     * the column name for the PRICE_OFFSET_TYPE field
+     */
+    const PRICE_OFFSET_TYPE = 'sale.PRICE_OFFSET_TYPE';
 
     /**
      * the column name for the CREATED_AT field
      */
-    const CREATED_AT = 'attribute_av.CREATED_AT';
+    const CREATED_AT = 'sale.CREATED_AT';
 
     /**
      * the column name for the UPDATED_AT field
      */
-    const UPDATED_AT = 'attribute_av.UPDATED_AT';
+    const UPDATED_AT = 'sale.UPDATED_AT';
 
     /**
      * The default string format for model objects of the related table
@@ -116,12 +131,12 @@ class AttributeAvTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'AttributeId', 'Position', 'CreatedAt', 'UpdatedAt', ),
-        self::TYPE_STUDLYPHPNAME => array('id', 'attributeId', 'position', 'createdAt', 'updatedAt', ),
-        self::TYPE_COLNAME       => array(AttributeAvTableMap::ID, AttributeAvTableMap::ATTRIBUTE_ID, AttributeAvTableMap::POSITION, AttributeAvTableMap::CREATED_AT, AttributeAvTableMap::UPDATED_AT, ),
-        self::TYPE_RAW_COLNAME   => array('ID', 'ATTRIBUTE_ID', 'POSITION', 'CREATED_AT', 'UPDATED_AT', ),
-        self::TYPE_FIELDNAME     => array('id', 'attribute_id', 'position', 'created_at', 'updated_at', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id', 'Active', 'DisplayInitialPrice', 'StartDate', 'EndDate', 'PriceOffsetType', 'CreatedAt', 'UpdatedAt', ),
+        self::TYPE_STUDLYPHPNAME => array('id', 'active', 'displayInitialPrice', 'startDate', 'endDate', 'priceOffsetType', 'createdAt', 'updatedAt', ),
+        self::TYPE_COLNAME       => array(SaleTableMap::ID, SaleTableMap::ACTIVE, SaleTableMap::DISPLAY_INITIAL_PRICE, SaleTableMap::START_DATE, SaleTableMap::END_DATE, SaleTableMap::PRICE_OFFSET_TYPE, SaleTableMap::CREATED_AT, SaleTableMap::UPDATED_AT, ),
+        self::TYPE_RAW_COLNAME   => array('ID', 'ACTIVE', 'DISPLAY_INITIAL_PRICE', 'START_DATE', 'END_DATE', 'PRICE_OFFSET_TYPE', 'CREATED_AT', 'UPDATED_AT', ),
+        self::TYPE_FIELDNAME     => array('id', 'active', 'display_initial_price', 'start_date', 'end_date', 'price_offset_type', 'created_at', 'updated_at', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
     );
 
     /**
@@ -131,12 +146,12 @@ class AttributeAvTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'AttributeId' => 1, 'Position' => 2, 'CreatedAt' => 3, 'UpdatedAt' => 4, ),
-        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'attributeId' => 1, 'position' => 2, 'createdAt' => 3, 'updatedAt' => 4, ),
-        self::TYPE_COLNAME       => array(AttributeAvTableMap::ID => 0, AttributeAvTableMap::ATTRIBUTE_ID => 1, AttributeAvTableMap::POSITION => 2, AttributeAvTableMap::CREATED_AT => 3, AttributeAvTableMap::UPDATED_AT => 4, ),
-        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'ATTRIBUTE_ID' => 1, 'POSITION' => 2, 'CREATED_AT' => 3, 'UPDATED_AT' => 4, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'attribute_id' => 1, 'position' => 2, 'created_at' => 3, 'updated_at' => 4, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Active' => 1, 'DisplayInitialPrice' => 2, 'StartDate' => 3, 'EndDate' => 4, 'PriceOffsetType' => 5, 'CreatedAt' => 6, 'UpdatedAt' => 7, ),
+        self::TYPE_STUDLYPHPNAME => array('id' => 0, 'active' => 1, 'displayInitialPrice' => 2, 'startDate' => 3, 'endDate' => 4, 'priceOffsetType' => 5, 'createdAt' => 6, 'updatedAt' => 7, ),
+        self::TYPE_COLNAME       => array(SaleTableMap::ID => 0, SaleTableMap::ACTIVE => 1, SaleTableMap::DISPLAY_INITIAL_PRICE => 2, SaleTableMap::START_DATE => 3, SaleTableMap::END_DATE => 4, SaleTableMap::PRICE_OFFSET_TYPE => 5, SaleTableMap::CREATED_AT => 6, SaleTableMap::UPDATED_AT => 7, ),
+        self::TYPE_RAW_COLNAME   => array('ID' => 0, 'ACTIVE' => 1, 'DISPLAY_INITIAL_PRICE' => 2, 'START_DATE' => 3, 'END_DATE' => 4, 'PRICE_OFFSET_TYPE' => 5, 'CREATED_AT' => 6, 'UPDATED_AT' => 7, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'active' => 1, 'display_initial_price' => 2, 'start_date' => 3, 'end_date' => 4, 'price_offset_type' => 5, 'created_at' => 6, 'updated_at' => 7, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
     );
 
     /**
@@ -149,15 +164,18 @@ class AttributeAvTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('attribute_av');
-        $this->setPhpName('AttributeAv');
-        $this->setClassName('\\Thelia\\Model\\AttributeAv');
+        $this->setName('sale');
+        $this->setPhpName('Sale');
+        $this->setClassName('\\Thelia\\Model\\Sale');
         $this->setPackage('Thelia.Model');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('ID', 'Id', 'INTEGER', true, null, null);
-        $this->addForeignKey('ATTRIBUTE_ID', 'AttributeId', 'INTEGER', 'attribute', 'ID', true, null, null);
-        $this->addColumn('POSITION', 'Position', 'INTEGER', true, null, null);
+        $this->addColumn('ACTIVE', 'Active', 'BOOLEAN', true, 1, false);
+        $this->addColumn('DISPLAY_INITIAL_PRICE', 'DisplayInitialPrice', 'BOOLEAN', true, 1, true);
+        $this->addColumn('START_DATE', 'StartDate', 'TIMESTAMP', false, null, null);
+        $this->addColumn('END_DATE', 'EndDate', 'TIMESTAMP', false, null, null);
+        $this->addColumn('PRICE_OFFSET_TYPE', 'PriceOffsetType', 'TINYINT', false, null, null);
         $this->addColumn('CREATED_AT', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('UPDATED_AT', 'UpdatedAt', 'TIMESTAMP', false, null, null);
     } // initialize()
@@ -167,10 +185,9 @@ class AttributeAvTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Attribute', '\\Thelia\\Model\\Attribute', RelationMap::MANY_TO_ONE, array('attribute_id' => 'id', ), 'CASCADE', 'RESTRICT');
-        $this->addRelation('AttributeCombination', '\\Thelia\\Model\\AttributeCombination', RelationMap::ONE_TO_MANY, array('id' => 'attribute_av_id', ), 'CASCADE', 'RESTRICT', 'AttributeCombinations');
-        $this->addRelation('SaleProduct', '\\Thelia\\Model\\SaleProduct', RelationMap::ONE_TO_MANY, array('id' => 'attribute_av_id', ), 'CASCADE', 'RESTRICT', 'SaleProducts');
-        $this->addRelation('AttributeAvI18n', '\\Thelia\\Model\\AttributeAvI18n', RelationMap::ONE_TO_MANY, array('id' => 'id', ), 'CASCADE', null, 'AttributeAvI18ns');
+        $this->addRelation('SaleOffsetCurrency', '\\Thelia\\Model\\SaleOffsetCurrency', RelationMap::ONE_TO_MANY, array('id' => 'sales_id', ), 'CASCADE', null, 'SaleOffsetCurrencies');
+        $this->addRelation('SaleProduct', '\\Thelia\\Model\\SaleProduct', RelationMap::ONE_TO_MANY, array('id' => 'sales_id', ), 'CASCADE', 'RESTRICT', 'SaleProducts');
+        $this->addRelation('SaleI18n', '\\Thelia\\Model\\SaleI18n', RelationMap::ONE_TO_MANY, array('id' => 'id', ), 'CASCADE', null, 'SaleI18ns');
     } // buildRelations()
 
     /**
@@ -182,20 +199,20 @@ class AttributeAvTableMap extends TableMap
     public function getBehaviors()
     {
         return array(
+            'i18n' => array('i18n_table' => '%TABLE%_i18n', 'i18n_phpname' => '%PHPNAME%I18n', 'i18n_columns' => 'title, description, chapo, postscriptum,sale_label', 'locale_column' => 'locale', 'locale_length' => '5', 'default_locale' => '', 'locale_alias' => '', ),
             'timestampable' => array('create_column' => 'created_at', 'update_column' => 'updated_at', ),
-            'i18n' => array('i18n_table' => '%TABLE%_i18n', 'i18n_phpname' => '%PHPNAME%I18n', 'i18n_columns' => 'title, description, chapo, postscriptum', 'locale_column' => 'locale', 'locale_length' => '5', 'default_locale' => '', 'locale_alias' => '', ),
         );
     } // getBehaviors()
     /**
-     * Method to invalidate the instance pool of all tables related to attribute_av     * by a foreign key with ON DELETE CASCADE
+     * Method to invalidate the instance pool of all tables related to sale     * by a foreign key with ON DELETE CASCADE
      */
     public static function clearRelatedInstancePool()
     {
         // Invalidate objects in ".$this->getClassNameFromBuilder($joinedTableTableMapBuilder)." instance pool,
         // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-                AttributeCombinationTableMap::clearInstancePool();
+                SaleOffsetCurrencyTableMap::clearInstancePool();
                 SaleProductTableMap::clearInstancePool();
-                AttributeAvI18nTableMap::clearInstancePool();
+                SaleI18nTableMap::clearInstancePool();
             }
 
     /**
@@ -254,7 +271,7 @@ class AttributeAvTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? AttributeAvTableMap::CLASS_DEFAULT : AttributeAvTableMap::OM_CLASS;
+        return $withPrefix ? SaleTableMap::CLASS_DEFAULT : SaleTableMap::OM_CLASS;
     }
 
     /**
@@ -268,21 +285,21 @@ class AttributeAvTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *         rethrown wrapped into a PropelException.
-     * @return array (AttributeAv object, last column rank)
+     * @return array (Sale object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = AttributeAvTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = AttributeAvTableMap::getInstanceFromPool($key))) {
+        $key = SaleTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = SaleTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + AttributeAvTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + SaleTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = AttributeAvTableMap::OM_CLASS;
+            $cls = SaleTableMap::OM_CLASS;
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            AttributeAvTableMap::addInstanceToPool($obj, $key);
+            SaleTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -305,8 +322,8 @@ class AttributeAvTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = AttributeAvTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = AttributeAvTableMap::getInstanceFromPool($key))) {
+            $key = SaleTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = SaleTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
@@ -315,7 +332,7 @@ class AttributeAvTableMap extends TableMap
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                AttributeAvTableMap::addInstanceToPool($obj, $key);
+                SaleTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -336,15 +353,21 @@ class AttributeAvTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(AttributeAvTableMap::ID);
-            $criteria->addSelectColumn(AttributeAvTableMap::ATTRIBUTE_ID);
-            $criteria->addSelectColumn(AttributeAvTableMap::POSITION);
-            $criteria->addSelectColumn(AttributeAvTableMap::CREATED_AT);
-            $criteria->addSelectColumn(AttributeAvTableMap::UPDATED_AT);
+            $criteria->addSelectColumn(SaleTableMap::ID);
+            $criteria->addSelectColumn(SaleTableMap::ACTIVE);
+            $criteria->addSelectColumn(SaleTableMap::DISPLAY_INITIAL_PRICE);
+            $criteria->addSelectColumn(SaleTableMap::START_DATE);
+            $criteria->addSelectColumn(SaleTableMap::END_DATE);
+            $criteria->addSelectColumn(SaleTableMap::PRICE_OFFSET_TYPE);
+            $criteria->addSelectColumn(SaleTableMap::CREATED_AT);
+            $criteria->addSelectColumn(SaleTableMap::UPDATED_AT);
         } else {
             $criteria->addSelectColumn($alias . '.ID');
-            $criteria->addSelectColumn($alias . '.ATTRIBUTE_ID');
-            $criteria->addSelectColumn($alias . '.POSITION');
+            $criteria->addSelectColumn($alias . '.ACTIVE');
+            $criteria->addSelectColumn($alias . '.DISPLAY_INITIAL_PRICE');
+            $criteria->addSelectColumn($alias . '.START_DATE');
+            $criteria->addSelectColumn($alias . '.END_DATE');
+            $criteria->addSelectColumn($alias . '.PRICE_OFFSET_TYPE');
             $criteria->addSelectColumn($alias . '.CREATED_AT');
             $criteria->addSelectColumn($alias . '.UPDATED_AT');
         }
@@ -359,7 +382,7 @@ class AttributeAvTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(AttributeAvTableMap::DATABASE_NAME)->getTable(AttributeAvTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(SaleTableMap::DATABASE_NAME)->getTable(SaleTableMap::TABLE_NAME);
     }
 
     /**
@@ -367,16 +390,16 @@ class AttributeAvTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getServiceContainer()->getDatabaseMap(AttributeAvTableMap::DATABASE_NAME);
-      if (!$dbMap->hasTable(AttributeAvTableMap::TABLE_NAME)) {
-        $dbMap->addTableObject(new AttributeAvTableMap());
+      $dbMap = Propel::getServiceContainer()->getDatabaseMap(SaleTableMap::DATABASE_NAME);
+      if (!$dbMap->hasTable(SaleTableMap::TABLE_NAME)) {
+        $dbMap->addTableObject(new SaleTableMap());
       }
     }
 
     /**
-     * Performs a DELETE on the database, given a AttributeAv or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a Sale or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or AttributeAv object or primary key or array of primary keys
+     * @param mixed               $values Criteria or Sale object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -387,25 +410,25 @@ class AttributeAvTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeAvTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SaleTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \Thelia\Model\AttributeAv) { // it's a model object
+        } elseif ($values instanceof \Thelia\Model\Sale) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(AttributeAvTableMap::DATABASE_NAME);
-            $criteria->add(AttributeAvTableMap::ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(SaleTableMap::DATABASE_NAME);
+            $criteria->add(SaleTableMap::ID, (array) $values, Criteria::IN);
         }
 
-        $query = AttributeAvQuery::create()->mergeWith($criteria);
+        $query = SaleQuery::create()->mergeWith($criteria);
 
-        if ($values instanceof Criteria) { AttributeAvTableMap::clearInstancePool();
+        if ($values instanceof Criteria) { SaleTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
-            foreach ((array) $values as $singleval) { AttributeAvTableMap::removeInstanceFromPool($singleval);
+            foreach ((array) $values as $singleval) { SaleTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -413,20 +436,20 @@ class AttributeAvTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the attribute_av table.
+     * Deletes all rows from the sale table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return AttributeAvQuery::create()->doDeleteAll($con);
+        return SaleQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a AttributeAv or Criteria object.
+     * Performs an INSERT on the database, given a Sale or Criteria object.
      *
-     * @param mixed               $criteria Criteria or AttributeAv object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or Sale object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -435,22 +458,22 @@ class AttributeAvTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeAvTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SaleTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from AttributeAv object
+            $criteria = $criteria->buildCriteria(); // build Criteria from Sale object
         }
 
-        if ($criteria->containsKey(AttributeAvTableMap::ID) && $criteria->keyContainsValue(AttributeAvTableMap::ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.AttributeAvTableMap::ID.')');
+        if ($criteria->containsKey(SaleTableMap::ID) && $criteria->keyContainsValue(SaleTableMap::ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SaleTableMap::ID.')');
         }
 
 
         // Set the correct dbName
-        $query = AttributeAvQuery::create()->mergeWith($criteria);
+        $query = SaleQuery::create()->mergeWith($criteria);
 
         try {
             // use transaction because $criteria could contain info
@@ -466,7 +489,7 @@ class AttributeAvTableMap extends TableMap
         return $pk;
     }
 
-} // AttributeAvTableMap
+} // SaleTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-AttributeAvTableMap::buildTableMap();
+SaleTableMap::buildTableMap();
