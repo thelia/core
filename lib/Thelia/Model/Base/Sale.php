@@ -17,24 +17,22 @@ use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
 use Propel\Runtime\Util\PropelDateTime;
-use Thelia\Model\Attribute as ChildAttribute;
-use Thelia\Model\AttributeAv as ChildAttributeAv;
-use Thelia\Model\AttributeAvI18n as ChildAttributeAvI18n;
-use Thelia\Model\AttributeAvI18nQuery as ChildAttributeAvI18nQuery;
-use Thelia\Model\AttributeAvQuery as ChildAttributeAvQuery;
-use Thelia\Model\AttributeCombination as ChildAttributeCombination;
-use Thelia\Model\AttributeCombinationQuery as ChildAttributeCombinationQuery;
-use Thelia\Model\AttributeQuery as ChildAttributeQuery;
+use Thelia\Model\Sale as ChildSale;
+use Thelia\Model\SaleI18n as ChildSaleI18n;
+use Thelia\Model\SaleI18nQuery as ChildSaleI18nQuery;
+use Thelia\Model\SaleOffsetCurrency as ChildSaleOffsetCurrency;
+use Thelia\Model\SaleOffsetCurrencyQuery as ChildSaleOffsetCurrencyQuery;
 use Thelia\Model\SaleProduct as ChildSaleProduct;
 use Thelia\Model\SaleProductQuery as ChildSaleProductQuery;
-use Thelia\Model\Map\AttributeAvTableMap;
+use Thelia\Model\SaleQuery as ChildSaleQuery;
+use Thelia\Model\Map\SaleTableMap;
 
-abstract class AttributeAv implements ActiveRecordInterface
+abstract class Sale implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\Thelia\\Model\\Map\\AttributeAvTableMap';
+    const TABLE_MAP = '\\Thelia\\Model\\Map\\SaleTableMap';
 
 
     /**
@@ -70,16 +68,36 @@ abstract class AttributeAv implements ActiveRecordInterface
     protected $id;
 
     /**
-     * The value for the attribute_id field.
-     * @var        int
+     * The value for the active field.
+     * Note: this column has a database default value of: false
+     * @var        boolean
      */
-    protected $attribute_id;
+    protected $active;
 
     /**
-     * The value for the position field.
+     * The value for the display_initial_price field.
+     * Note: this column has a database default value of: true
+     * @var        boolean
+     */
+    protected $display_initial_price;
+
+    /**
+     * The value for the start_date field.
+     * @var        string
+     */
+    protected $start_date;
+
+    /**
+     * The value for the end_date field.
+     * @var        string
+     */
+    protected $end_date;
+
+    /**
+     * The value for the price_offset_type field.
      * @var        int
      */
-    protected $position;
+    protected $price_offset_type;
 
     /**
      * The value for the created_at field.
@@ -94,15 +112,10 @@ abstract class AttributeAv implements ActiveRecordInterface
     protected $updated_at;
 
     /**
-     * @var        Attribute
+     * @var        ObjectCollection|ChildSaleOffsetCurrency[] Collection to store aggregation of ChildSaleOffsetCurrency objects.
      */
-    protected $aAttribute;
-
-    /**
-     * @var        ObjectCollection|ChildAttributeCombination[] Collection to store aggregation of ChildAttributeCombination objects.
-     */
-    protected $collAttributeCombinations;
-    protected $collAttributeCombinationsPartial;
+    protected $collSaleOffsetCurrencies;
+    protected $collSaleOffsetCurrenciesPartial;
 
     /**
      * @var        ObjectCollection|ChildSaleProduct[] Collection to store aggregation of ChildSaleProduct objects.
@@ -111,10 +124,10 @@ abstract class AttributeAv implements ActiveRecordInterface
     protected $collSaleProductsPartial;
 
     /**
-     * @var        ObjectCollection|ChildAttributeAvI18n[] Collection to store aggregation of ChildAttributeAvI18n objects.
+     * @var        ObjectCollection|ChildSaleI18n[] Collection to store aggregation of ChildSaleI18n objects.
      */
-    protected $collAttributeAvI18ns;
-    protected $collAttributeAvI18nsPartial;
+    protected $collSaleI18ns;
+    protected $collSaleI18nsPartial;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -134,7 +147,7 @@ abstract class AttributeAv implements ActiveRecordInterface
 
     /**
      * Current translation objects
-     * @var        array[ChildAttributeAvI18n]
+     * @var        array[ChildSaleI18n]
      */
     protected $currentTranslations;
 
@@ -142,7 +155,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      * An array of objects scheduled for deletion.
      * @var ObjectCollection
      */
-    protected $attributeCombinationsScheduledForDeletion = null;
+    protected $saleOffsetCurrenciesScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -154,13 +167,27 @@ abstract class AttributeAv implements ActiveRecordInterface
      * An array of objects scheduled for deletion.
      * @var ObjectCollection
      */
-    protected $attributeAvI18nsScheduledForDeletion = null;
+    protected $saleI18nsScheduledForDeletion = null;
 
     /**
-     * Initializes internal state of Thelia\Model\Base\AttributeAv object.
+     * Applies default values to this object.
+     * This method should be called from the object's constructor (or
+     * equivalent initialization method).
+     * @see __construct()
+     */
+    public function applyDefaultValues()
+    {
+        $this->active = false;
+        $this->display_initial_price = true;
+    }
+
+    /**
+     * Initializes internal state of Thelia\Model\Base\Sale object.
+     * @see applyDefaults()
      */
     public function __construct()
     {
+        $this->applyDefaultValues();
     }
 
     /**
@@ -252,9 +279,9 @@ abstract class AttributeAv implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>AttributeAv</code> instance.  If
-     * <code>obj</code> is an instance of <code>AttributeAv</code>, delegates to
-     * <code>equals(AttributeAv)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>Sale</code> instance.  If
+     * <code>obj</code> is an instance of <code>Sale</code>, delegates to
+     * <code>equals(Sale)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -337,7 +364,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return AttributeAv The current object, for fluid interface
+     * @return Sale The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -369,7 +396,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      *                       or a format name ('XML', 'YAML', 'JSON', 'CSV')
      * @param string $data The source data to import from
      *
-     * @return AttributeAv The current object, for fluid interface
+     * @return Sale The current object, for fluid interface
      */
     public function importFrom($parser, $data)
     {
@@ -426,25 +453,76 @@ abstract class AttributeAv implements ActiveRecordInterface
     }
 
     /**
-     * Get the [attribute_id] column value.
+     * Get the [active] column value.
      *
-     * @return   int
+     * @return   boolean
      */
-    public function getAttributeId()
+    public function getActive()
     {
 
-        return $this->attribute_id;
+        return $this->active;
     }
 
     /**
-     * Get the [position] column value.
+     * Get the [display_initial_price] column value.
+     *
+     * @return   boolean
+     */
+    public function getDisplayInitialPrice()
+    {
+
+        return $this->display_initial_price;
+    }
+
+    /**
+     * Get the [optionally formatted] temporal [start_date] column value.
+     *
+     *
+     * @param      string $format The date/time format string (either date()-style or strftime()-style).
+     *                            If format is NULL, then the raw \DateTime object will be returned.
+     *
+     * @return mixed Formatted date/time value as string or \DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00
+     *
+     * @throws PropelException - if unable to parse/validate the date/time value.
+     */
+    public function getStartDate($format = NULL)
+    {
+        if ($format === null) {
+            return $this->start_date;
+        } else {
+            return $this->start_date instanceof \DateTime ? $this->start_date->format($format) : null;
+        }
+    }
+
+    /**
+     * Get the [optionally formatted] temporal [end_date] column value.
+     *
+     *
+     * @param      string $format The date/time format string (either date()-style or strftime()-style).
+     *                            If format is NULL, then the raw \DateTime object will be returned.
+     *
+     * @return mixed Formatted date/time value as string or \DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00
+     *
+     * @throws PropelException - if unable to parse/validate the date/time value.
+     */
+    public function getEndDate($format = NULL)
+    {
+        if ($format === null) {
+            return $this->end_date;
+        } else {
+            return $this->end_date instanceof \DateTime ? $this->end_date->format($format) : null;
+        }
+    }
+
+    /**
+     * Get the [price_offset_type] column value.
      *
      * @return   int
      */
-    public function getPosition()
+    public function getPriceOffsetType()
     {
 
-        return $this->position;
+        return $this->price_offset_type;
     }
 
     /**
@@ -491,7 +569,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      * Set the value of [id] column.
      *
      * @param      int $v new value
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -501,7 +579,7 @@ abstract class AttributeAv implements ActiveRecordInterface
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[AttributeAvTableMap::ID] = true;
+            $this->modifiedColumns[SaleTableMap::ID] = true;
         }
 
 
@@ -509,57 +587,132 @@ abstract class AttributeAv implements ActiveRecordInterface
     } // setId()
 
     /**
-     * Set the value of [attribute_id] column.
+     * Sets the value of the [active] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
      *
-     * @param      int $v new value
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @param      boolean|integer|string $v The new value
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
-    public function setAttributeId($v)
+    public function setActive($v)
     {
         if ($v !== null) {
-            $v = (int) $v;
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
         }
 
-        if ($this->attribute_id !== $v) {
-            $this->attribute_id = $v;
-            $this->modifiedColumns[AttributeAvTableMap::ATTRIBUTE_ID] = true;
-        }
-
-        if ($this->aAttribute !== null && $this->aAttribute->getId() !== $v) {
-            $this->aAttribute = null;
+        if ($this->active !== $v) {
+            $this->active = $v;
+            $this->modifiedColumns[SaleTableMap::ACTIVE] = true;
         }
 
 
         return $this;
-    } // setAttributeId()
+    } // setActive()
 
     /**
-     * Set the value of [position] column.
+     * Sets the value of the [display_initial_price] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param      boolean|integer|string $v The new value
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
+     */
+    public function setDisplayInitialPrice($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->display_initial_price !== $v) {
+            $this->display_initial_price = $v;
+            $this->modifiedColumns[SaleTableMap::DISPLAY_INITIAL_PRICE] = true;
+        }
+
+
+        return $this;
+    } // setDisplayInitialPrice()
+
+    /**
+     * Sets the value of [start_date] column to a normalized version of the date/time value specified.
+     *
+     * @param      mixed $v string, integer (timestamp), or \DateTime value.
+     *               Empty strings are treated as NULL.
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
+     */
+    public function setStartDate($v)
+    {
+        $dt = PropelDateTime::newInstance($v, null, '\DateTime');
+        if ($this->start_date !== null || $dt !== null) {
+            if ($dt !== $this->start_date) {
+                $this->start_date = $dt;
+                $this->modifiedColumns[SaleTableMap::START_DATE] = true;
+            }
+        } // if either are not null
+
+
+        return $this;
+    } // setStartDate()
+
+    /**
+     * Sets the value of [end_date] column to a normalized version of the date/time value specified.
+     *
+     * @param      mixed $v string, integer (timestamp), or \DateTime value.
+     *               Empty strings are treated as NULL.
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
+     */
+    public function setEndDate($v)
+    {
+        $dt = PropelDateTime::newInstance($v, null, '\DateTime');
+        if ($this->end_date !== null || $dt !== null) {
+            if ($dt !== $this->end_date) {
+                $this->end_date = $dt;
+                $this->modifiedColumns[SaleTableMap::END_DATE] = true;
+            }
+        } // if either are not null
+
+
+        return $this;
+    } // setEndDate()
+
+    /**
+     * Set the value of [price_offset_type] column.
      *
      * @param      int $v new value
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
-    public function setPosition($v)
+    public function setPriceOffsetType($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->position !== $v) {
-            $this->position = $v;
-            $this->modifiedColumns[AttributeAvTableMap::POSITION] = true;
+        if ($this->price_offset_type !== $v) {
+            $this->price_offset_type = $v;
+            $this->modifiedColumns[SaleTableMap::PRICE_OFFSET_TYPE] = true;
         }
 
 
         return $this;
-    } // setPosition()
+    } // setPriceOffsetType()
 
     /**
      * Sets the value of [created_at] column to a normalized version of the date/time value specified.
      *
      * @param      mixed $v string, integer (timestamp), or \DateTime value.
      *               Empty strings are treated as NULL.
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
     public function setCreatedAt($v)
     {
@@ -567,7 +720,7 @@ abstract class AttributeAv implements ActiveRecordInterface
         if ($this->created_at !== null || $dt !== null) {
             if ($dt !== $this->created_at) {
                 $this->created_at = $dt;
-                $this->modifiedColumns[AttributeAvTableMap::CREATED_AT] = true;
+                $this->modifiedColumns[SaleTableMap::CREATED_AT] = true;
             }
         } // if either are not null
 
@@ -580,7 +733,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      *
      * @param      mixed $v string, integer (timestamp), or \DateTime value.
      *               Empty strings are treated as NULL.
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
     public function setUpdatedAt($v)
     {
@@ -588,7 +741,7 @@ abstract class AttributeAv implements ActiveRecordInterface
         if ($this->updated_at !== null || $dt !== null) {
             if ($dt !== $this->updated_at) {
                 $this->updated_at = $dt;
-                $this->modifiedColumns[AttributeAvTableMap::UPDATED_AT] = true;
+                $this->modifiedColumns[SaleTableMap::UPDATED_AT] = true;
             }
         } // if either are not null
 
@@ -606,6 +759,14 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues()
     {
+            if ($this->active !== false) {
+                return false;
+            }
+
+            if ($this->display_initial_price !== true) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return TRUE
         return true;
     } // hasOnlyDefaultValues()
@@ -633,22 +794,37 @@ abstract class AttributeAv implements ActiveRecordInterface
         try {
 
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : AttributeAvTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : SaleTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : AttributeAvTableMap::translateFieldName('AttributeId', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->attribute_id = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : SaleTableMap::translateFieldName('Active', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->active = (null !== $col) ? (boolean) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : AttributeAvTableMap::translateFieldName('Position', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->position = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : SaleTableMap::translateFieldName('DisplayInitialPrice', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->display_initial_price = (null !== $col) ? (boolean) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : AttributeAvTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : SaleTableMap::translateFieldName('StartDate', TableMap::TYPE_PHPNAME, $indexType)];
+            if ($col === '0000-00-00 00:00:00') {
+                $col = null;
+            }
+            $this->start_date = (null !== $col) ? PropelDateTime::newInstance($col, null, '\DateTime') : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : SaleTableMap::translateFieldName('EndDate', TableMap::TYPE_PHPNAME, $indexType)];
+            if ($col === '0000-00-00 00:00:00') {
+                $col = null;
+            }
+            $this->end_date = (null !== $col) ? PropelDateTime::newInstance($col, null, '\DateTime') : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : SaleTableMap::translateFieldName('PriceOffsetType', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->price_offset_type = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : SaleTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, '\DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : AttributeAvTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : SaleTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -661,10 +837,10 @@ abstract class AttributeAv implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 5; // 5 = AttributeAvTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 8; // 8 = SaleTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException("Error populating \Thelia\Model\AttributeAv object", 0, $e);
+            throw new PropelException("Error populating \Thelia\Model\Sale object", 0, $e);
         }
     }
 
@@ -683,9 +859,6 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aAttribute !== null && $this->attribute_id !== $this->aAttribute->getId()) {
-            $this->aAttribute = null;
-        }
     } // ensureConsistency
 
     /**
@@ -709,13 +882,13 @@ abstract class AttributeAv implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(AttributeAvTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(SaleTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildAttributeAvQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildSaleQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -725,12 +898,11 @@ abstract class AttributeAv implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aAttribute = null;
-            $this->collAttributeCombinations = null;
+            $this->collSaleOffsetCurrencies = null;
 
             $this->collSaleProducts = null;
 
-            $this->collAttributeAvI18ns = null;
+            $this->collSaleI18ns = null;
 
         } // if (deep)
     }
@@ -741,8 +913,8 @@ abstract class AttributeAv implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see AttributeAv::setDeleted()
-     * @see AttributeAv::isDeleted()
+     * @see Sale::setDeleted()
+     * @see Sale::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -751,12 +923,12 @@ abstract class AttributeAv implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeAvTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SaleTableMap::DATABASE_NAME);
         }
 
         $con->beginTransaction();
         try {
-            $deleteQuery = ChildAttributeAvQuery::create()
+            $deleteQuery = ChildSaleQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -793,7 +965,7 @@ abstract class AttributeAv implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(AttributeAvTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SaleTableMap::DATABASE_NAME);
         }
 
         $con->beginTransaction();
@@ -803,16 +975,16 @@ abstract class AttributeAv implements ActiveRecordInterface
             if ($isInsert) {
                 $ret = $ret && $this->preInsert($con);
                 // timestampable behavior
-                if (!$this->isColumnModified(AttributeAvTableMap::CREATED_AT)) {
+                if (!$this->isColumnModified(SaleTableMap::CREATED_AT)) {
                     $this->setCreatedAt(time());
                 }
-                if (!$this->isColumnModified(AttributeAvTableMap::UPDATED_AT)) {
+                if (!$this->isColumnModified(SaleTableMap::UPDATED_AT)) {
                     $this->setUpdatedAt(time());
                 }
             } else {
                 $ret = $ret && $this->preUpdate($con);
                 // timestampable behavior
-                if ($this->isModified() && !$this->isColumnModified(AttributeAvTableMap::UPDATED_AT)) {
+                if ($this->isModified() && !$this->isColumnModified(SaleTableMap::UPDATED_AT)) {
                     $this->setUpdatedAt(time());
                 }
             }
@@ -824,7 +996,7 @@ abstract class AttributeAv implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                AttributeAvTableMap::addInstanceToPool($this);
+                SaleTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -854,18 +1026,6 @@ abstract class AttributeAv implements ActiveRecordInterface
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
 
-            // We call the save method on the following object(s) if they
-            // were passed to this object by their corresponding set
-            // method.  This object relates to these object(s) by a
-            // foreign key reference.
-
-            if ($this->aAttribute !== null) {
-                if ($this->aAttribute->isModified() || $this->aAttribute->isNew()) {
-                    $affectedRows += $this->aAttribute->save($con);
-                }
-                $this->setAttribute($this->aAttribute);
-            }
-
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -877,17 +1037,17 @@ abstract class AttributeAv implements ActiveRecordInterface
                 $this->resetModified();
             }
 
-            if ($this->attributeCombinationsScheduledForDeletion !== null) {
-                if (!$this->attributeCombinationsScheduledForDeletion->isEmpty()) {
-                    \Thelia\Model\AttributeCombinationQuery::create()
-                        ->filterByPrimaryKeys($this->attributeCombinationsScheduledForDeletion->getPrimaryKeys(false))
+            if ($this->saleOffsetCurrenciesScheduledForDeletion !== null) {
+                if (!$this->saleOffsetCurrenciesScheduledForDeletion->isEmpty()) {
+                    \Thelia\Model\SaleOffsetCurrencyQuery::create()
+                        ->filterByPrimaryKeys($this->saleOffsetCurrenciesScheduledForDeletion->getPrimaryKeys(false))
                         ->delete($con);
-                    $this->attributeCombinationsScheduledForDeletion = null;
+                    $this->saleOffsetCurrenciesScheduledForDeletion = null;
                 }
             }
 
-                if ($this->collAttributeCombinations !== null) {
-            foreach ($this->collAttributeCombinations as $referrerFK) {
+                if ($this->collSaleOffsetCurrencies !== null) {
+            foreach ($this->collSaleOffsetCurrencies as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -911,17 +1071,17 @@ abstract class AttributeAv implements ActiveRecordInterface
                 }
             }
 
-            if ($this->attributeAvI18nsScheduledForDeletion !== null) {
-                if (!$this->attributeAvI18nsScheduledForDeletion->isEmpty()) {
-                    \Thelia\Model\AttributeAvI18nQuery::create()
-                        ->filterByPrimaryKeys($this->attributeAvI18nsScheduledForDeletion->getPrimaryKeys(false))
+            if ($this->saleI18nsScheduledForDeletion !== null) {
+                if (!$this->saleI18nsScheduledForDeletion->isEmpty()) {
+                    \Thelia\Model\SaleI18nQuery::create()
+                        ->filterByPrimaryKeys($this->saleI18nsScheduledForDeletion->getPrimaryKeys(false))
                         ->delete($con);
-                    $this->attributeAvI18nsScheduledForDeletion = null;
+                    $this->saleI18nsScheduledForDeletion = null;
                 }
             }
 
-                if ($this->collAttributeAvI18ns !== null) {
-            foreach ($this->collAttributeAvI18ns as $referrerFK) {
+                if ($this->collSaleI18ns !== null) {
+            foreach ($this->collSaleI18ns as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -948,30 +1108,39 @@ abstract class AttributeAv implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[AttributeAvTableMap::ID] = true;
+        $this->modifiedColumns[SaleTableMap::ID] = true;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . AttributeAvTableMap::ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . SaleTableMap::ID . ')');
         }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(AttributeAvTableMap::ID)) {
+        if ($this->isColumnModified(SaleTableMap::ID)) {
             $modifiedColumns[':p' . $index++]  = '`ID`';
         }
-        if ($this->isColumnModified(AttributeAvTableMap::ATTRIBUTE_ID)) {
-            $modifiedColumns[':p' . $index++]  = '`ATTRIBUTE_ID`';
+        if ($this->isColumnModified(SaleTableMap::ACTIVE)) {
+            $modifiedColumns[':p' . $index++]  = '`ACTIVE`';
         }
-        if ($this->isColumnModified(AttributeAvTableMap::POSITION)) {
-            $modifiedColumns[':p' . $index++]  = '`POSITION`';
+        if ($this->isColumnModified(SaleTableMap::DISPLAY_INITIAL_PRICE)) {
+            $modifiedColumns[':p' . $index++]  = '`DISPLAY_INITIAL_PRICE`';
         }
-        if ($this->isColumnModified(AttributeAvTableMap::CREATED_AT)) {
+        if ($this->isColumnModified(SaleTableMap::START_DATE)) {
+            $modifiedColumns[':p' . $index++]  = '`START_DATE`';
+        }
+        if ($this->isColumnModified(SaleTableMap::END_DATE)) {
+            $modifiedColumns[':p' . $index++]  = '`END_DATE`';
+        }
+        if ($this->isColumnModified(SaleTableMap::PRICE_OFFSET_TYPE)) {
+            $modifiedColumns[':p' . $index++]  = '`PRICE_OFFSET_TYPE`';
+        }
+        if ($this->isColumnModified(SaleTableMap::CREATED_AT)) {
             $modifiedColumns[':p' . $index++]  = '`CREATED_AT`';
         }
-        if ($this->isColumnModified(AttributeAvTableMap::UPDATED_AT)) {
+        if ($this->isColumnModified(SaleTableMap::UPDATED_AT)) {
             $modifiedColumns[':p' . $index++]  = '`UPDATED_AT`';
         }
 
         $sql = sprintf(
-            'INSERT INTO `attribute_av` (%s) VALUES (%s)',
+            'INSERT INTO `sale` (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -983,11 +1152,20 @@ abstract class AttributeAv implements ActiveRecordInterface
                     case '`ID`':
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case '`ATTRIBUTE_ID`':
-                        $stmt->bindValue($identifier, $this->attribute_id, PDO::PARAM_INT);
+                    case '`ACTIVE`':
+                        $stmt->bindValue($identifier, (int) $this->active, PDO::PARAM_INT);
                         break;
-                    case '`POSITION`':
-                        $stmt->bindValue($identifier, $this->position, PDO::PARAM_INT);
+                    case '`DISPLAY_INITIAL_PRICE`':
+                        $stmt->bindValue($identifier, (int) $this->display_initial_price, PDO::PARAM_INT);
+                        break;
+                    case '`START_DATE`':
+                        $stmt->bindValue($identifier, $this->start_date ? $this->start_date->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
+                        break;
+                    case '`END_DATE`':
+                        $stmt->bindValue($identifier, $this->end_date ? $this->end_date->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
+                        break;
+                    case '`PRICE_OFFSET_TYPE`':
+                        $stmt->bindValue($identifier, $this->price_offset_type, PDO::PARAM_INT);
                         break;
                     case '`CREATED_AT`':
                         $stmt->bindValue($identifier, $this->created_at ? $this->created_at->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
@@ -1041,7 +1219,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = AttributeAvTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = SaleTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -1061,15 +1239,24 @@ abstract class AttributeAv implements ActiveRecordInterface
                 return $this->getId();
                 break;
             case 1:
-                return $this->getAttributeId();
+                return $this->getActive();
                 break;
             case 2:
-                return $this->getPosition();
+                return $this->getDisplayInitialPrice();
                 break;
             case 3:
-                return $this->getCreatedAt();
+                return $this->getStartDate();
                 break;
             case 4:
+                return $this->getEndDate();
+                break;
+            case 5:
+                return $this->getPriceOffsetType();
+                break;
+            case 6:
+                return $this->getCreatedAt();
+                break;
+            case 7:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -1095,17 +1282,20 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
-        if (isset($alreadyDumpedObjects['AttributeAv'][$this->getPrimaryKey()])) {
+        if (isset($alreadyDumpedObjects['Sale'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['AttributeAv'][$this->getPrimaryKey()] = true;
-        $keys = AttributeAvTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['Sale'][$this->getPrimaryKey()] = true;
+        $keys = SaleTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getAttributeId(),
-            $keys[2] => $this->getPosition(),
-            $keys[3] => $this->getCreatedAt(),
-            $keys[4] => $this->getUpdatedAt(),
+            $keys[1] => $this->getActive(),
+            $keys[2] => $this->getDisplayInitialPrice(),
+            $keys[3] => $this->getStartDate(),
+            $keys[4] => $this->getEndDate(),
+            $keys[5] => $this->getPriceOffsetType(),
+            $keys[6] => $this->getCreatedAt(),
+            $keys[7] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1113,17 +1303,14 @@ abstract class AttributeAv implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aAttribute) {
-                $result['Attribute'] = $this->aAttribute->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
-            }
-            if (null !== $this->collAttributeCombinations) {
-                $result['AttributeCombinations'] = $this->collAttributeCombinations->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            if (null !== $this->collSaleOffsetCurrencies) {
+                $result['SaleOffsetCurrencies'] = $this->collSaleOffsetCurrencies->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collSaleProducts) {
                 $result['SaleProducts'] = $this->collSaleProducts->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
-            if (null !== $this->collAttributeAvI18ns) {
-                $result['AttributeAvI18ns'] = $this->collAttributeAvI18ns->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            if (null !== $this->collSaleI18ns) {
+                $result['SaleI18ns'] = $this->collSaleI18ns->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1143,7 +1330,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = AttributeAvTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = SaleTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -1163,15 +1350,24 @@ abstract class AttributeAv implements ActiveRecordInterface
                 $this->setId($value);
                 break;
             case 1:
-                $this->setAttributeId($value);
+                $this->setActive($value);
                 break;
             case 2:
-                $this->setPosition($value);
+                $this->setDisplayInitialPrice($value);
                 break;
             case 3:
-                $this->setCreatedAt($value);
+                $this->setStartDate($value);
                 break;
             case 4:
+                $this->setEndDate($value);
+                break;
+            case 5:
+                $this->setPriceOffsetType($value);
+                break;
+            case 6:
+                $this->setCreatedAt($value);
+                break;
+            case 7:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1196,13 +1392,16 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = AttributeAvTableMap::getFieldNames($keyType);
+        $keys = SaleTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setAttributeId($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setPosition($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setCreatedAt($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setUpdatedAt($arr[$keys[4]]);
+        if (array_key_exists($keys[1], $arr)) $this->setActive($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setDisplayInitialPrice($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setStartDate($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setEndDate($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setPriceOffsetType($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setCreatedAt($arr[$keys[6]]);
+        if (array_key_exists($keys[7], $arr)) $this->setUpdatedAt($arr[$keys[7]]);
     }
 
     /**
@@ -1212,13 +1411,16 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(AttributeAvTableMap::DATABASE_NAME);
+        $criteria = new Criteria(SaleTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(AttributeAvTableMap::ID)) $criteria->add(AttributeAvTableMap::ID, $this->id);
-        if ($this->isColumnModified(AttributeAvTableMap::ATTRIBUTE_ID)) $criteria->add(AttributeAvTableMap::ATTRIBUTE_ID, $this->attribute_id);
-        if ($this->isColumnModified(AttributeAvTableMap::POSITION)) $criteria->add(AttributeAvTableMap::POSITION, $this->position);
-        if ($this->isColumnModified(AttributeAvTableMap::CREATED_AT)) $criteria->add(AttributeAvTableMap::CREATED_AT, $this->created_at);
-        if ($this->isColumnModified(AttributeAvTableMap::UPDATED_AT)) $criteria->add(AttributeAvTableMap::UPDATED_AT, $this->updated_at);
+        if ($this->isColumnModified(SaleTableMap::ID)) $criteria->add(SaleTableMap::ID, $this->id);
+        if ($this->isColumnModified(SaleTableMap::ACTIVE)) $criteria->add(SaleTableMap::ACTIVE, $this->active);
+        if ($this->isColumnModified(SaleTableMap::DISPLAY_INITIAL_PRICE)) $criteria->add(SaleTableMap::DISPLAY_INITIAL_PRICE, $this->display_initial_price);
+        if ($this->isColumnModified(SaleTableMap::START_DATE)) $criteria->add(SaleTableMap::START_DATE, $this->start_date);
+        if ($this->isColumnModified(SaleTableMap::END_DATE)) $criteria->add(SaleTableMap::END_DATE, $this->end_date);
+        if ($this->isColumnModified(SaleTableMap::PRICE_OFFSET_TYPE)) $criteria->add(SaleTableMap::PRICE_OFFSET_TYPE, $this->price_offset_type);
+        if ($this->isColumnModified(SaleTableMap::CREATED_AT)) $criteria->add(SaleTableMap::CREATED_AT, $this->created_at);
+        if ($this->isColumnModified(SaleTableMap::UPDATED_AT)) $criteria->add(SaleTableMap::UPDATED_AT, $this->updated_at);
 
         return $criteria;
     }
@@ -1233,8 +1435,8 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = new Criteria(AttributeAvTableMap::DATABASE_NAME);
-        $criteria->add(AttributeAvTableMap::ID, $this->id);
+        $criteria = new Criteria(SaleTableMap::DATABASE_NAME);
+        $criteria->add(SaleTableMap::ID, $this->id);
 
         return $criteria;
     }
@@ -1275,15 +1477,18 @@ abstract class AttributeAv implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \Thelia\Model\AttributeAv (or compatible) type.
+     * @param      object $copyObj An object of \Thelia\Model\Sale (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setAttributeId($this->getAttributeId());
-        $copyObj->setPosition($this->getPosition());
+        $copyObj->setActive($this->getActive());
+        $copyObj->setDisplayInitialPrice($this->getDisplayInitialPrice());
+        $copyObj->setStartDate($this->getStartDate());
+        $copyObj->setEndDate($this->getEndDate());
+        $copyObj->setPriceOffsetType($this->getPriceOffsetType());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
 
@@ -1292,9 +1497,9 @@ abstract class AttributeAv implements ActiveRecordInterface
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
 
-            foreach ($this->getAttributeCombinations() as $relObj) {
+            foreach ($this->getSaleOffsetCurrencies() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addAttributeCombination($relObj->copy($deepCopy));
+                    $copyObj->addSaleOffsetCurrency($relObj->copy($deepCopy));
                 }
             }
 
@@ -1304,9 +1509,9 @@ abstract class AttributeAv implements ActiveRecordInterface
                 }
             }
 
-            foreach ($this->getAttributeAvI18ns() as $relObj) {
+            foreach ($this->getSaleI18ns() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addAttributeAvI18n($relObj->copy($deepCopy));
+                    $copyObj->addSaleI18n($relObj->copy($deepCopy));
                 }
             }
 
@@ -1327,7 +1532,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      * objects.
      *
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return                 \Thelia\Model\AttributeAv Clone of current object.
+     * @return                 \Thelia\Model\Sale Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1338,57 +1543,6 @@ abstract class AttributeAv implements ActiveRecordInterface
         $this->copyInto($copyObj, $deepCopy);
 
         return $copyObj;
-    }
-
-    /**
-     * Declares an association between this object and a ChildAttribute object.
-     *
-     * @param                  ChildAttribute $v
-     * @return                 \Thelia\Model\AttributeAv The current object (for fluent API support)
-     * @throws PropelException
-     */
-    public function setAttribute(ChildAttribute $v = null)
-    {
-        if ($v === null) {
-            $this->setAttributeId(NULL);
-        } else {
-            $this->setAttributeId($v->getId());
-        }
-
-        $this->aAttribute = $v;
-
-        // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the ChildAttribute object, it will not be re-added.
-        if ($v !== null) {
-            $v->addAttributeAv($this);
-        }
-
-
-        return $this;
-    }
-
-
-    /**
-     * Get the associated ChildAttribute object
-     *
-     * @param      ConnectionInterface $con Optional Connection object.
-     * @return                 ChildAttribute The associated ChildAttribute object.
-     * @throws PropelException
-     */
-    public function getAttribute(ConnectionInterface $con = null)
-    {
-        if ($this->aAttribute === null && ($this->attribute_id !== null)) {
-            $this->aAttribute = ChildAttributeQuery::create()->findPk($this->attribute_id, $con);
-            /* The following can be used additionally to
-                guarantee the related object contains a reference
-                to this object.  This level of coupling may, however, be
-                undesirable since it could result in an only partially populated collection
-                in the referenced object.
-                $this->aAttribute->addAttributeAvs($this);
-             */
-        }
-
-        return $this->aAttribute;
     }
 
 
@@ -1402,43 +1556,43 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
-        if ('AttributeCombination' == $relationName) {
-            return $this->initAttributeCombinations();
+        if ('SaleOffsetCurrency' == $relationName) {
+            return $this->initSaleOffsetCurrencies();
         }
         if ('SaleProduct' == $relationName) {
             return $this->initSaleProducts();
         }
-        if ('AttributeAvI18n' == $relationName) {
-            return $this->initAttributeAvI18ns();
+        if ('SaleI18n' == $relationName) {
+            return $this->initSaleI18ns();
         }
     }
 
     /**
-     * Clears out the collAttributeCombinations collection
+     * Clears out the collSaleOffsetCurrencies collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
      * them to be refetched by subsequent calls to accessor method.
      *
      * @return void
-     * @see        addAttributeCombinations()
+     * @see        addSaleOffsetCurrencies()
      */
-    public function clearAttributeCombinations()
+    public function clearSaleOffsetCurrencies()
     {
-        $this->collAttributeCombinations = null; // important to set this to NULL since that means it is uninitialized
+        $this->collSaleOffsetCurrencies = null; // important to set this to NULL since that means it is uninitialized
     }
 
     /**
-     * Reset is the collAttributeCombinations collection loaded partially.
+     * Reset is the collSaleOffsetCurrencies collection loaded partially.
      */
-    public function resetPartialAttributeCombinations($v = true)
+    public function resetPartialSaleOffsetCurrencies($v = true)
     {
-        $this->collAttributeCombinationsPartial = $v;
+        $this->collSaleOffsetCurrenciesPartial = $v;
     }
 
     /**
-     * Initializes the collAttributeCombinations collection.
+     * Initializes the collSaleOffsetCurrencies collection.
      *
-     * By default this just sets the collAttributeCombinations collection to an empty array (like clearcollAttributeCombinations());
+     * By default this just sets the collSaleOffsetCurrencies collection to an empty array (like clearcollSaleOffsetCurrencies());
      * however, you may wish to override this method in your stub class to provide setting appropriate
      * to your application -- for example, setting the initial array to the values stored in database.
      *
@@ -1447,188 +1601,188 @@ abstract class AttributeAv implements ActiveRecordInterface
      *
      * @return void
      */
-    public function initAttributeCombinations($overrideExisting = true)
+    public function initSaleOffsetCurrencies($overrideExisting = true)
     {
-        if (null !== $this->collAttributeCombinations && !$overrideExisting) {
+        if (null !== $this->collSaleOffsetCurrencies && !$overrideExisting) {
             return;
         }
-        $this->collAttributeCombinations = new ObjectCollection();
-        $this->collAttributeCombinations->setModel('\Thelia\Model\AttributeCombination');
+        $this->collSaleOffsetCurrencies = new ObjectCollection();
+        $this->collSaleOffsetCurrencies->setModel('\Thelia\Model\SaleOffsetCurrency');
     }
 
     /**
-     * Gets an array of ChildAttributeCombination objects which contain a foreign key that references this object.
+     * Gets an array of ChildSaleOffsetCurrency objects which contain a foreign key that references this object.
      *
      * If the $criteria is not null, it is used to always fetch the results from the database.
      * Otherwise the results are fetched from the database the first time, then cached.
      * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this ChildAttributeAv is new, it will return
+     * If this ChildSale is new, it will return
      * an empty collection or the current collection; the criteria is ignored on a new object.
      *
      * @param      Criteria $criteria optional Criteria object to narrow the query
      * @param      ConnectionInterface $con optional connection object
-     * @return Collection|ChildAttributeCombination[] List of ChildAttributeCombination objects
+     * @return Collection|ChildSaleOffsetCurrency[] List of ChildSaleOffsetCurrency objects
      * @throws PropelException
      */
-    public function getAttributeCombinations($criteria = null, ConnectionInterface $con = null)
+    public function getSaleOffsetCurrencies($criteria = null, ConnectionInterface $con = null)
     {
-        $partial = $this->collAttributeCombinationsPartial && !$this->isNew();
-        if (null === $this->collAttributeCombinations || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collAttributeCombinations) {
+        $partial = $this->collSaleOffsetCurrenciesPartial && !$this->isNew();
+        if (null === $this->collSaleOffsetCurrencies || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collSaleOffsetCurrencies) {
                 // return empty collection
-                $this->initAttributeCombinations();
+                $this->initSaleOffsetCurrencies();
             } else {
-                $collAttributeCombinations = ChildAttributeCombinationQuery::create(null, $criteria)
-                    ->filterByAttributeAv($this)
+                $collSaleOffsetCurrencies = ChildSaleOffsetCurrencyQuery::create(null, $criteria)
+                    ->filterBySale($this)
                     ->find($con);
 
                 if (null !== $criteria) {
-                    if (false !== $this->collAttributeCombinationsPartial && count($collAttributeCombinations)) {
-                        $this->initAttributeCombinations(false);
+                    if (false !== $this->collSaleOffsetCurrenciesPartial && count($collSaleOffsetCurrencies)) {
+                        $this->initSaleOffsetCurrencies(false);
 
-                        foreach ($collAttributeCombinations as $obj) {
-                            if (false == $this->collAttributeCombinations->contains($obj)) {
-                                $this->collAttributeCombinations->append($obj);
+                        foreach ($collSaleOffsetCurrencies as $obj) {
+                            if (false == $this->collSaleOffsetCurrencies->contains($obj)) {
+                                $this->collSaleOffsetCurrencies->append($obj);
                             }
                         }
 
-                        $this->collAttributeCombinationsPartial = true;
+                        $this->collSaleOffsetCurrenciesPartial = true;
                     }
 
-                    reset($collAttributeCombinations);
+                    reset($collSaleOffsetCurrencies);
 
-                    return $collAttributeCombinations;
+                    return $collSaleOffsetCurrencies;
                 }
 
-                if ($partial && $this->collAttributeCombinations) {
-                    foreach ($this->collAttributeCombinations as $obj) {
+                if ($partial && $this->collSaleOffsetCurrencies) {
+                    foreach ($this->collSaleOffsetCurrencies as $obj) {
                         if ($obj->isNew()) {
-                            $collAttributeCombinations[] = $obj;
+                            $collSaleOffsetCurrencies[] = $obj;
                         }
                     }
                 }
 
-                $this->collAttributeCombinations = $collAttributeCombinations;
-                $this->collAttributeCombinationsPartial = false;
+                $this->collSaleOffsetCurrencies = $collSaleOffsetCurrencies;
+                $this->collSaleOffsetCurrenciesPartial = false;
             }
         }
 
-        return $this->collAttributeCombinations;
+        return $this->collSaleOffsetCurrencies;
     }
 
     /**
-     * Sets a collection of AttributeCombination objects related by a one-to-many relationship
+     * Sets a collection of SaleOffsetCurrency objects related by a one-to-many relationship
      * to the current object.
      * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
      * and new objects from the given Propel collection.
      *
-     * @param      Collection $attributeCombinations A Propel collection.
+     * @param      Collection $saleOffsetCurrencies A Propel collection.
      * @param      ConnectionInterface $con Optional connection object
-     * @return   ChildAttributeAv The current object (for fluent API support)
+     * @return   ChildSale The current object (for fluent API support)
      */
-    public function setAttributeCombinations(Collection $attributeCombinations, ConnectionInterface $con = null)
+    public function setSaleOffsetCurrencies(Collection $saleOffsetCurrencies, ConnectionInterface $con = null)
     {
-        $attributeCombinationsToDelete = $this->getAttributeCombinations(new Criteria(), $con)->diff($attributeCombinations);
+        $saleOffsetCurrenciesToDelete = $this->getSaleOffsetCurrencies(new Criteria(), $con)->diff($saleOffsetCurrencies);
 
 
         //since at least one column in the foreign key is at the same time a PK
         //we can not just set a PK to NULL in the lines below. We have to store
         //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
-        $this->attributeCombinationsScheduledForDeletion = clone $attributeCombinationsToDelete;
+        $this->saleOffsetCurrenciesScheduledForDeletion = clone $saleOffsetCurrenciesToDelete;
 
-        foreach ($attributeCombinationsToDelete as $attributeCombinationRemoved) {
-            $attributeCombinationRemoved->setAttributeAv(null);
+        foreach ($saleOffsetCurrenciesToDelete as $saleOffsetCurrencyRemoved) {
+            $saleOffsetCurrencyRemoved->setSale(null);
         }
 
-        $this->collAttributeCombinations = null;
-        foreach ($attributeCombinations as $attributeCombination) {
-            $this->addAttributeCombination($attributeCombination);
+        $this->collSaleOffsetCurrencies = null;
+        foreach ($saleOffsetCurrencies as $saleOffsetCurrency) {
+            $this->addSaleOffsetCurrency($saleOffsetCurrency);
         }
 
-        $this->collAttributeCombinations = $attributeCombinations;
-        $this->collAttributeCombinationsPartial = false;
+        $this->collSaleOffsetCurrencies = $saleOffsetCurrencies;
+        $this->collSaleOffsetCurrenciesPartial = false;
 
         return $this;
     }
 
     /**
-     * Returns the number of related AttributeCombination objects.
+     * Returns the number of related SaleOffsetCurrency objects.
      *
      * @param      Criteria $criteria
      * @param      boolean $distinct
      * @param      ConnectionInterface $con
-     * @return int             Count of related AttributeCombination objects.
+     * @return int             Count of related SaleOffsetCurrency objects.
      * @throws PropelException
      */
-    public function countAttributeCombinations(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    public function countSaleOffsetCurrencies(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
     {
-        $partial = $this->collAttributeCombinationsPartial && !$this->isNew();
-        if (null === $this->collAttributeCombinations || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collAttributeCombinations) {
+        $partial = $this->collSaleOffsetCurrenciesPartial && !$this->isNew();
+        if (null === $this->collSaleOffsetCurrencies || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collSaleOffsetCurrencies) {
                 return 0;
             }
 
             if ($partial && !$criteria) {
-                return count($this->getAttributeCombinations());
+                return count($this->getSaleOffsetCurrencies());
             }
 
-            $query = ChildAttributeCombinationQuery::create(null, $criteria);
+            $query = ChildSaleOffsetCurrencyQuery::create(null, $criteria);
             if ($distinct) {
                 $query->distinct();
             }
 
             return $query
-                ->filterByAttributeAv($this)
+                ->filterBySale($this)
                 ->count($con);
         }
 
-        return count($this->collAttributeCombinations);
+        return count($this->collSaleOffsetCurrencies);
     }
 
     /**
-     * Method called to associate a ChildAttributeCombination object to this object
-     * through the ChildAttributeCombination foreign key attribute.
+     * Method called to associate a ChildSaleOffsetCurrency object to this object
+     * through the ChildSaleOffsetCurrency foreign key attribute.
      *
-     * @param    ChildAttributeCombination $l ChildAttributeCombination
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @param    ChildSaleOffsetCurrency $l ChildSaleOffsetCurrency
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
-    public function addAttributeCombination(ChildAttributeCombination $l)
+    public function addSaleOffsetCurrency(ChildSaleOffsetCurrency $l)
     {
-        if ($this->collAttributeCombinations === null) {
-            $this->initAttributeCombinations();
-            $this->collAttributeCombinationsPartial = true;
+        if ($this->collSaleOffsetCurrencies === null) {
+            $this->initSaleOffsetCurrencies();
+            $this->collSaleOffsetCurrenciesPartial = true;
         }
 
-        if (!in_array($l, $this->collAttributeCombinations->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
-            $this->doAddAttributeCombination($l);
+        if (!in_array($l, $this->collSaleOffsetCurrencies->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
+            $this->doAddSaleOffsetCurrency($l);
         }
 
         return $this;
     }
 
     /**
-     * @param AttributeCombination $attributeCombination The attributeCombination object to add.
+     * @param SaleOffsetCurrency $saleOffsetCurrency The saleOffsetCurrency object to add.
      */
-    protected function doAddAttributeCombination($attributeCombination)
+    protected function doAddSaleOffsetCurrency($saleOffsetCurrency)
     {
-        $this->collAttributeCombinations[]= $attributeCombination;
-        $attributeCombination->setAttributeAv($this);
+        $this->collSaleOffsetCurrencies[]= $saleOffsetCurrency;
+        $saleOffsetCurrency->setSale($this);
     }
 
     /**
-     * @param  AttributeCombination $attributeCombination The attributeCombination object to remove.
-     * @return ChildAttributeAv The current object (for fluent API support)
+     * @param  SaleOffsetCurrency $saleOffsetCurrency The saleOffsetCurrency object to remove.
+     * @return ChildSale The current object (for fluent API support)
      */
-    public function removeAttributeCombination($attributeCombination)
+    public function removeSaleOffsetCurrency($saleOffsetCurrency)
     {
-        if ($this->getAttributeCombinations()->contains($attributeCombination)) {
-            $this->collAttributeCombinations->remove($this->collAttributeCombinations->search($attributeCombination));
-            if (null === $this->attributeCombinationsScheduledForDeletion) {
-                $this->attributeCombinationsScheduledForDeletion = clone $this->collAttributeCombinations;
-                $this->attributeCombinationsScheduledForDeletion->clear();
+        if ($this->getSaleOffsetCurrencies()->contains($saleOffsetCurrency)) {
+            $this->collSaleOffsetCurrencies->remove($this->collSaleOffsetCurrencies->search($saleOffsetCurrency));
+            if (null === $this->saleOffsetCurrenciesScheduledForDeletion) {
+                $this->saleOffsetCurrenciesScheduledForDeletion = clone $this->collSaleOffsetCurrencies;
+                $this->saleOffsetCurrenciesScheduledForDeletion->clear();
             }
-            $this->attributeCombinationsScheduledForDeletion[]= clone $attributeCombination;
-            $attributeCombination->setAttributeAv(null);
+            $this->saleOffsetCurrenciesScheduledForDeletion[]= clone $saleOffsetCurrency;
+            $saleOffsetCurrency->setSale(null);
         }
 
         return $this;
@@ -1638,50 +1792,25 @@ abstract class AttributeAv implements ActiveRecordInterface
     /**
      * If this collection has already been initialized with
      * an identical criteria, it returns the collection.
-     * Otherwise if this AttributeAv is new, it will return
-     * an empty collection; or if this AttributeAv has previously
-     * been saved, it will retrieve related AttributeCombinations from storage.
+     * Otherwise if this Sale is new, it will return
+     * an empty collection; or if this Sale has previously
+     * been saved, it will retrieve related SaleOffsetCurrencies from storage.
      *
      * This method is protected by default in order to keep the public
      * api reasonable.  You can provide public methods for those you
-     * actually need in AttributeAv.
+     * actually need in Sale.
      *
      * @param      Criteria $criteria optional Criteria object to narrow the query
      * @param      ConnectionInterface $con optional connection object
      * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return Collection|ChildAttributeCombination[] List of ChildAttributeCombination objects
+     * @return Collection|ChildSaleOffsetCurrency[] List of ChildSaleOffsetCurrency objects
      */
-    public function getAttributeCombinationsJoinAttribute($criteria = null, $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    public function getSaleOffsetCurrenciesJoinCurrency($criteria = null, $con = null, $joinBehavior = Criteria::LEFT_JOIN)
     {
-        $query = ChildAttributeCombinationQuery::create(null, $criteria);
-        $query->joinWith('Attribute', $joinBehavior);
+        $query = ChildSaleOffsetCurrencyQuery::create(null, $criteria);
+        $query->joinWith('Currency', $joinBehavior);
 
-        return $this->getAttributeCombinations($query, $con);
-    }
-
-
-    /**
-     * If this collection has already been initialized with
-     * an identical criteria, it returns the collection.
-     * Otherwise if this AttributeAv is new, it will return
-     * an empty collection; or if this AttributeAv has previously
-     * been saved, it will retrieve related AttributeCombinations from storage.
-     *
-     * This method is protected by default in order to keep the public
-     * api reasonable.  You can provide public methods for those you
-     * actually need in AttributeAv.
-     *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      ConnectionInterface $con optional connection object
-     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return Collection|ChildAttributeCombination[] List of ChildAttributeCombination objects
-     */
-    public function getAttributeCombinationsJoinProductSaleElements($criteria = null, $con = null, $joinBehavior = Criteria::LEFT_JOIN)
-    {
-        $query = ChildAttributeCombinationQuery::create(null, $criteria);
-        $query->joinWith('ProductSaleElements', $joinBehavior);
-
-        return $this->getAttributeCombinations($query, $con);
+        return $this->getSaleOffsetCurrencies($query, $con);
     }
 
     /**
@@ -1733,7 +1862,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      * If the $criteria is not null, it is used to always fetch the results from the database.
      * Otherwise the results are fetched from the database the first time, then cached.
      * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this ChildAttributeAv is new, it will return
+     * If this ChildSale is new, it will return
      * an empty collection or the current collection; the criteria is ignored on a new object.
      *
      * @param      Criteria $criteria optional Criteria object to narrow the query
@@ -1750,7 +1879,7 @@ abstract class AttributeAv implements ActiveRecordInterface
                 $this->initSaleProducts();
             } else {
                 $collSaleProducts = ChildSaleProductQuery::create(null, $criteria)
-                    ->filterByAttributeAv($this)
+                    ->filterBySale($this)
                     ->find($con);
 
                 if (null !== $criteria) {
@@ -1795,7 +1924,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      *
      * @param      Collection $saleProducts A Propel collection.
      * @param      ConnectionInterface $con Optional connection object
-     * @return   ChildAttributeAv The current object (for fluent API support)
+     * @return   ChildSale The current object (for fluent API support)
      */
     public function setSaleProducts(Collection $saleProducts, ConnectionInterface $con = null)
     {
@@ -1808,7 +1937,7 @@ abstract class AttributeAv implements ActiveRecordInterface
         $this->saleProductsScheduledForDeletion = clone $saleProductsToDelete;
 
         foreach ($saleProductsToDelete as $saleProductRemoved) {
-            $saleProductRemoved->setAttributeAv(null);
+            $saleProductRemoved->setSale(null);
         }
 
         $this->collSaleProducts = null;
@@ -1849,7 +1978,7 @@ abstract class AttributeAv implements ActiveRecordInterface
             }
 
             return $query
-                ->filterByAttributeAv($this)
+                ->filterBySale($this)
                 ->count($con);
         }
 
@@ -1861,7 +1990,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      * through the ChildSaleProduct foreign key attribute.
      *
      * @param    ChildSaleProduct $l ChildSaleProduct
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
     public function addSaleProduct(ChildSaleProduct $l)
     {
@@ -1883,12 +2012,12 @@ abstract class AttributeAv implements ActiveRecordInterface
     protected function doAddSaleProduct($saleProduct)
     {
         $this->collSaleProducts[]= $saleProduct;
-        $saleProduct->setAttributeAv($this);
+        $saleProduct->setSale($this);
     }
 
     /**
      * @param  SaleProduct $saleProduct The saleProduct object to remove.
-     * @return ChildAttributeAv The current object (for fluent API support)
+     * @return ChildSale The current object (for fluent API support)
      */
     public function removeSaleProduct($saleProduct)
     {
@@ -1899,7 +2028,7 @@ abstract class AttributeAv implements ActiveRecordInterface
                 $this->saleProductsScheduledForDeletion->clear();
             }
             $this->saleProductsScheduledForDeletion[]= clone $saleProduct;
-            $saleProduct->setAttributeAv(null);
+            $saleProduct->setSale(null);
         }
 
         return $this;
@@ -1909,38 +2038,13 @@ abstract class AttributeAv implements ActiveRecordInterface
     /**
      * If this collection has already been initialized with
      * an identical criteria, it returns the collection.
-     * Otherwise if this AttributeAv is new, it will return
-     * an empty collection; or if this AttributeAv has previously
+     * Otherwise if this Sale is new, it will return
+     * an empty collection; or if this Sale has previously
      * been saved, it will retrieve related SaleProducts from storage.
      *
      * This method is protected by default in order to keep the public
      * api reasonable.  You can provide public methods for those you
-     * actually need in AttributeAv.
-     *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      ConnectionInterface $con optional connection object
-     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return Collection|ChildSaleProduct[] List of ChildSaleProduct objects
-     */
-    public function getSaleProductsJoinSale($criteria = null, $con = null, $joinBehavior = Criteria::LEFT_JOIN)
-    {
-        $query = ChildSaleProductQuery::create(null, $criteria);
-        $query->joinWith('Sale', $joinBehavior);
-
-        return $this->getSaleProducts($query, $con);
-    }
-
-
-    /**
-     * If this collection has already been initialized with
-     * an identical criteria, it returns the collection.
-     * Otherwise if this AttributeAv is new, it will return
-     * an empty collection; or if this AttributeAv has previously
-     * been saved, it will retrieve related SaleProducts from storage.
-     *
-     * This method is protected by default in order to keep the public
-     * api reasonable.  You can provide public methods for those you
-     * actually need in AttributeAv.
+     * actually need in Sale.
      *
      * @param      Criteria $criteria optional Criteria object to narrow the query
      * @param      ConnectionInterface $con optional connection object
@@ -1955,32 +2059,57 @@ abstract class AttributeAv implements ActiveRecordInterface
         return $this->getSaleProducts($query, $con);
     }
 
+
     /**
-     * Clears out the collAttributeAvI18ns collection
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Sale is new, it will return
+     * an empty collection; or if this Sale has previously
+     * been saved, it will retrieve related SaleProducts from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Sale.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return Collection|ChildSaleProduct[] List of ChildSaleProduct objects
+     */
+    public function getSaleProductsJoinAttributeAv($criteria = null, $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildSaleProductQuery::create(null, $criteria);
+        $query->joinWith('AttributeAv', $joinBehavior);
+
+        return $this->getSaleProducts($query, $con);
+    }
+
+    /**
+     * Clears out the collSaleI18ns collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
      * them to be refetched by subsequent calls to accessor method.
      *
      * @return void
-     * @see        addAttributeAvI18ns()
+     * @see        addSaleI18ns()
      */
-    public function clearAttributeAvI18ns()
+    public function clearSaleI18ns()
     {
-        $this->collAttributeAvI18ns = null; // important to set this to NULL since that means it is uninitialized
+        $this->collSaleI18ns = null; // important to set this to NULL since that means it is uninitialized
     }
 
     /**
-     * Reset is the collAttributeAvI18ns collection loaded partially.
+     * Reset is the collSaleI18ns collection loaded partially.
      */
-    public function resetPartialAttributeAvI18ns($v = true)
+    public function resetPartialSaleI18ns($v = true)
     {
-        $this->collAttributeAvI18nsPartial = $v;
+        $this->collSaleI18nsPartial = $v;
     }
 
     /**
-     * Initializes the collAttributeAvI18ns collection.
+     * Initializes the collSaleI18ns collection.
      *
-     * By default this just sets the collAttributeAvI18ns collection to an empty array (like clearcollAttributeAvI18ns());
+     * By default this just sets the collSaleI18ns collection to an empty array (like clearcollSaleI18ns());
      * however, you may wish to override this method in your stub class to provide setting appropriate
      * to your application -- for example, setting the initial array to the values stored in database.
      *
@@ -1989,192 +2118,192 @@ abstract class AttributeAv implements ActiveRecordInterface
      *
      * @return void
      */
-    public function initAttributeAvI18ns($overrideExisting = true)
+    public function initSaleI18ns($overrideExisting = true)
     {
-        if (null !== $this->collAttributeAvI18ns && !$overrideExisting) {
+        if (null !== $this->collSaleI18ns && !$overrideExisting) {
             return;
         }
-        $this->collAttributeAvI18ns = new ObjectCollection();
-        $this->collAttributeAvI18ns->setModel('\Thelia\Model\AttributeAvI18n');
+        $this->collSaleI18ns = new ObjectCollection();
+        $this->collSaleI18ns->setModel('\Thelia\Model\SaleI18n');
     }
 
     /**
-     * Gets an array of ChildAttributeAvI18n objects which contain a foreign key that references this object.
+     * Gets an array of ChildSaleI18n objects which contain a foreign key that references this object.
      *
      * If the $criteria is not null, it is used to always fetch the results from the database.
      * Otherwise the results are fetched from the database the first time, then cached.
      * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this ChildAttributeAv is new, it will return
+     * If this ChildSale is new, it will return
      * an empty collection or the current collection; the criteria is ignored on a new object.
      *
      * @param      Criteria $criteria optional Criteria object to narrow the query
      * @param      ConnectionInterface $con optional connection object
-     * @return Collection|ChildAttributeAvI18n[] List of ChildAttributeAvI18n objects
+     * @return Collection|ChildSaleI18n[] List of ChildSaleI18n objects
      * @throws PropelException
      */
-    public function getAttributeAvI18ns($criteria = null, ConnectionInterface $con = null)
+    public function getSaleI18ns($criteria = null, ConnectionInterface $con = null)
     {
-        $partial = $this->collAttributeAvI18nsPartial && !$this->isNew();
-        if (null === $this->collAttributeAvI18ns || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collAttributeAvI18ns) {
+        $partial = $this->collSaleI18nsPartial && !$this->isNew();
+        if (null === $this->collSaleI18ns || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collSaleI18ns) {
                 // return empty collection
-                $this->initAttributeAvI18ns();
+                $this->initSaleI18ns();
             } else {
-                $collAttributeAvI18ns = ChildAttributeAvI18nQuery::create(null, $criteria)
-                    ->filterByAttributeAv($this)
+                $collSaleI18ns = ChildSaleI18nQuery::create(null, $criteria)
+                    ->filterBySale($this)
                     ->find($con);
 
                 if (null !== $criteria) {
-                    if (false !== $this->collAttributeAvI18nsPartial && count($collAttributeAvI18ns)) {
-                        $this->initAttributeAvI18ns(false);
+                    if (false !== $this->collSaleI18nsPartial && count($collSaleI18ns)) {
+                        $this->initSaleI18ns(false);
 
-                        foreach ($collAttributeAvI18ns as $obj) {
-                            if (false == $this->collAttributeAvI18ns->contains($obj)) {
-                                $this->collAttributeAvI18ns->append($obj);
+                        foreach ($collSaleI18ns as $obj) {
+                            if (false == $this->collSaleI18ns->contains($obj)) {
+                                $this->collSaleI18ns->append($obj);
                             }
                         }
 
-                        $this->collAttributeAvI18nsPartial = true;
+                        $this->collSaleI18nsPartial = true;
                     }
 
-                    reset($collAttributeAvI18ns);
+                    reset($collSaleI18ns);
 
-                    return $collAttributeAvI18ns;
+                    return $collSaleI18ns;
                 }
 
-                if ($partial && $this->collAttributeAvI18ns) {
-                    foreach ($this->collAttributeAvI18ns as $obj) {
+                if ($partial && $this->collSaleI18ns) {
+                    foreach ($this->collSaleI18ns as $obj) {
                         if ($obj->isNew()) {
-                            $collAttributeAvI18ns[] = $obj;
+                            $collSaleI18ns[] = $obj;
                         }
                     }
                 }
 
-                $this->collAttributeAvI18ns = $collAttributeAvI18ns;
-                $this->collAttributeAvI18nsPartial = false;
+                $this->collSaleI18ns = $collSaleI18ns;
+                $this->collSaleI18nsPartial = false;
             }
         }
 
-        return $this->collAttributeAvI18ns;
+        return $this->collSaleI18ns;
     }
 
     /**
-     * Sets a collection of AttributeAvI18n objects related by a one-to-many relationship
+     * Sets a collection of SaleI18n objects related by a one-to-many relationship
      * to the current object.
      * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
      * and new objects from the given Propel collection.
      *
-     * @param      Collection $attributeAvI18ns A Propel collection.
+     * @param      Collection $saleI18ns A Propel collection.
      * @param      ConnectionInterface $con Optional connection object
-     * @return   ChildAttributeAv The current object (for fluent API support)
+     * @return   ChildSale The current object (for fluent API support)
      */
-    public function setAttributeAvI18ns(Collection $attributeAvI18ns, ConnectionInterface $con = null)
+    public function setSaleI18ns(Collection $saleI18ns, ConnectionInterface $con = null)
     {
-        $attributeAvI18nsToDelete = $this->getAttributeAvI18ns(new Criteria(), $con)->diff($attributeAvI18ns);
+        $saleI18nsToDelete = $this->getSaleI18ns(new Criteria(), $con)->diff($saleI18ns);
 
 
         //since at least one column in the foreign key is at the same time a PK
         //we can not just set a PK to NULL in the lines below. We have to store
         //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
-        $this->attributeAvI18nsScheduledForDeletion = clone $attributeAvI18nsToDelete;
+        $this->saleI18nsScheduledForDeletion = clone $saleI18nsToDelete;
 
-        foreach ($attributeAvI18nsToDelete as $attributeAvI18nRemoved) {
-            $attributeAvI18nRemoved->setAttributeAv(null);
+        foreach ($saleI18nsToDelete as $saleI18nRemoved) {
+            $saleI18nRemoved->setSale(null);
         }
 
-        $this->collAttributeAvI18ns = null;
-        foreach ($attributeAvI18ns as $attributeAvI18n) {
-            $this->addAttributeAvI18n($attributeAvI18n);
+        $this->collSaleI18ns = null;
+        foreach ($saleI18ns as $saleI18n) {
+            $this->addSaleI18n($saleI18n);
         }
 
-        $this->collAttributeAvI18ns = $attributeAvI18ns;
-        $this->collAttributeAvI18nsPartial = false;
+        $this->collSaleI18ns = $saleI18ns;
+        $this->collSaleI18nsPartial = false;
 
         return $this;
     }
 
     /**
-     * Returns the number of related AttributeAvI18n objects.
+     * Returns the number of related SaleI18n objects.
      *
      * @param      Criteria $criteria
      * @param      boolean $distinct
      * @param      ConnectionInterface $con
-     * @return int             Count of related AttributeAvI18n objects.
+     * @return int             Count of related SaleI18n objects.
      * @throws PropelException
      */
-    public function countAttributeAvI18ns(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    public function countSaleI18ns(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
     {
-        $partial = $this->collAttributeAvI18nsPartial && !$this->isNew();
-        if (null === $this->collAttributeAvI18ns || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collAttributeAvI18ns) {
+        $partial = $this->collSaleI18nsPartial && !$this->isNew();
+        if (null === $this->collSaleI18ns || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collSaleI18ns) {
                 return 0;
             }
 
             if ($partial && !$criteria) {
-                return count($this->getAttributeAvI18ns());
+                return count($this->getSaleI18ns());
             }
 
-            $query = ChildAttributeAvI18nQuery::create(null, $criteria);
+            $query = ChildSaleI18nQuery::create(null, $criteria);
             if ($distinct) {
                 $query->distinct();
             }
 
             return $query
-                ->filterByAttributeAv($this)
+                ->filterBySale($this)
                 ->count($con);
         }
 
-        return count($this->collAttributeAvI18ns);
+        return count($this->collSaleI18ns);
     }
 
     /**
-     * Method called to associate a ChildAttributeAvI18n object to this object
-     * through the ChildAttributeAvI18n foreign key attribute.
+     * Method called to associate a ChildSaleI18n object to this object
+     * through the ChildSaleI18n foreign key attribute.
      *
-     * @param    ChildAttributeAvI18n $l ChildAttributeAvI18n
-     * @return   \Thelia\Model\AttributeAv The current object (for fluent API support)
+     * @param    ChildSaleI18n $l ChildSaleI18n
+     * @return   \Thelia\Model\Sale The current object (for fluent API support)
      */
-    public function addAttributeAvI18n(ChildAttributeAvI18n $l)
+    public function addSaleI18n(ChildSaleI18n $l)
     {
         if ($l && $locale = $l->getLocale()) {
             $this->setLocale($locale);
             $this->currentTranslations[$locale] = $l;
         }
-        if ($this->collAttributeAvI18ns === null) {
-            $this->initAttributeAvI18ns();
-            $this->collAttributeAvI18nsPartial = true;
+        if ($this->collSaleI18ns === null) {
+            $this->initSaleI18ns();
+            $this->collSaleI18nsPartial = true;
         }
 
-        if (!in_array($l, $this->collAttributeAvI18ns->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
-            $this->doAddAttributeAvI18n($l);
+        if (!in_array($l, $this->collSaleI18ns->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
+            $this->doAddSaleI18n($l);
         }
 
         return $this;
     }
 
     /**
-     * @param AttributeAvI18n $attributeAvI18n The attributeAvI18n object to add.
+     * @param SaleI18n $saleI18n The saleI18n object to add.
      */
-    protected function doAddAttributeAvI18n($attributeAvI18n)
+    protected function doAddSaleI18n($saleI18n)
     {
-        $this->collAttributeAvI18ns[]= $attributeAvI18n;
-        $attributeAvI18n->setAttributeAv($this);
+        $this->collSaleI18ns[]= $saleI18n;
+        $saleI18n->setSale($this);
     }
 
     /**
-     * @param  AttributeAvI18n $attributeAvI18n The attributeAvI18n object to remove.
-     * @return ChildAttributeAv The current object (for fluent API support)
+     * @param  SaleI18n $saleI18n The saleI18n object to remove.
+     * @return ChildSale The current object (for fluent API support)
      */
-    public function removeAttributeAvI18n($attributeAvI18n)
+    public function removeSaleI18n($saleI18n)
     {
-        if ($this->getAttributeAvI18ns()->contains($attributeAvI18n)) {
-            $this->collAttributeAvI18ns->remove($this->collAttributeAvI18ns->search($attributeAvI18n));
-            if (null === $this->attributeAvI18nsScheduledForDeletion) {
-                $this->attributeAvI18nsScheduledForDeletion = clone $this->collAttributeAvI18ns;
-                $this->attributeAvI18nsScheduledForDeletion->clear();
+        if ($this->getSaleI18ns()->contains($saleI18n)) {
+            $this->collSaleI18ns->remove($this->collSaleI18ns->search($saleI18n));
+            if (null === $this->saleI18nsScheduledForDeletion) {
+                $this->saleI18nsScheduledForDeletion = clone $this->collSaleI18ns;
+                $this->saleI18nsScheduledForDeletion->clear();
             }
-            $this->attributeAvI18nsScheduledForDeletion[]= clone $attributeAvI18n;
-            $attributeAvI18n->setAttributeAv(null);
+            $this->saleI18nsScheduledForDeletion[]= clone $saleI18n;
+            $saleI18n->setSale(null);
         }
 
         return $this;
@@ -2186,12 +2315,16 @@ abstract class AttributeAv implements ActiveRecordInterface
     public function clear()
     {
         $this->id = null;
-        $this->attribute_id = null;
-        $this->position = null;
+        $this->active = null;
+        $this->display_initial_price = null;
+        $this->start_date = null;
+        $this->end_date = null;
+        $this->price_offset_type = null;
         $this->created_at = null;
         $this->updated_at = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
+        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);
@@ -2209,8 +2342,8 @@ abstract class AttributeAv implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
-            if ($this->collAttributeCombinations) {
-                foreach ($this->collAttributeCombinations as $o) {
+            if ($this->collSaleOffsetCurrencies) {
+                foreach ($this->collSaleOffsetCurrencies as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
@@ -2219,8 +2352,8 @@ abstract class AttributeAv implements ActiveRecordInterface
                     $o->clearAllReferences($deep);
                 }
             }
-            if ($this->collAttributeAvI18ns) {
-                foreach ($this->collAttributeAvI18ns as $o) {
+            if ($this->collSaleI18ns) {
+                foreach ($this->collSaleI18ns as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
@@ -2230,10 +2363,9 @@ abstract class AttributeAv implements ActiveRecordInterface
         $this->currentLocale = 'en_US';
         $this->currentTranslations = null;
 
-        $this->collAttributeCombinations = null;
+        $this->collSaleOffsetCurrencies = null;
         $this->collSaleProducts = null;
-        $this->collAttributeAvI18ns = null;
-        $this->aAttribute = null;
+        $this->collSaleI18ns = null;
     }
 
     /**
@@ -2243,21 +2375,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(AttributeAvTableMap::DEFAULT_STRING_FORMAT);
-    }
-
-    // timestampable behavior
-
-    /**
-     * Mark the current object so that the update date doesn't get updated during next save
-     *
-     * @return     ChildAttributeAv The current object (for fluent API support)
-     */
-    public function keepUpdateDateUnchanged()
-    {
-        $this->modifiedColumns[AttributeAvTableMap::UPDATED_AT] = true;
-
-        return $this;
+        return (string) $this->exportTo(SaleTableMap::DEFAULT_STRING_FORMAT);
     }
 
     // i18n behavior
@@ -2267,7 +2385,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      *
      * @param     string $locale Locale to use for the translation, e.g. 'fr_FR'
      *
-     * @return    ChildAttributeAv The current object (for fluent API support)
+     * @return    ChildSale The current object (for fluent API support)
      */
     public function setLocale($locale = 'en_US')
     {
@@ -2292,12 +2410,12 @@ abstract class AttributeAv implements ActiveRecordInterface
      * @param     string $locale Locale to use for the translation, e.g. 'fr_FR'
      * @param     ConnectionInterface $con an optional connection object
      *
-     * @return ChildAttributeAvI18n */
+     * @return ChildSaleI18n */
     public function getTranslation($locale = 'en_US', ConnectionInterface $con = null)
     {
         if (!isset($this->currentTranslations[$locale])) {
-            if (null !== $this->collAttributeAvI18ns) {
-                foreach ($this->collAttributeAvI18ns as $translation) {
+            if (null !== $this->collSaleI18ns) {
+                foreach ($this->collSaleI18ns as $translation) {
                     if ($translation->getLocale() == $locale) {
                         $this->currentTranslations[$locale] = $translation;
 
@@ -2306,15 +2424,15 @@ abstract class AttributeAv implements ActiveRecordInterface
                 }
             }
             if ($this->isNew()) {
-                $translation = new ChildAttributeAvI18n();
+                $translation = new ChildSaleI18n();
                 $translation->setLocale($locale);
             } else {
-                $translation = ChildAttributeAvI18nQuery::create()
+                $translation = ChildSaleI18nQuery::create()
                     ->filterByPrimaryKey(array($this->getPrimaryKey(), $locale))
                     ->findOneOrCreate($con);
                 $this->currentTranslations[$locale] = $translation;
             }
-            $this->addAttributeAvI18n($translation);
+            $this->addSaleI18n($translation);
         }
 
         return $this->currentTranslations[$locale];
@@ -2326,21 +2444,21 @@ abstract class AttributeAv implements ActiveRecordInterface
      * @param     string $locale Locale to use for the translation, e.g. 'fr_FR'
      * @param     ConnectionInterface $con an optional connection object
      *
-     * @return    ChildAttributeAv The current object (for fluent API support)
+     * @return    ChildSale The current object (for fluent API support)
      */
     public function removeTranslation($locale = 'en_US', ConnectionInterface $con = null)
     {
         if (!$this->isNew()) {
-            ChildAttributeAvI18nQuery::create()
+            ChildSaleI18nQuery::create()
                 ->filterByPrimaryKey(array($this->getPrimaryKey(), $locale))
                 ->delete($con);
         }
         if (isset($this->currentTranslations[$locale])) {
             unset($this->currentTranslations[$locale]);
         }
-        foreach ($this->collAttributeAvI18ns as $key => $translation) {
+        foreach ($this->collSaleI18ns as $key => $translation) {
             if ($translation->getLocale() == $locale) {
-                unset($this->collAttributeAvI18ns[$key]);
+                unset($this->collSaleI18ns[$key]);
                 break;
             }
         }
@@ -2353,7 +2471,7 @@ abstract class AttributeAv implements ActiveRecordInterface
      *
      * @param     ConnectionInterface $con an optional connection object
      *
-     * @return ChildAttributeAvI18n */
+     * @return ChildSaleI18n */
     public function getCurrentTranslation(ConnectionInterface $con = null)
     {
         return $this->getTranslation($this->getLocale(), $con);
@@ -2375,7 +2493,7 @@ abstract class AttributeAv implements ActiveRecordInterface
          * Set the value of [title] column.
          *
          * @param      string $v new value
-         * @return   \Thelia\Model\AttributeAvI18n The current object (for fluent API support)
+         * @return   \Thelia\Model\SaleI18n The current object (for fluent API support)
          */
         public function setTitle($v)
         {    $this->getCurrentTranslation()->setTitle($v);
@@ -2399,7 +2517,7 @@ abstract class AttributeAv implements ActiveRecordInterface
          * Set the value of [description] column.
          *
          * @param      string $v new value
-         * @return   \Thelia\Model\AttributeAvI18n The current object (for fluent API support)
+         * @return   \Thelia\Model\SaleI18n The current object (for fluent API support)
          */
         public function setDescription($v)
         {    $this->getCurrentTranslation()->setDescription($v);
@@ -2423,7 +2541,7 @@ abstract class AttributeAv implements ActiveRecordInterface
          * Set the value of [chapo] column.
          *
          * @param      string $v new value
-         * @return   \Thelia\Model\AttributeAvI18n The current object (for fluent API support)
+         * @return   \Thelia\Model\SaleI18n The current object (for fluent API support)
          */
         public function setChapo($v)
         {    $this->getCurrentTranslation()->setChapo($v);
@@ -2447,10 +2565,48 @@ abstract class AttributeAv implements ActiveRecordInterface
          * Set the value of [postscriptum] column.
          *
          * @param      string $v new value
-         * @return   \Thelia\Model\AttributeAvI18n The current object (for fluent API support)
+         * @return   \Thelia\Model\SaleI18n The current object (for fluent API support)
          */
         public function setPostscriptum($v)
         {    $this->getCurrentTranslation()->setPostscriptum($v);
+
+        return $this;
+    }
+
+
+        /**
+         * Get the [sale_label] column value.
+         *
+         * @return   string
+         */
+        public function getSaleLabel()
+        {
+        return $this->getCurrentTranslation()->getSaleLabel();
+    }
+
+
+        /**
+         * Set the value of [sale_label] column.
+         *
+         * @param      string $v new value
+         * @return   \Thelia\Model\SaleI18n The current object (for fluent API support)
+         */
+        public function setSaleLabel($v)
+        {    $this->getCurrentTranslation()->setSaleLabel($v);
+
+        return $this;
+    }
+
+    // timestampable behavior
+
+    /**
+     * Mark the current object so that the update date doesn't get updated during next save
+     *
+     * @return     ChildSale The current object (for fluent API support)
+     */
+    public function keepUpdateDateUnchanged()
+    {
+        $this->modifiedColumns[SaleTableMap::UPDATED_AT] = true;
 
         return $this;
     }
