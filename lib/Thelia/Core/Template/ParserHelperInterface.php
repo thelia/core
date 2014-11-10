@@ -10,35 +10,19 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\Core\Template\Smarty\Plugins;
+namespace Thelia\Core\Template;
 
-use Thelia\Core\Template\Smarty\SmartyPluginDescriptor;
-use Thelia\Core\Template\Smarty\AbstractSmartyPlugin;
-
-/**
- * Class TheliaSyntax
- * @package Thelia\Core\Template\Smarty\Plugins
- *
- * @author Etienne Roudeix <eroudeix@openstudio.fr>
- */
-class TheliaSyntax extends AbstractSmartyPlugin
+interface ParserHelperInterface
 {
-    public function dieseCancel($value, $diese)
-    {
-        if ($value === null) {
-            return $diese;
-        }
-
-        return $value;
-    }
-
     /**
-     * @return SmartyPluginDescriptor[]
+     * Parse a string and get all parser's function and block with theirs arguments.
+     *
+     *
+     *
+     * @param string $content   the template content
+     * @param array  $functions the only functions we want to parse
+     *
+     * @return array array of functions with 2 index name and attributes an array of name, value
      */
-    public function getPluginDescriptors()
-    {
-        return array(
-            new SmartyPluginDescriptor("modifier", "dieseCanceller", $this, "dieseCancel")
-        );
-    }
+    public function getFunctionsDefinition($content, array $functions = array());
 }

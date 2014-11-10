@@ -10,17 +10,18 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\Core\Template\Assets;
+namespace Thelia\Core\Template\Parser;
 
+use Thelia\Core\Template\Assets\AssetResolverInterface;
 use Thelia\Core\Template\ParserInterface;
 
-interface AssetResolverInterface
+/**
+ * Class ParserAssetResolverFallback
+ * @package Thelia\Core\Template\Parser
+ * @author manuel raynaud <manu@thelia.net>
+ */
+class ParserAssetResolverFallback implements AssetResolverInterface
 {
-    /** The name of the subdirectory in a template asset directory in which modules assets can be overridden */
-    const MODULE_OVERRIDE_DIRECTORY_NAME = 'modules';
-
-    /** The name of the default template */
-    const DEFAULT_TEMPLATE_NAME = 'default';
 
     /**
      * Generate an asset URL
@@ -35,7 +36,18 @@ interface AssetResolverInterface
      * @param mixed $sourceTemplateName A template name, of false. If provided, the assets will be searched in this template directory instead of the current one.
      * @return mixed
      */
-    public function resolveAssetURL($source, $file, $type, ParserInterface $parserInterface, $filters = [], $debug = false, $declaredAssetsDirectory = null, $sourceTemplateName = false);
+    public function resolveAssetURL(
+        $source,
+        $file,
+        $type,
+        ParserInterface $parserInterface,
+        $filters = [],
+        $debug = false,
+        $declaredAssetsDirectory = null,
+        $sourceTemplateName = false
+    ) {
+        throw new \RuntimeException('if you want to use a parser, please register one');
+    }
 
     /**
      * Return an asset source file path.
@@ -45,12 +57,15 @@ interface AssetResolverInterface
      *      - in the module in the current template if it exists
      *      - in the module in the default template
      *
-     * @param  string $source a module code, or ParserInterface::TEMPLATE_ASSETS_KEY
+     * @param  string $source a module code, or or ParserInterface::TEMPLATE_ASSETS_KEY
      * @param  string $templateName a template name, or false to use the current template
      * @param  string $fileName the filename
      * @param  ParserInterface $parserInterface the current template parser
      *
      * @return mixed the path to directory containing the file, or null if the file doesn't exists.
      */
-    public function resolveAssetSourcePath($source, $templateName, $fileName, ParserInterface $parserInterface);
+    public function resolveAssetSourcePath($source, $templateName, $fileName, ParserInterface $parserInterface)
+    {
+        throw new \RuntimeException('if you want to use a parser, please register one');
+    }
 }

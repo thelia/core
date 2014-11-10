@@ -14,16 +14,16 @@ namespace Thelia\Core\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
- * Register parser plugins. These plugins shouild be tagged thelia.parser.register_plugin
- * in the configuration.
- *
- * @author Manuel Raynaud <manu@thelia.net>
+ * Class FallbackParserPass
+ * @package Thelia\Core\DependencyInjection\Compiler
+ * @author manuel raynaud <manu@thelia.net>
  */
-class RegisterParserPluginPass implements CompilerPassInterface
+class FallbackParserPass implements CompilerPassInterface
 {
+
     /**
      * You can modify the container here before it is dumped to PHP code.
      *
@@ -33,16 +33,16 @@ class RegisterParserPluginPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition("thelia.parser")) {
+        if ($container->has('thelia.parser')) {
             return;
         }
 
-        $smarty = $container->getDefinition("thelia.parser");
-
-        foreach ($container->findTaggedServiceIds("thelia.parser.register_plugin") as $id => $plugin) {
-            $smarty->addMethodCall("addPlugins", array(new Reference($id)));
-        }
-
-        $smarty->addMethodCall("registerPlugins");
+        $container->addDefinitions(
+            [
+                'thelia.parser' => new Definition("Thelia\\Core\\Template\\Parser\\ParserFallback"),
+                'thelia.parser.helper' => new Definition("Thelia\\Core\\Template\\Parser\\ParserHelperFallback"),
+                'thelia.parser.asset.resolver' => new Definition("Thelia\\Core\\Template\\Parser\\ParserHelperFallback")
+            ]
+        );
     }
 }
