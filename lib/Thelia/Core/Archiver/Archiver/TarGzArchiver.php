@@ -10,45 +10,38 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\ImportExport\Import\Type;
-
-use Thelia\Core\Translation\Translator;
-use Thelia\ImportExport\Import\AbstractImport;
-use Thelia\Model\ProductSaleElementsQuery;
+namespace Thelia\Core\Archiver\Archiver;
 
 /**
- * Class ControllerTestBase
+ * Class TarGzArchiver
  * @author Jérôme Billiras <jbilliras@openstudio.fr>
  */
-class ProductStockImport extends AbstractImport
+class TarGzArchiver extends TarArchiver
 {
-    protected $mandatoryColumns = [
-        'id',
-        'stock'
-    ];
+    const COMPRESSION_METHOD = \Phar::GZ;
 
-    public function importData(array $data)
+    public function getId()
     {
-        $pse = ProductSaleElementsQuery::create()->findPk($data['id']);
+        return 'thelia.tar.gz';
+    }
 
-        if ($pse === null) {
-            return Translator::getInstance()->trans(
-                'The product sale element id %id doesn\'t exist',
-                [
-                    '%id' => $data['id']
-                ]
-            );
-        } else {
-            $pse->setQuantity($data['stock']);
+    public function getName()
+    {
+        return 'Gz';
+    }
 
-            if (isset($data['ean']) && !empty($data['ean'])) {
-                $pse->setEanCode($data['ean']);
-            }
+    public function getExtension()
+    {
+        return 'tgz';
+    }
 
-            $pse->save();
-            $this->importedRows++;
-        }
+    public function getMimeType()
+    {
+        return 'application/x-gzip';
+    }
 
-        return null;
+    public function isAvailable()
+    {
+        return parent::isAvailable() && extension_loaded('zlib');
     }
 }

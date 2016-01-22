@@ -10,28 +10,58 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\ImportExport\Export\Type;
+namespace Thelia\Core\Serializer\Serializer;
 
-use Thelia\ImportExport\Export\AbstractExport;
-use Thelia\Model\NewsletterQuery;
+use Thelia\Core\Serializer\AbstractSerializer;
 
 /**
- * Class MailingExport
+ * Class JSONSerializer
  * @author Jérôme Billiras <jbilliras@openstudio.fr>
  */
-class MailingExport extends AbstractExport
+class JSONSerializer extends AbstractSerializer
 {
-    const FILE_NAME = 'mailing';
-
-    protected $orderAndAliases = [
-        'newsletter.ID' => 'Identifier',
-        'newsletter.EMAIL' => 'Email',
-        'newsletter.FISTNAME' => 'FirstName',
-        'newsletter.LASTNAME' => 'LastName'
-    ];
-
-    protected function getData()
+    public function getId()
     {
-        return new NewsletterQuery;
+        return 'thelia.json';
+    }
+
+    public function getName()
+    {
+        return 'JSON';
+    }
+
+    public function getExtension()
+    {
+        return 'json';
+    }
+
+    public function getMimeType()
+    {
+        return 'application/json';
+    }
+
+    public function prepareFile(\SplFileObject $fileObject)
+    {
+        $fileObject->fwrite('[');
+    }
+
+    public function serialize($data)
+    {
+        return json_encode($data);
+    }
+
+    public function separator()
+    {
+        return ',' . PHP_EOL;
+    }
+
+    public function finalizeFile(\SplFileObject $fileObject)
+    {
+        $fileObject->fwrite(']');
+    }
+
+    public function unserialize(\SplFileObject $fileObject)
+    {
+        return json_decode(file_get_contents($fileObject->getPathname()), true);
     }
 }

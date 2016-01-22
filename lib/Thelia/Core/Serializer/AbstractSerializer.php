@@ -10,45 +10,24 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\ImportExport\Import\Type;
 
-use Thelia\Core\Translation\Translator;
-use Thelia\ImportExport\Import\AbstractImport;
-use Thelia\Model\ProductSaleElementsQuery;
+namespace Thelia\Core\Serializer;
 
 /**
- * Class ControllerTestBase
+ * Class AbstractSerializer
  * @author Jérôme Billiras <jbilliras@openstudio.fr>
  */
-class ProductStockImport extends AbstractImport
+abstract class AbstractSerializer implements SerializerInterface
 {
-    protected $mandatoryColumns = [
-        'id',
-        'stock'
-    ];
-
-    public function importData(array $data)
+    public function prepareFile(\SplFileObject $fileObject)
     {
-        $pse = ProductSaleElementsQuery::create()->findPk($data['id']);
+    }
 
-        if ($pse === null) {
-            return Translator::getInstance()->trans(
-                'The product sale element id %id doesn\'t exist',
-                [
-                    '%id' => $data['id']
-                ]
-            );
-        } else {
-            $pse->setQuantity($data['stock']);
+    public function separator()
+    {
+    }
 
-            if (isset($data['ean']) && !empty($data['ean'])) {
-                $pse->setEanCode($data['ean']);
-            }
-
-            $pse->save();
-            $this->importedRows++;
-        }
-
-        return null;
+    public function finalizeFile(\SplFileObject $fileObject)
+    {
     }
 }

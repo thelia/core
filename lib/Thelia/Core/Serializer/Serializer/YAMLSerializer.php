@@ -10,45 +10,44 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\ImportExport\Import\Type;
+namespace Thelia\Core\Serializer\Serializer;
 
-use Thelia\Core\Translation\Translator;
-use Thelia\ImportExport\Import\AbstractImport;
-use Thelia\Model\ProductSaleElementsQuery;
+use Symfony\Component\Yaml\Yaml;
+use Thelia\Core\Serializer\AbstractSerializer;
 
 /**
- * Class ControllerTestBase
+ * Class YAMLSerializer
  * @author Jérôme Billiras <jbilliras@openstudio.fr>
  */
-class ProductStockImport extends AbstractImport
+class YAMLSerializer extends AbstractSerializer
 {
-    protected $mandatoryColumns = [
-        'id',
-        'stock'
-    ];
-
-    public function importData(array $data)
+    public function getId()
     {
-        $pse = ProductSaleElementsQuery::create()->findPk($data['id']);
+        return 'thelia.yml';
+    }
 
-        if ($pse === null) {
-            return Translator::getInstance()->trans(
-                'The product sale element id %id doesn\'t exist',
-                [
-                    '%id' => $data['id']
-                ]
-            );
-        } else {
-            $pse->setQuantity($data['stock']);
+    public function getName()
+    {
+        return 'YAML';
+    }
 
-            if (isset($data['ean']) && !empty($data['ean'])) {
-                $pse->setEanCode($data['ean']);
-            }
+    public function getExtension()
+    {
+        return 'yaml';
+    }
 
-            $pse->save();
-            $this->importedRows++;
-        }
+    public function getMimeType()
+    {
+        return 'application/x-yaml';
+    }
 
-        return null;
+    public function serialize($data)
+    {
+        return Yaml::dump([$data]);
+    }
+
+    public function unserialize(\SplFileObject $fileObject)
+    {
+        return Yaml::parse(file_get_contents($fileObject->getPathname()));
     }
 }
