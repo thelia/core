@@ -10,29 +10,12 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\Form\Api\Customer;
+namespace Thelia\Core\Propel\Generator\Builder\Om;
 
-use Thelia\Form\CustomerUpdateForm as BaseCustomerUpdateForm;
+use Propel\Generator\Builder\Om\InterfaceBuilder as PropelInterfaceBuilder;
+use Thelia\Core\Propel\Generator\Builder\Om\Mixin\StubClassTrait;
 
-/**
- * Class CustomerUpdateForm
- * @package Thelia\Form\Api\Customer
- * @author Manuel Raynaud <manu@raynaud.io>
- */
-class CustomerUpdateForm extends BaseCustomerUpdateForm
+class InterfaceBuilder extends PropelInterfaceBuilder
 {
-    public function buildForm($backendContext = false)
-    {
-        parent::buildForm($backendContext);
-
-        $this->formBuilder
-            ->add('lang_id', 'lang_id')
-            ->add('id', 'customer_id')
-        ;
-    }
-
-    public function getName()
-    {
-        return '';
-    }
+    use StubClassTrait;
 }

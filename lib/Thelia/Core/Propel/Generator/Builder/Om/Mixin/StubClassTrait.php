@@ -10,41 +10,35 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\Install;
+namespace Thelia\Core\Propel\Generator\Builder\Om\Mixin;
 
-use Thelia\Install\Exception\AlreadyInstallException;
+use Propel\Generator\Builder\Om\AbstractOMBuilder;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class BaseInstall
- *
- * @author Manuel Raynaud <manu@raynaud.io>
+ * Override a Propel model class builder.
+ * Add building behavior for stub model classes (the classes extending the implementation classes and containing
+ * application-specific code, e.g. Model\Foo).
+ * Generate the classes in the module model directory or the Thelia model directory.
  */
-abstract class BaseInstall
+trait StubClassTrait
 {
-    /** @var bool If Installation wizard is launched by CLI */
-    protected $isConsoleMode = true;
-
-    /**
-     * Constructor
-     *
-     * @param bool $verifyInstall Verify if an installation already exists
-     *
-     * @throws Exception\AlreadyInstallException
-     */
-    public function __construct($verifyInstall = true)
+    public function getClassFilePath()
     {
-        // Check if install wizard is launched via CLI
-        if (php_sapi_name() == 'cli') {
-            $this->isConsoleMode = true;
+        /** @var $this AbstractOMBuilder */
+
+        $fs = new Filesystem();
+
+        if ($this->getPackage() === 'Thelia.Model') {
+            return $fs->makePathRelative(
+                THELIA_LIB . '/../' . parent::getClassFilePath(),
+                THELIA_ROOT
+            );
         } else {
-            $this->isConsoleMode = false;
+            return $fs->makePathRelative(
+                THELIA_MODULE_DIR . '/' . parent::getClassFilePath(),
+                THELIA_ROOT
+            );
         }
-        if (file_exists(THELIA_CONF_DIR . '/database.yml') && $verifyInstall) {
-            throw new AlreadyInstallException("Thelia is already installed");
-        }
-
-        $this->exec();
     }
-
-    abstract public function exec();
 }

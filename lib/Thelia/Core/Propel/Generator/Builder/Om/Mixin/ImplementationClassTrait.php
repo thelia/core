@@ -10,29 +10,31 @@
 /*      file that was distributed with this source code.                             */
 /*************************************************************************************/
 
-namespace Thelia\Form\Api\Customer;
+namespace Thelia\Core\Propel\Generator\Builder\Om\Mixin;
 
-use Thelia\Form\CustomerUpdateForm as BaseCustomerUpdateForm;
+use Propel\Generator\Builder\Om\AbstractOMBuilder;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class CustomerUpdateForm
- * @package Thelia\Form\Api\Customer
- * @author Manuel Raynaud <manu@raynaud.io>
+ * Override a Propel model class builder.
+ * Add building behavior for implementation model classes (the classes extended by the stub classes and containing
+ * generated Propel code, e.g. Model\Base\Foo)
+ * Generate the classes in the global model directory.
  */
-class CustomerUpdateForm extends BaseCustomerUpdateForm
+trait ImplementationClassTrait
 {
-    public function buildForm($backendContext = false)
+    public function getClassFilePath()
     {
-        parent::buildForm($backendContext);
+        /** @var $this AbstractOMBuilder */
 
-        $this->formBuilder
-            ->add('lang_id', 'lang_id')
-            ->add('id', 'customer_id')
-        ;
-    }
+        $fs = new Filesystem();
 
-    public function getName()
-    {
-        return '';
+        return $fs->makePathRelative(
+            THELIA_CACHE_DIR
+            . (defined('THELIA_PROPEL_BUILDER_ENVIRONMENT') ? ('/' . THELIA_PROPEL_BUILDER_ENVIRONMENT) : '')
+            . '/propel/model/'
+            . parent::getClassFilePath(),
+            THELIA_ROOT
+        );
     }
 }
