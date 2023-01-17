@@ -1,41 +1,30 @@
 <?php
 
-namespace Thelia\Api\Bridge\Propel;
+namespace Thelia\Api\Bridge\Propel\State;
 
-use ApiPlatform\DataPersister\DataPersisterInterface;
-use ApiPlatform\Core\Exception\InvalidResourceException;
+use ApiPlatform\Exception\InvalidResourceException;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
-use Thelia\Api\Resource\PropelResourceInterface;
 use Thelia\Api\Resource\TranslatableResourceInterface;
 
-class DataPersister implements DataPersisterInterface
+class PropelPersistProcessor implements ProcessorInterface
 {
-
-    public function supports($data): bool
-    {
-        return \is_object($data) && is_subclass_of($data, PropelResourceInterface::class);
-    }
-
-    /**
-     * @param PropelResourceInterface $data
-     * @return object|void
-     * @throws \ReflectionException
-     * @throws InvalidResourceException
-     */
-    public function persist($data)
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         $propelModelClass = $data::getPropelModelClass();
 
         /** @var ModelCriteria $queryClass */
         $queryClass = $propelModelClass.'Query';
-        $propelModel = $data->getId() ? $queryClass::create()->filterById($data->getId())->findOne() : new $propelModelClass();
+        $id = $uriVariables['id'] ?? $data->getId();
+        $propelModel = $id ? $queryClass::create()->filterById($id)->findOne() : new $propelModelClass();
 
         if (null === $propelModel) {
             throw new InvalidResourceException('Invalid resource, can\'t find or create a propel model.');
         }
 
         foreach (get_class_methods($propelModel) as $methodName) {
-            if (!str_starts_with($methodName, 'set')) {
+            if (!str_starts_with($methodName, 'set') || $methodName === 'setId') {
                 continue;
             }
 
@@ -58,7 +47,7 @@ class DataPersister implements DataPersisterInterface
             }
 
             $value = null;
-            while (!empty($availableMethods) && ($value === null || empty($theliaValue))) {
+            while (!empty($availableMethods) && $value === null) {
                 $method = array_pop($availableMethods);
                 $value = $data->$method();
             }
@@ -89,10 +78,7 @@ class DataPersister implements DataPersisterInterface
         $propelModel->save();
 
         $data->setId($propelModel->getId());
-    }
 
-    public function remove($data)
-    {
-        // TODO: Implement remove() method.
+        return $data;
     }
 }
