@@ -36,8 +36,13 @@ class AttributeAvFilter implements TheliaFilterInterface, TheliaChoiceFilterInte
 
     public function filter(ModelCriteria $query, $value, bool $isMinOrMaxFilter = false, ?int $categoryDepth = null): void
     {
+        $rawAttributes = [];
         foreach ($value as $attributeId => $childValue) {
             foreach ($childValue as $type => $raw) {
+                if (!$isMinOrMaxFilter) {
+                    $rawAttributes[] = $raw;
+                    continue;
+                }
                 $query = $query
                     ->useProductSaleElementsQuery()
                     ->useAttributeCombinationQuery();
@@ -53,14 +58,19 @@ class AttributeAvFilter implements TheliaFilterInterface, TheliaChoiceFilterInte
                                 ->endUse()
                             ->endUse();
                 }
-                if (!$isMinOrMaxFilter) {
-                    $query->filterByAttributeAvId($raw);
-                }
-
                 $query
                     ->endUse()
                     ->endUse();
             }
+        }
+        if (!empty($rawAttributes)) {
+            $query
+                ->useProductSaleElementsQuery()
+                    ->useAttributeCombinationQuery()
+                        ->filterByAttributeAvId($rawAttributes, Criteria::IN)
+                    ->endUse()
+                ->endUse()
+            ;
         }
     }
 
