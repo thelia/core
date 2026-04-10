@@ -14,7 +14,6 @@ namespace Thelia\Api\Bridge\Propel\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\State\ProcessorInterface;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
@@ -75,19 +74,12 @@ readonly class PropelPersistProcessor implements ProcessorInterface
             throw $exception;
         }
 
-        /** @var Post $postOperation */
-        $postOperation = $context['operation'] ?? null;
-        if (null !== $postOperation) {
-            $data = $this->apiResourcePropelTransformerService->modelToResource(
-                resourceClass: $data::class,
-                propelModel: $propelModel,
-                context: $postOperation->getNormalizationContext(),
-                withAddon: false
-            );
-            foreach ($resourceAddons as $addonShortName => $addon) {
-                $data->setResourceAddon($addonShortName, $addon);
-            }
-        }
+        $data = $this->apiResourcePropelTransformerService->modelToResource(
+            resourceClass: $data::class,
+            propelModel: $propelModel,
+            context: $operation->getNormalizationContext() ?? [],
+            withAddon: true
+        );
 
         return $data;
     }

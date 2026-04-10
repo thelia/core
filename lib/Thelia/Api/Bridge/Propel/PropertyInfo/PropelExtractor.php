@@ -18,6 +18,8 @@ use Symfony\Component\PropertyInfo\PropertyListExtractorInterface;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
 use Symfony\Component\PropertyInfo\Type;
 use Thelia\Api\Bridge\Propel\Attribute\Relation;
+use Thelia\Api\Resource\ResourceAddonInterface;
+use Thelia\Api\Resource\TranslatableResourceInterface;
 
 class PropelExtractor implements PropertyListExtractorInterface, PropertyTypeExtractorInterface, PropertyAccessExtractorInterface
 {
@@ -44,6 +46,22 @@ class PropelExtractor implements PropertyListExtractorInterface, PropertyTypeExt
         if (!$reflector->hasProperty($property)) {
             return null;
         }
+
+        if ('i18ns' === $property
+            && is_subclass_of($class, TranslatableResourceInterface::class)
+            && is_subclass_of($class, ResourceAddonInterface::class)
+        ) {
+            return [
+                new Type(
+                    Type::BUILTIN_TYPE_ARRAY,
+                    false,
+                    null,
+                    true,
+                    new Type(Type::BUILTIN_TYPE_STRING)
+                ),
+            ];
+        }
+
         $reflectionProperty = $reflector->getProperty($property);
         foreach ($reflectionProperty->getAttributes(Relation::class) as $relationAttribute) {
             $targetClass = $relationAttribute->getArguments()['targetResource'];
