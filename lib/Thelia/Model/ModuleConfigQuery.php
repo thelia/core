@@ -92,7 +92,7 @@ class ModuleConfigQuery extends BaseModuleConfigQuery
         }
 
         $configValue
-            ->setValue($variableValue)
+            ->setValue($variableValue !== null ? (string) $variableValue : null)
             ->save();
 
         return $this;
