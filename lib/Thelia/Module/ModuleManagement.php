@@ -217,10 +217,10 @@ class ModuleManagement
 
             $module
                 ->setLocale($locale)
-                ->setTitle($description->title)
-                ->setDescription($description->description ?? null)
-                ->setPostscriptum($description->postscriptum ?? null)
-                ->setChapo($description->subtitle ?? null)
+                ->setTitle(isset($description->title) ? (string) $description->title : null)
+                ->setDescription(isset($description->description) ? (string) $description->description : null)
+                ->setPostscriptum(isset($description->postscriptum) ? (string) $description->postscriptum : null)
+                ->setChapo(isset($description->subtitle) ? (string) $description->subtitle : null)
                 ->save($con);
         }
     }
