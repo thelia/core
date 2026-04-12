@@ -304,8 +304,8 @@ class DemoImportCommand extends Command
                 $productPrice
                     ->setProductSaleElements($saleElements)
                     ->setCurrencyId(1)
-                    ->setPrice((float) $data[8])
-                    ->setPromoPrice((float) $data[9])
+                    ->setPrice((string) $data[8])
+                    ->setPromoPrice('' !== (string) $data[9] ? (string) $data[9] : '0')
                     ->save($connection);
 
                 $attributeValueI18n = AttributeAvI18nQuery::create()
@@ -640,7 +640,7 @@ class DemoImportCommand extends Command
                 ->setActive(0)
                 ->setStartDate($start->setTimestamp(strtotime('today - 1 month')))
                 ->setEndDate($end->setTimestamp(strtotime('today + 1 month')))
-                ->setPriceOffsetType($data[2])
+                ->setPriceOffsetType((int) $data[2])
                 ->setDisplayInitialPrice(true)
                 ->setLocale('fr_FR')->setTitle(trim($data[0]))->setChapo('Aut voluptas.')->setDescription('Et in ea corrupti sequi enim et. Et nobis similique velit occaecati.')
                 ->setLocale('en_US')->setTitle(trim($data[1]))->setChapo('Aut voluptas.')->setDescription('Et in ea corrupti sequi enim et. Et nobis similique velit occaecati.')
@@ -652,7 +652,7 @@ class DemoImportCommand extends Command
                 $saleOffset
                     ->setCurrencyId($currency->getId())
                     ->setSaleId($sale->getId())
-                    ->setPriceOffsetValue($data[3])
+                    ->setPriceOffsetValue((float) $data[3])
                     ->save();
             }
 
