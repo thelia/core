@@ -83,8 +83,8 @@ class Cart extends BaseCart
                 $item->setProductSaleElements($productSaleElements);
                 $prices = $productSaleElements->getPricesByCurrency($currency, $discount);
                 $item
-                    ->setPrice($prices->getPrice())
-                    ->setPromoPrice($prices->getPromoPrice())
+                    ->setPrice((string) $prices->getPrice())
+                    ->setPromoPrice((string) $prices->getPromoPrice())
                     ->setPromo($productSaleElements->getPromo());
 
                 $item->save();

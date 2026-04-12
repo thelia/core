@@ -22,11 +22,11 @@ use Thelia\Model\Order;
 
 class OrderManualEvent extends OrderEvent
 {
-    protected $currency;
-    protected $lang;
-    protected $cart;
-    protected $customer;
-    protected $useOrderDefinedAddresses = false;
+    protected Currency $currency;
+    protected Lang $lang;
+    protected Cart $cart;
+    protected Customer $customer;
+    protected bool $useOrderDefinedAddresses = false;
 
     public function __construct(Order $order, Currency $currency, Lang $lang, Cart $cart, Customer $customer)
     {
@@ -39,7 +39,7 @@ class OrderManualEvent extends OrderEvent
             ->setCustomer($customer);
     }
 
-    public function getCurrency()
+    public function getCurrency(): Currency
     {
         return $this->currency;
     }

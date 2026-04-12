@@ -419,7 +419,7 @@ class ProductSaleElement extends BaseAction implements EventSubscriberInterface
             ->setReference($event->getClonedProduct()->getRef().'-'.($key + 1))
             ->setIsdefault($originalProductPSE->getIsDefault())
             ->setFromDefaultCurrency(0)
-            ->setWeight($originalProductPSE->getWeight())
+            ->setWeight($originalProductPSE->getWeight() ?? 0.0)
             ->setQuantity($originalProductPSE->getQuantity())
             ->setOnsale($originalProductPSE->getPromo())
             ->setIsnew($originalProductPSE->getNewness())

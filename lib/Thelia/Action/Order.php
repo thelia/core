@@ -156,7 +156,6 @@ class Order extends BaseAction implements EventSubscriberInterface
         if (!$order instanceof OrderModel) {
             throw new TheliaProcessException('Order is not defined');
         }
-        ModuleQuery::create()->findPk($order->getPaymentModuleId());
 
         $placedOrder = $this->orderFacade->createOrder(
             $dispatcher,

@@ -363,7 +363,7 @@ class FileController extends BaseAdminController
         return $this->render('document-edit', [
             'documentId' => $documentId,
             'documentType' => $parentType,
-            'redirectUrl' => $fileManager->getModelInstance('document', $parentType)->getQueryInstance()->findPk($documentId)->getRedirectionUrl(),
+            'redirectUrl' => $fileManager->getModelInstance('document', $parentType)->getQueryInstance()->findPk($documentId)?->getRedirectionUrl(),
             'formId' => $fileModelInstance->getUpdateFormId(),
         ]);
     }

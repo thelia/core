@@ -88,8 +88,8 @@ final readonly class DeliverySetupService
                 $estimate = $this->postageEstimator->estimatePostageForCountry($cart, $country, $state);
 
                 $cart
-                    ->setPostage((float) ($estimate['postage'] ?? 0.0))
-                    ->setPostageTax((float) ($estimate['tax'] ?? 0.0))
+                    ->setPostage((string) ($estimate['postage'] ?? 0))
+                    ->setPostageTax((string) ($estimate['tax'] ?? 0))
                     ->save();
             }
         }
