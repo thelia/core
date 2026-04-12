@@ -43,7 +43,7 @@ class PostageHandler
     {
         $cart
             ->setPostage(null)
-            ->setPostageTax(0.0)
+            ->setPostageTax('0')
             ->setPostageTaxRuleTitle(null)
             ->setDeliveryModuleId(null)
             ->save();

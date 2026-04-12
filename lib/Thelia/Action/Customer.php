@@ -184,7 +184,7 @@ class Customer extends BaseAction implements EventSubscriberInterface
         }
 
         if (null !== $event->getDiscount()) {
-            $customer->setDiscount($event->getDiscount());
+            $customer->setDiscount((string) $event->getDiscount());
         }
 
         if (null !== $event->getLangId()) {

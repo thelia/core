@@ -48,7 +48,7 @@ readonly class CheckoutPaymentService
             ->setInvoiceOrderAddressId($invoiceAddressId)
             ->setPaymentModuleId($paymentModuleId)
             ->setDeliveryModuleId($deliveryModuleId)
-            ->setPostage((float) $cart->getPostage() + (float) $cart->getPostageTax())
+            ->setPostage((string) ((float) $cart->getPostage() + (float) $cart->getPostageTax()))
             ->setPostageTax($cart->getPostageTax())
             ->setPostageTaxRuleTitle($cart->getPostageTaxRuleTitle())
             ->setCustomerId($cart->getCustomerId())

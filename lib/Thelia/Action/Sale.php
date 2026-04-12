@@ -96,7 +96,7 @@ class Sale extends BaseAction implements EventSubscriberInterface
                     $promoPrice = $taxCalculator->getUntaxedPrice($promoPrice);
 
                     $productPrice
-                        ->setPromoPrice($promoPrice)
+                        ->setPromoPrice((string) $promoPrice)
                         ->save($con);
                 }
             }

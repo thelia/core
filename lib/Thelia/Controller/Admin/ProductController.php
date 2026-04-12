@@ -234,8 +234,8 @@ class ProductController extends AbstractSeoCrudController
 
         if (null !== $priceForDefaultCurrency) {
             $productPrice
-                ->setPrice($priceForDefaultCurrency->getPrice() * $currentCurrency->getRate())
-                ->setPromoPrice($priceForDefaultCurrency->getPromoPrice() * $currentCurrency->getRate());
+                ->setPrice((string) ((float) $priceForDefaultCurrency->getPrice() * $currentCurrency->getRate()))
+                ->setPromoPrice((string) ((float) $priceForDefaultCurrency->getPromoPrice() * $currentCurrency->getRate()));
         }
     }
 
@@ -1060,17 +1060,17 @@ class ProductController extends AbstractSeoCrudController
 
         $event
             ->setReference($data['reference'])
-            ->setPrice($data['price'])
-            ->setCurrencyId($data['currency'])
-            ->setWeight($data['weight'] ?? 0)
-            ->setQuantity($data['quantity'])
+            ->setPrice((float) $data['price'])
+            ->setCurrencyId((int) $data['currency'])
+            ->setWeight((float) ($data['weight'] ?? 0))
+            ->setQuantity((float) $data['quantity'])
             ->setSalePrice((float) $data['sale_price'])
-            ->setOnsale($data['onsale'] ?? 0)
-            ->setIsnew($data['isnew'] ?? 0)
+            ->setOnsale((int) ($data['onsale'] ?? 0))
+            ->setIsnew((int) ($data['isnew'] ?? 0))
             ->setIsdefault($data['isdefault'] ? (bool) $data['isdefault'] : false)
             ->setEanCode($data['ean_code'])
-            ->setTaxRuleId($data['tax_rule'])
-            ->setFromDefaultCurrency($data['use_exchange_rate']);
+            ->setTaxRuleId((int) $data['tax_rule'])
+            ->setFromDefaultCurrency((int) $data['use_exchange_rate']);
 
         $eventDispatcher->dispatch($event, TheliaEvents::PRODUCT_UPDATE_PRODUCT_SALE_ELEMENT);
 
@@ -1254,10 +1254,10 @@ class ProductController extends AbstractSeoCrudController
 
             $event
                 ->setReference($data['reference'] ?? '')
-                ->setPrice($data['price'] ?? 0)
-                ->setWeight($data['weight'] ?? 0)
-                ->setQuantity($data['quantity'] ?? 0)
-                ->setSalePrice($data['sale_price'] ?? 0)
+                ->setPrice((float) ($data['price'] ?? 0))
+                ->setWeight((float) ($data['weight'] ?? 0))
+                ->setQuantity((float) ($data['quantity'] ?? 0))
+                ->setSalePrice((float) ($data['sale_price'] ?? 0))
                 ->setOnsale($data['onsale'] ?? false)
                 ->setIsnew($data['isnew'] ?? false)
                 ->setEanCode($data['ean_code'] ?? '');

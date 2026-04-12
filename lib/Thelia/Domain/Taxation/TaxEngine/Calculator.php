@@ -313,7 +313,7 @@ class Calculator
                 $orderProductTax = (new OrderProductTax())
                     ->setTitle($taxI18n->getTitle())
                     ->setDescription($taxI18n->getDescription())
-                    ->setAmount($taxAmount);
+                    ->setAmount((string) $taxAmount);
 
                 $taxCollection->addTax($orderProductTax);
             }

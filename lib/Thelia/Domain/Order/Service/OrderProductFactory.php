@@ -57,7 +57,7 @@ readonly class OrderProductFactory
             ->setPromoPrice($cartItem->getPromoPrice())
             ->setWasNew($productSaleElements->getNewness() ?? 0)
             ->setWasInPromo($cartItem->getPromo() ?? 0)
-            ->setWeight($productSaleElements->getWeight())
+            ->setWeight($productSaleElements->getWeight() !== null ? (string) $productSaleElements->getWeight() : null)
             ->setTaxRuleTitle($taxRuleI18n->getTitle())
             ->setTaxRuleDescription($taxRuleI18n->getDescription())
             ->setEanCode($productSaleElements->getEanCode())

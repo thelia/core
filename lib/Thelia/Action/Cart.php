@@ -142,8 +142,8 @@ class Cart extends BaseAction implements EventSubscriberInterface
         try {
             $postage = $this->getPostageByDeliveryModuleId($cart, $dispatcher, $moduleId, $deliveryAddressId);
             $cart
-                ->setPostage($postage->getAmount() - $postage->getAmountTax())
-                ->setPostageTax($postage->getAmountTax() ?? .0)
+                ->setPostage((string) ($postage->getAmount() - $postage->getAmountTax()))
+                ->setPostageTax((string) ($postage->getAmountTax() ?? 0.0))
                 ->setPostageTaxRuleTitle($postage->getTaxRuleTitle())
                 ->save();
         } catch (\Exception $e) {
