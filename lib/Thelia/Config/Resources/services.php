@@ -75,10 +75,16 @@ return static function (ContainerConfigurator $configurator): void {
 
     $serviceConfigurator->alias('session.factory', SessionFactory::class);
 
+    // SMTP and module configuration require Propel (ConfigQuery / ModuleQuery).
+    // During install or when the database is unavailable (test cold start, CI),
+    // skip these sections gracefully and use defaults.
+    $propelAvailable = false === \defined('THELIA_INSTALL_MODE')
+        && '' !== \Propel\Runtime\Propel::getServiceContainer()->getDefaultDatasource();
+
     if (!isset($_SERVER['MAILER_DSN'])) {
         $dsn = 'smtp://localhost:25';
 
-        if (ConfigQuery::isSmtpEnable()) {
+        if ($propelAvailable && ConfigQuery::isSmtpEnable()) {
             $dsn = 'smtp://';
 
             if (ConfigQuery::getSmtpUsername()) {
@@ -98,7 +104,7 @@ return static function (ContainerConfigurator $configurator): void {
         ]);
     }
 
-    if (false === \defined('THELIA_INSTALL_MODE')) {
+    if ($propelAvailable) {
         $apiResourcePaths = [
             THELIA_LIB.'/Api/Resource',
         ];

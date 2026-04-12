@@ -174,11 +174,15 @@ class TheliaKernel extends Kernel
     {
         $container->parameters()->set(
             'thelia_front_template',
-            ConfigQuery::read(TemplateDefinition::FRONT_OFFICE_CONFIG_NAME, 'default'),
+            $this->propelConnectionAvailable
+                ? ConfigQuery::read(TemplateDefinition::FRONT_OFFICE_CONFIG_NAME, 'default')
+                : 'default',
         );
         $container->parameters()->set(
             'thelia_admin_template',
-            ConfigQuery::read(TemplateDefinition::BACK_OFFICE_CONFIG_NAME, 'default'),
+            $this->propelConnectionAvailable
+                ? ConfigQuery::read(TemplateDefinition::BACK_OFFICE_CONFIG_NAME, 'default')
+                : 'default',
         );
 
         $container->import(__DIR__.'/../Config/Resources/*.php');
@@ -386,12 +390,38 @@ class TheliaKernel extends Kernel
             'thelia.core_dir' => \dirname(__DIR__),
             'thelia.module_dir' => THELIA_MODULE_DIR,
             'thelia.local_module_dir' => THELIA_LOCAL_MODULE_DIR,
-            'thelia.database_host' => $_SERVER['DATABASE_HOST'] ?? null,
-            'thelia.database_port' => $_SERVER['DATABASE_PORT'] ?? null,
-            'thelia.database_name' => $_SERVER['DATABASE_NAME'] ?? null,
-            'thelia.database_user' => $_SERVER['DATABASE_USER'] ?? null,
-            'thelia.database_password' => $_SERVER['DATABASE_PASSWORD'] ?? null,
+            'thelia.database_host' => self::resolveEnv('DATABASE_HOST'),
+            'thelia.database_port' => self::resolveEnv('DATABASE_PORT'),
+            'thelia.database_name' => self::resolveEnv('DATABASE_NAME'),
+            'thelia.database_user' => self::resolveEnv('DATABASE_USER'),
+            'thelia.database_password' => self::resolveEnv('DATABASE_PASSWORD'),
         ]);
+    }
+
+    /**
+     * Resolve an environment variable from all available PHP sources.
+     *
+     * In CLI context (tests, commands), OS-level env vars may live in
+     * getenv() or $_ENV but not in $_SERVER. This method checks all
+     * sources to work reliably across DDEV, Docker, CI and bare metal.
+     */
+    public static function resolveEnv(string $name, ?string $default = null): ?string
+    {
+        if (isset($_SERVER[$name]) && '' !== $_SERVER[$name]) {
+            return (string) $_SERVER[$name];
+        }
+
+        if (isset($_ENV[$name]) && '' !== $_ENV[$name]) {
+            return (string) $_ENV[$name];
+        }
+
+        $value = getenv($name);
+
+        if (false !== $value && '' !== $value) {
+            return $value;
+        }
+
+        return $default;
     }
 
     public static function isInstalled(): bool
@@ -402,19 +432,20 @@ class TheliaKernel extends Kernel
 
         // Do not cache a false from missing DATABASE_HOST: the env can be
         // populated mid-process (thelia:install → publishDatabaseEnvironmentForCurrentProcess).
-        if (empty($_SERVER['DATABASE_HOST'])) {
+        $host = self::resolveEnv('DATABASE_HOST');
+        if (empty($host)) {
             return false;
         }
 
         try {
             $connection = new \PDO(
                 \sprintf('mysql:host=%s;dbname=%s;port=%s',
-                    $_SERVER['DATABASE_HOST'],
-                    $_SERVER['DATABASE_NAME'],
-                    $_SERVER['DATABASE_PORT']
+                    $host,
+                    self::resolveEnv('DATABASE_NAME', ''),
+                    self::resolveEnv('DATABASE_PORT', '3306'),
                 ),
-                $_SERVER['DATABASE_USER'],
-                $_SERVER['DATABASE_PASSWORD']
+                self::resolveEnv('DATABASE_USER', ''),
+                self::resolveEnv('DATABASE_PASSWORD', ''),
             );
             $result = $connection->query('SELECT id FROM `config`');
             $found = $result && (false !== $result->fetch(\PDO::FETCH_ASSOC));
