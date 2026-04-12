@@ -31,6 +31,7 @@ use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\Security\SecurityContext;
 use Thelia\Domain\Cart\Exception\NotEnoughStockException;
+use Thelia\Module\Exception\DeliveryException;
 use Thelia\Domain\Cart\Service\CartAddressService;
 use Thelia\Model\AddressQuery;
 use Thelia\Model\Base\CustomerQuery;
@@ -401,7 +402,7 @@ class Cart extends BaseAction implements EventSubscriberInterface
      *
      * @deprecated this method is deprecated. Dispatch a TheliaEvents::CART_FINDITEM instead
      */
-    protected function findItem(int $cartId, int $productId, int $productSaleElementsId): CartItem
+    protected function findItem(int $cartId, int $productId, int $productSaleElementsId): ?CartItem
     {
         return CartItemQuery::create()
             ->filterByCartId($cartId)
@@ -571,6 +572,11 @@ class Cart extends BaseAction implements EventSubscriberInterface
         }
 
         $deliveryModule = ModuleQuery::create()->filterById($moduleId)->findOne();
+
+        if (null === $deliveryModule) {
+            throw new DeliveryException(sprintf('Delivery module #%d not found', $moduleId));
+        }
+
         $moduleInstance = $deliveryModule->getDeliveryModuleInstance($this->container);
 
         $deliveryAddress = AddressQuery::create()

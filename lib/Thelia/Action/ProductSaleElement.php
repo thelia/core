@@ -410,6 +410,10 @@ class ProductSaleElement extends BaseAction implements EventSubscriberInterface
         $originalProductPSEPrice = ProductPriceQuery::create()
             ->findOneByProductSaleElementsId($originalProductPSE->getId());
 
+        if (null === $originalProductPSEPrice) {
+            return;
+        }
+
         $clonedProductUpdatePSEEvent = new ProductSaleElementUpdateEvent($event->getClonedProduct(), $clonedProductPSEId);
         $clonedProductUpdatePSEEvent
             ->setReference($event->getClonedProduct()->getRef().'-'.($key + 1))

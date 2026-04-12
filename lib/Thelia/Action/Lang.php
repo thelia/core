@@ -165,17 +165,19 @@ class Lang extends BaseAction implements EventSubscriberInterface
 
         $lang->delete();
 
-        /** @var Session $session */
+        /** @var Session|null $session */
         $session = $this->requestStack->getMainRequest()?->getSession();
 
-        // If we've just deleted the current admin edition language, set it to the default one.
-        if ($lang->getId() === $session->getAdminEditionLang()->getId()) {
-            $session->setAdminEditionLang(LangModel::getDefaultLanguage());
-        }
+        if (null !== $session) {
+            // If we've just deleted the current admin edition language, set it to the default one.
+            if ($lang->getId() === $session->getAdminEditionLang()?->getId()) {
+                $session->setAdminEditionLang(LangModel::getDefaultLanguage());
+            }
 
-        // If we've just deleted the current admin language, set it to the default one.
-        if ($lang->getId() === $session->getLang()?->getId()) {
-            $session->setLang(LangModel::getDefaultLanguage());
+            // If we've just deleted the current admin language, set it to the default one.
+            if ($lang->getId() === $session->getLang()?->getId()) {
+                $session->setLang(LangModel::getDefaultLanguage());
+            }
         }
 
         $event->setLang($lang);

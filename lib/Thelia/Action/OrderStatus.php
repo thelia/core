@@ -89,8 +89,9 @@ class OrderStatus extends BaseAction implements EventSubscriberInterface
             ->setChapo($event->getChapo());
 
         if (null === $orderStatus->getId()) {
+            $lastOrderStatus = OrderStatusQuery::create()->orderByPosition(Criteria::DESC)->findOne();
             $orderStatus->setPosition(
-                OrderStatusQuery::create()->orderByPosition(Criteria::DESC)->findOne()->getPosition() + 1,
+                null !== $lastOrderStatus ? $lastOrderStatus->getPosition() + 1 : 1,
             );
         }
 
