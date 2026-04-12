@@ -83,6 +83,10 @@ class LangController extends BaseAdminController
 
         $lang = LangQuery::create()->findPk($lang_id);
 
+        if (null === $lang) {
+            throw new \InvalidArgumentException(sprintf('Language #%s not found', $lang_id));
+        }
+
         $langForm = $this->createForm(AdminForm::LANG_UPDATE, FormType::class, [
             'id' => $lang->getId(),
             'title' => $lang->getTitle(),

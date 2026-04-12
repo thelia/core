@@ -189,7 +189,7 @@ class TaxRuleController extends AbstractCrudController
     {
         return [
             'tab' => $tab ?? $this->getRequest()->get('tab', 'data'),
-            'country' => $country ?? $this->getRequest()->get('country', CountryQuery::create()->findOneByByDefault(1)->getId()),
+            'country' => $country ?? $this->getRequest()->get('country', CountryQuery::create()->findOneByByDefault(1)?->getId()),
             'state' => $state,
         ];
     }
@@ -235,7 +235,7 @@ class TaxRuleController extends AbstractCrudController
         return $this->generateRedirectFromRoute(
             'admin.configuration.taxes-rules.update',
             $this->getViewArguments(),
-            $this->getRouteArguments($createEvent->getTaxRule()->getId()),
+            $this->getRouteArguments($createEvent?->getTaxRule()?->getId()),
         );
     }
 

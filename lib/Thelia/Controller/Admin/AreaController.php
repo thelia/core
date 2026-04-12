@@ -337,7 +337,7 @@ class AreaController extends AbstractCrudController
 
         $this->removeOneCountryFromArea(
             $eventDispatcher,
-            $this->getRequest()->get('area_id', 0),
+            $this->findAreaOrFail($this->getRequest()->get('area_id', 0)),
             $this->getRequest()->get('country_id', 0),
             $this->getRequest()->get('state_id'),
         );

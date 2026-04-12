@@ -175,6 +175,10 @@ class OrderController extends BaseAdminController
 
             $orderAddress = OrderAddressQuery::create()->findPk($form->get('id')->getData());
 
+            if (null === $orderAddress) {
+                throw new \InvalidArgumentException('The order address you want to update does not exist');
+            }
+
             if ($orderAddress->getId() !== $order->getInvoiceOrderAddressId() && $orderAddress->getId() !== $order->getDeliveryOrderAddressId()) {
                 throw new \InvalidArgumentException('The order address you want to update does not belong to the current order not exist');
             }

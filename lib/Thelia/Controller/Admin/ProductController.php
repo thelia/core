@@ -514,6 +514,10 @@ class ProductController extends AbstractSeoCrudController
 
     protected function performAdditionalUpdateAction(EventDispatcherInterface $eventDispatcher, ActionEvent|ActiveRecordEvent|null $updateEvent): ?Response
     {
+        if (null === $updateEvent) {
+            return null;
+        }
+
         // Associate the file if it's a virtual product
         // and with only 1 PSE
         $virtualDocumentId = (int) $updateEvent->getVirtualDocumentId();

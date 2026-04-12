@@ -403,7 +403,7 @@ class CouponController extends BaseAdminController
         $conditions = $couponManager->getConditions();
         $conditionIndex = $this->getRequest()->request->get('conditionIndex');
 
-        if ($conditionIndex >= 0) {
+        if (null !== $conditionIndex && $conditionIndex >= 0) {
             // Update mode
             $conditions[$conditionIndex] = $conditionToSave;
         } else {
@@ -508,15 +508,16 @@ class CouponController extends BaseAdminController
                 $eventToDispatch,
             );
 
+            $couponModel = $couponEvent->getCouponModel();
             $this->adminLogAppend(
                 AdminResources::COUPON,
                 AccessManager::UPDATE,
                 \sprintf(
-                    'Coupon %s (ID ) '.$log,
+                    'Coupon %s (ID %s) '.$log,
                     $couponEvent->getTitle(),
-                    $couponEvent->getCouponModel()->getId(),
+                    $couponModel->getId(),
                 ),
-                $couponEvent->getCouponModel()->getId(),
+                $couponModel->getId(),
             );
 
             if ('stay' === $this->getRequest()->get('save_mode')) {
@@ -706,7 +707,7 @@ class CouponController extends BaseAdminController
             $data['shortDescription'],
             $data['description'],
             $data['isEnabled'] === 'on',
-            \DateTime::createFromFormat($this->getDefaultDateFormat(), $data['expirationDate']),
+            \DateTime::createFromFormat($this->getDefaultDateFormat(), $data['expirationDate']) ?: new \DateTime(),
             $data['isAvailableOnSpecialOffers'] === 'on',
             $data['isCumulative'] === 'on',
             $data['isRemovingPostage'] === 'on',
@@ -715,7 +716,7 @@ class CouponController extends BaseAdminController
             $data['freeShippingForCountries'],
             $data['freeShippingForModules'],
             $data['perCustomerUsageCount'] === 'on',
-            empty($data['startDate']) ? null : \DateTime::createFromFormat($this->getDefaultDateFormat(), $data['startDate']),
+            empty($data['startDate']) ? null : (\DateTime::createFromFormat($this->getDefaultDateFormat(), $data['startDate']) ?: null),
         );
 
         // If Update mode
@@ -801,7 +802,7 @@ class CouponController extends BaseAdminController
 
     protected function getDefaultDateFormat()
     {
-        return LangQuery::create()->findOneByByDefault(true)->getDatetimeFormat();
+        return LangQuery::create()->findOneByByDefault(true)?->getDatetimeFormat() ?? 'Y-m-d H:i:s';
     }
 
     protected function getForm(string $action, ?Coupon $coupon): BaseForm
@@ -831,8 +832,13 @@ class CouponController extends BaseAdminController
             );
 
             // Retrieve coupon
-            $coupon = CouponQuery::create()
-                ->findPk($couponId = $this->getRequest()->request->get('coupon_id'));
+            $couponId = $this->getRequest()->request->get('coupon_id');
+            $coupon = CouponQuery::create()->findPk($couponId);
+
+            if (null === $coupon) {
+                throw new \InvalidArgumentException(sprintf('Coupon #%s not found', $couponId));
+            }
+
             $deleteEvent = new CouponDeleteEvent($coupon);
 
             $eventDispatcher->dispatch($deleteEvent, TheliaEvents::COUPON_DELETE);

@@ -190,7 +190,7 @@ class TaxController extends AbstractCrudController
         return $this->generateRedirectFromRoute(
             'admin.configuration.taxes.update',
             $this->getViewArguments(),
-            $this->getRouteArguments($createEvent->getTax()->getId()),
+            $this->getRouteArguments($createEvent?->getTax()?->getId()),
         );
     }
 
