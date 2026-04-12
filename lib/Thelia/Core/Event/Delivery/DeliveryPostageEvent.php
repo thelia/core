@@ -71,12 +71,12 @@ class DeliveryPostageEvent extends ActionEvent
         return $this;
     }
 
-    public function getDeliveryDate(): ?DateTime
+    public function getDeliveryDate(): ?\DateTime
     {
         return $this->deliveryDate;
     }
 
-    public function setDeliveryDate(?DateTime $deliveryDate): static
+    public function setDeliveryDate(?\DateTime $deliveryDate): static
     {
         $this->deliveryDate = $deliveryDate;
 

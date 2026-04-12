@@ -18,18 +18,18 @@ use Thelia\Model\Product;
 
 class ProductCombinationGenerationEvent extends ProductEvent
 {
-    protected $reference;
-    protected $price;
-    protected $currency_id;
-    protected $weight;
-    protected $quantity;
-    protected $sale_price;
-    protected $onsale;
-    protected $isnew;
-    protected $ean_code;
-    protected $combinations;
+    protected string $reference = '';
+    protected float $price = 0;
+    protected int $currency_id;
+    protected float $weight = 0;
+    protected float $quantity = 0;
+    protected float $sale_price = 0;
+    protected bool $onsale = false;
+    protected bool $isnew = false;
+    protected string $ean_code = '';
+    protected array $combinations;
 
-    public function __construct(Product $product, $currency_id, $combinations)
+    public function __construct(Product $product, int $currency_id, array $combinations)
     {
         parent::__construct($product);
 
@@ -37,120 +37,120 @@ class ProductCombinationGenerationEvent extends ProductEvent
         $this->setCurrencyId($currency_id);
     }
 
-    public function getCurrencyId()
+    public function getCurrencyId(): int
     {
         return $this->currency_id;
     }
 
-    public function setCurrencyId($currency_id): static
+    public function setCurrencyId(int $currency_id): static
     {
         $this->currency_id = $currency_id;
 
         return $this;
     }
 
-    public function getReference()
+    public function getReference(): string
     {
         return $this->reference;
     }
 
-    public function setReference($reference): static
+    public function setReference(string $reference): static
     {
         $this->reference = $reference;
 
         return $this;
     }
 
-    public function getPrice()
+    public function getPrice(): float
     {
         return $this->price;
     }
 
-    public function setPrice($price): static
+    public function setPrice(float $price): static
     {
         $this->price = $price;
 
         return $this;
     }
 
-    public function getWeight()
+    public function getWeight(): float
     {
         return $this->weight;
     }
 
-    public function setWeight($weight): static
+    public function setWeight(float $weight): static
     {
         $this->weight = $weight;
 
         return $this;
     }
 
-    public function getQuantity()
+    public function getQuantity(): float
     {
         return $this->quantity;
     }
 
-    public function setQuantity($quantity): static
+    public function setQuantity(float $quantity): static
     {
         $this->quantity = $quantity;
 
         return $this;
     }
 
-    public function getSalePrice()
+    public function getSalePrice(): float
     {
         return $this->sale_price;
     }
 
-    public function setSalePrice($sale_price): static
+    public function setSalePrice(float $sale_price): static
     {
         $this->sale_price = $sale_price;
 
         return $this;
     }
 
-    public function getOnsale()
+    public function getOnsale(): bool
     {
         return $this->onsale;
     }
 
-    public function setOnsale($onsale): static
+    public function setOnsale(bool $onsale): static
     {
         $this->onsale = $onsale;
 
         return $this;
     }
 
-    public function getIsnew()
+    public function getIsnew(): bool
     {
         return $this->isnew;
     }
 
-    public function setIsnew($isnew): static
+    public function setIsnew(bool $isnew): static
     {
         $this->isnew = $isnew;
 
         return $this;
     }
 
-    public function getEanCode()
+    public function getEanCode(): string
     {
         return $this->ean_code;
     }
 
-    public function setEanCode($ean_code): static
+    public function setEanCode(string $ean_code): static
     {
         $this->ean_code = $ean_code;
 
         return $this;
     }
 
-    public function getCombinations()
+    public function getCombinations(): array
     {
         return $this->combinations;
     }
 
-    public function setCombinations($combinations): static
+    public function setCombinations(array $combinations): static
     {
         $this->combinations = $combinations;
 

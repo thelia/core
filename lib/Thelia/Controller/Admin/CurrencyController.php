@@ -76,7 +76,7 @@ class CurrencyController extends AbstractCrudController
             ->setSymbol($formData['symbol'])
             ->setFormat($formData['format'])
             ->setCode($formData['code'])
-            ->setRate($formData['rate']);
+            ->setRate((float) $formData['rate']);
 
         return $createEvent;
     }
@@ -91,7 +91,7 @@ class CurrencyController extends AbstractCrudController
             ->setSymbol($formData['symbol'])
             ->setFormat($formData['format'])
             ->setCode($formData['code'])
-            ->setRate($formData['rate']);
+            ->setRate((float) $formData['rate']);
 
         return $changeEvent;
     }

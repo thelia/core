@@ -161,7 +161,7 @@ class CouponCreateOrUpdateEvent extends ActionEvent
      */
     public function getAmount(): float
     {
-        return $this->effects['amount'];
+        return $this->amount;
     }
 
     /**

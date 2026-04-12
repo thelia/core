@@ -75,7 +75,7 @@ class CartEvent extends ActionEvent
     /**
      * @return $this
      */
-    public function setCartItemId($cartItemId): static
+    public function setCartItemId(?int $cartItemId): static
     {
         $this->cartItemId = $cartItemId;
 

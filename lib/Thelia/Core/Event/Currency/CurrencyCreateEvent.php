@@ -16,80 +16,80 @@ namespace Thelia\Core\Event\Currency;
 
 class CurrencyCreateEvent extends CurrencyEvent
 {
-    protected $currency_name;
-    protected $locale;
-    protected $symbol;
-    protected $format;
-    protected $code;
-    protected $rate;
+    protected ?string $currency_name = null;
+    protected ?string $locale = null;
+    protected ?string $symbol = null;
+    protected ?string $format = null;
+    protected ?string $code = null;
+    protected ?float $rate = null;
 
     // Use currency_name to prevent conflict with Event::name property.
-    public function getCurrencyName()
+    public function getCurrencyName(): ?string
     {
         return $this->currency_name;
     }
 
-    public function setCurrencyName($currency_name): static
+    public function setCurrencyName(?string $currency_name): static
     {
         $this->currency_name = $currency_name;
 
         return $this;
     }
 
-    public function getLocale()
+    public function getLocale(): ?string
     {
         return $this->locale;
     }
 
-    public function setLocale($locale): static
+    public function setLocale(?string $locale): static
     {
         $this->locale = $locale;
 
         return $this;
     }
 
-    public function getSymbol()
+    public function getSymbol(): ?string
     {
         return $this->symbol;
     }
 
-    public function setSymbol($symbol): static
+    public function setSymbol(?string $symbol): static
     {
         $this->symbol = $symbol;
 
         return $this;
     }
 
-    public function getFormat()
+    public function getFormat(): ?string
     {
         return $this->format;
     }
 
-    public function setFormat($format): static
+    public function setFormat(?string $format): static
     {
         $this->format = $format;
 
         return $this;
     }
 
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
-    public function setCode($code): static
+    public function setCode(?string $code): static
     {
         $this->code = $code;
 
         return $this;
     }
 
-    public function getRate()
+    public function getRate(): ?float
     {
         return $this->rate;
     }
 
-    public function setRate($rate): static
+    public function setRate(?float $rate): static
     {
         $this->rate = $rate;
 
