@@ -101,15 +101,19 @@ class SetTemplate extends ContainerAwareCommand
             $output->writeln(\sprintf('<fg=green>Template copied from %s to %s.</>', $pathVendor, $path));
         }
 
+        // Required modules must be installed before the config switch: the cache rebuild
+        // triggered by setConfigToTemplate would otherwise load the template bundle while
+        // its modules are not yet available in the container.
+        $moduledInstalled = $this->moduleManager->installModulesFromTemplatePath($path, $output);
+        $output->writeln(\sprintf('<fg=blue>%d modules installed and activated.</>', \count($moduledInstalled)));
+
+        $this->theliaTemplateHelper->enableThemeAsBundle($path);
+        $this->execDumpAutoload($output);
+
         $this->theliaTemplateHelper->setConfigToTemplate(TemplateDefinition::CONFIG_NAMES[$type], $name);
         $this->eventDispatcher->dispatch(new CacheEvent($this->kernelCacheDir), TheliaEvents::CACHE_CLEAR);
 
         $output->writeln('<fg=green>Template successfully changed.</>');
-        $moduledInstalled = $this->moduleManager->installModulesFromTemplatePath($path, $output);
-        $output->writeln(\sprintf('<fg=blue>%d modules installed and activated.</>', \count($moduledInstalled)));
-        $this->theliaTemplateHelper->enableThemeAsBundle($path);
-
-        $this->execDumpAutoload($output);
         $output->writeln('<fg=green>Theme ready !</>');
 
         return self::SUCCESS;
