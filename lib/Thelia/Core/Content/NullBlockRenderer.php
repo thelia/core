@@ -14,11 +14,17 @@ declare(strict_types=1);
 
 namespace Thelia\Core\Content;
 
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+
 /**
  * Default no-op implementation used when no block renderer module
  * (eg. TheliaBlocks) is installed or active. Returns an empty list so
  * templates can safely iterate.
+ *
+ * Modules that ship a concrete renderer override this alias by carrying
+ * their own `#[AsAlias(BlockRendererInterface::class)]`.
  */
+#[AsAlias(id: BlockRendererInterface::class)]
 final class NullBlockRenderer implements BlockRendererInterface
 {
     public function findAndRenderBlocks(array $filters): array
