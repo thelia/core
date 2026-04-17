@@ -16,6 +16,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Thelia\Core\Content\BlockRendererInterface;
 use Thelia\Core\Content\NullBlockRenderer;
+use Thelia\Core\Form\FormServiceInterface;
+use Thelia\Core\Form\NullFormService;
 use Thelia\Core\Security\Front\FrontSecurityServiceInterface;
 use Thelia\Core\Security\Front\NullFrontSecurityService;
 
@@ -32,4 +34,6 @@ return static function (ContainerConfigurator $configurator): void {
     $services->alias(FrontSecurityServiceInterface::class, NullFrontSecurityService::class);
 
     $services->alias(BlockRendererInterface::class, NullBlockRenderer::class);
+
+    $services->alias(FormServiceInterface::class, NullFormService::class);
 };
