@@ -188,9 +188,12 @@ class PropelInitService
 
         $fs->mkdir($this->getPropelSchemaDir());
 
-        $schemaCombiner = new SchemaCombiner(
-            $this->schemaLocator->findForAllModules(),
-        );
+        $activeCodes = $this->getActiveModuleCodes();
+        $schemas = $activeCodes === null
+            ? $this->schemaLocator->findForAllModules()
+            : $this->schemaLocator->findForModules($activeCodes, true);
+
+        $schemaCombiner = new SchemaCombiner($schemas);
 
         foreach ($schemaCombiner->getDatabases() as $database) {
             $databaseSchemaCache = new ConfigCache(
@@ -370,5 +373,52 @@ class PropelInitService
     public function getPropelLoaderScriptDir(): string
     {
         return $this->getPropelCacheDir().'loader'.DS;
+    }
+
+    /**
+     * Read the active module codes from the database using a direct PDO connection.
+     *
+     * Returns null when the database is unreachable, the module table does not
+     * exist yet, or any other failure occurs — in that case the caller falls back
+     * to scanning the whole filesystem (install-time / recovery behaviour).
+     *
+     * The Propel configuration file is the source of truth for the DSN so this
+     * method is always consistent with the connection Propel will use at runtime.
+     *
+     * @return string[]|null list of active module codes, or null on failure
+     */
+    private function getActiveModuleCodes(): ?array
+    {
+        $configFile = $this->getPropelConfigFile();
+
+        if (!is_file($configFile)) {
+            return null;
+        }
+
+        try {
+            $config = Yaml::parseFile($configFile);
+            $connection = $config['propel']['database']['connections']['TheliaMain'] ?? null;
+
+            if (!is_array($connection) || empty($connection['dsn'])) {
+                return null;
+            }
+
+            $pdo = new \PDO(
+                $connection['dsn'],
+                $connection['user'] ?? null,
+                $connection['password'] ?? null,
+                [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, \PDO::ATTR_TIMEOUT => 2],
+            );
+
+            $statement = $pdo->query('SELECT `code` FROM `module` WHERE `activate` = 1');
+
+            if ($statement === false) {
+                return null;
+            }
+
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }
