@@ -147,9 +147,9 @@ class Generic extends BaseLoop implements PropelSearchLoopInterface
     }
 
     /**
-     * @return list<string>[]|null[]
+     * @return array<string, list<string>|null>
      */
-    protected function getParsedParams(array $params): array
+    protected function getParsedParams(?string $params): array
     {
         $rawParams = explode('|', (string) $params);
         $params = [];
