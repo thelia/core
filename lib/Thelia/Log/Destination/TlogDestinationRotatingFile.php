@@ -51,7 +51,7 @@ class TlogDestinationRotatingFile extends TlogDestinationFile
         }
 
         if (filesize($filePath) > 1024 * $this->getConfig(self::VAR_MAX_FILE_SIZE_KB, self::MAX_FILE_SIZE_KB_DEFAULT)) {
-            $backupFile = $filePath.'.'.strftime('%Y-%m-%d_%H-%M-%S');
+            $backupFile = $filePath.'.'.date('Y-m-d_H-i-s');
 
             @rename($filePath, $backupFile);
 
@@ -73,7 +73,7 @@ class TlogDestinationRotatingFile extends TlogDestinationFile
 
             if ($deleteCount > 0) {
                 foreach ($files as $file) {
-                    @unlink($file);
+                    @unlink($file->getPathname());
 
                     if (--$deleteCount <= 0) {
                         break;
