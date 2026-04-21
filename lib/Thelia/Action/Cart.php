@@ -31,7 +31,6 @@ use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\Security\SecurityContext;
 use Thelia\Domain\Cart\Exception\NotEnoughStockException;
-use Thelia\Module\Exception\DeliveryException;
 use Thelia\Domain\Cart\Service\CartAddressService;
 use Thelia\Model\AddressQuery;
 use Thelia\Model\Base\CustomerQuery;
@@ -47,6 +46,7 @@ use Thelia\Model\ModuleQuery;
 use Thelia\Model\OrderPostage;
 use Thelia\Model\ProductSaleElements;
 use Thelia\Model\Tools\ProductPriceTools;
+use Thelia\Module\Exception\DeliveryException;
 use Thelia\Tools\TokenProvider;
 
 /**
@@ -574,7 +574,7 @@ class Cart extends BaseAction implements EventSubscriberInterface
         $deliveryModule = ModuleQuery::create()->filterById($moduleId)->findOne();
 
         if (null === $deliveryModule) {
-            throw new DeliveryException(sprintf('Delivery module #%d not found', $moduleId));
+            throw new DeliveryException(\sprintf('Delivery module #%d not found', $moduleId));
         }
 
         $moduleInstance = $deliveryModule->getDeliveryModuleInstance($this->container);

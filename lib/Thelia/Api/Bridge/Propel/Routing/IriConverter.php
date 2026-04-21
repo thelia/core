@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace Thelia\Api\Bridge\Propel\Routing;
 
 use ApiPlatform\Metadata\IriConverterInterface;
-use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
+use ApiPlatform\Metadata\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
 use Symfony\Component\Routing\RouterInterface;

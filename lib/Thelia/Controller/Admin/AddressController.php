@@ -145,7 +145,7 @@ class AddressController extends AbstractCrudController
         $customer = CustomerQuery::create()->findPk($this->getRequest()->get('customer_id'));
 
         if (null === $customer) {
-            throw new \InvalidArgumentException(sprintf('Customer #%s not found', $this->getRequest()->get('customer_id')));
+            throw new \InvalidArgumentException(\sprintf('Customer #%s not found', $this->getRequest()->get('customer_id')));
         }
 
         $event->setCustomer($customer);

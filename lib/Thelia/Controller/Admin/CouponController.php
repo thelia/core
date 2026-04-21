@@ -836,7 +836,7 @@ class CouponController extends BaseAdminController
             $coupon = CouponQuery::create()->findPk($couponId);
 
             if (null === $coupon) {
-                throw new \InvalidArgumentException(sprintf('Coupon #%s not found', $couponId));
+                throw new \InvalidArgumentException(\sprintf('Coupon #%s not found', $couponId));
             }
 
             $deleteEvent = new CouponDeleteEvent($coupon);

@@ -21,7 +21,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Core\Security\SecurityContext;
-use Thelia\Core\Translation\Translator;
 use Thelia\Domain\Addressing\Service\AddressService;
 use Thelia\Domain\Shipping\ShippingFacade;
 use Thelia\Model\Address;

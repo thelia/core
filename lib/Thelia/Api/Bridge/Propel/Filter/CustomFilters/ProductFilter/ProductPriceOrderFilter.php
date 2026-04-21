@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace Thelia\Api\Bridge\Propel\Filter\CustomFilters\ProductFilter;
 
 use ApiPlatform\Metadata\Operation;
-use Thelia\Api\Bridge\Propel\Filter\OrderFilter;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Thelia\Api\Bridge\Propel\Filter\AbstractFilter;
+use Thelia\Api\Bridge\Propel\Filter\OrderFilter;
 
 class ProductPriceOrderFilter extends AbstractFilter
 {

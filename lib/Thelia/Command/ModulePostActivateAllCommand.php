@@ -48,11 +48,11 @@ class ModulePostActivateAllCommand extends Command
                 $instance->postActivation($con);
                 ++$count;
             } catch (\Throwable $e) {
-                $output->writeln(sprintf('  <comment>%s: %s</comment>', $code, $e->getMessage()));
+                $output->writeln(\sprintf('  <comment>%s: %s</comment>', $code, $e->getMessage()));
             }
         }
 
-        $output->writeln(sprintf('%d module(s) post-activated.', $count));
+        $output->writeln(\sprintf('%d module(s) post-activated.', $count));
 
         return Command::SUCCESS;
     }
