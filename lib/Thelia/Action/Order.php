@@ -39,7 +39,6 @@ use Thelia\Model\ConfigQuery;
 use Thelia\Model\Currency as CurrencyModel;
 use Thelia\Model\Lang as LangModel;
 use Thelia\Model\Map\OrderTableMap;
-use Thelia\Model\ModuleQuery;
 use Thelia\Model\Order as ModelOrder;
 use Thelia\Model\Order as OrderModel;
 use Thelia\Model\OrderProduct;
@@ -405,7 +404,7 @@ class Order extends BaseAction implements EventSubscriberInterface
         $orderAddress = $event->getOrderAddress();
 
         $orderAddress
-            ->setCustomerTitleId($event->getTitle())
+            ->setCustomerTitleId($event->getTitle() === null ? null : (int) $event->getTitle())
             ->setCompany($event->getCompany())
             ->setFirstname($event->getFirstname())
             ->setLastname($event->getLastname())
@@ -414,8 +413,8 @@ class Order extends BaseAction implements EventSubscriberInterface
             ->setAddress3($event->getAddress3())
             ->setZipcode($event->getZipcode())
             ->setCity($event->getCity())
-            ->setCountryId($event->getCountry())
-            ->setStateId($event->getState())
+            ->setCountryId($event->getCountry() === null ? null : (int) $event->getCountry())
+            ->setStateId($event->getState() === null ? null : (int) $event->getState())
             ->setPhone($event->getPhone())
             ->setCellphone($event->getCellphone())
             ->save();
