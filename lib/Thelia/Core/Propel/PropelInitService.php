@@ -45,41 +45,19 @@ use Thelia\Core\Propel\Schema\SchemaLocator;
 use Thelia\Core\TheliaKernel;
 use Thelia\Log\Tlog;
 
-/**
- * Propel cache and initialization service.
- */
 class PropelInitService
 {
-    /** Name of the Propel initialization file. */
     protected static string $PROPEL_CONFIG_CACHE_FILENAME = 'propel.init.php';
 
-    /**
-     * @param string        $environment   application environment
-     * @param bool          $debug         whether the application is in debug mode
-     * @param array         $envParameters map of environment parameters
-     * @param SchemaLocator $schemaLocator propel schema locator service
-     */
     public function __construct(
-        /**
-         * Application environment.
-         */
-        protected $environment,
-        /**
-         * Whether the application is in debug mode.
-         */
-        protected $debug,
+        protected string $environment,
+        protected bool $debug,
         protected array $envParameters,
         protected SchemaLocator $schemaLocator,
     ) {
     }
 
     /**
-     * Run a Propel command.
-     *
-     * @param Command              $command    command to run
-     * @param array                $parameters command parameters
-     * @param OutputInterface|null $output     command output
-     *
      * @throws \Exception
      */
     public function runCommand(Command $command, array $parameters = [], ?OutputInterface $output = null): int
@@ -96,9 +74,6 @@ class PropelInitService
         return $command->run($input, $output);
     }
 
-    /**
-     * Generate the Propel configuration file.
-     */
     public function buildPropelConfig(): void
     {
         $propelConfigCache = new ConfigCache(
@@ -139,8 +114,6 @@ class PropelInitService
     }
 
     /**
-     * Generate the Propel initialization file.
-     *
      * @throws \Exception
      */
     public function buildPropelInitFile(): void
@@ -164,7 +137,8 @@ class PropelInitService
             ],
         );
 
-        // rewrite the file as a cached file
+        // Rewrite through ConfigCache so Symfony tracks the source propel.yml as a dependency
+        // and invalidates the cache when it changes.
         $propelInitContent = file_get_contents($this->getPropelInitFile());
         $propelInitCache->write(
             $propelInitContent,
@@ -172,9 +146,6 @@ class PropelInitService
         );
     }
 
-    /**
-     * Generate the global Propel schema(s).
-     */
     public function buildPropelGlobalSchema(): bool
     {
         $fs = new Filesystem();
@@ -212,15 +183,12 @@ class PropelInitService
     }
 
     /**
-     * Generate the base Propel models.
-     *
      * @throws \Exception
      */
     public function buildPropelModels(): bool
     {
         $fs = new Filesystem();
 
-        // cache testing
         if ($fs->exists($this->getPropelModelDir().'hash')
             && file_get_contents($this->getPropelCacheDir().'hash') === file_get_contents($this->getPropelModelDir().'hash')) {
             return false;
@@ -245,12 +213,6 @@ class PropelInitService
     }
 
     /**
-     * Initialize the Propel environment and connection.
-     *
-     * @param bool $force force cache generation
-     *
-     * @return bool whether a Propel connection is available
-     *
      * @throws \Throwable
      *
      * @internal
@@ -261,21 +223,20 @@ class PropelInitService
             return false;
         }
 
-        // Fast path: if cache is complete, load runtime without acquiring lock
-        if (!$force && $this->isCacheComplete()) {
-            try {
-                $this->loadPropelRuntime();
+        $this->waitForConcurrentBuild();
 
-                return true;
-            } catch (\Throwable $throwable) {
-                // Cache files exist but are corrupt/inconsistent — fall through to slow path
-                (new Filesystem())->remove($this->getPropelCacheDir());
-            }
+        // Fast path must not purge the cache on failure: a transient error on one worker
+        // would otherwise cascade into a pool-wide outage. Let exceptions bubble.
+        if (!$force && $this->isCacheComplete()) {
+            $this->loadPropelRuntime();
+
+            return true;
         }
 
-        // Slow path: acquire lock for cache generation
         $lock = (new LockFactory(new FlockStore()))->createLock('propel-cache-generation');
         $lock->acquire(true);
+
+        $buildingFlag = $this->getBuildingFlagFile();
 
         try {
             if ($force) {
@@ -286,28 +247,67 @@ class PropelInitService
                 return false;
             }
 
-            // Re-check after lock (another process may have generated the cache)
             if (!$force && $this->isCacheComplete()) {
                 $this->loadPropelRuntime();
 
                 return true;
             }
 
+            (new Filesystem())->mkdir(\dirname($buildingFlag));
+            @touch($buildingFlag);
+
             $this->buildPropelConfig();
             $this->buildPropelInitFile();
             $this->buildPropelGlobalSchema();
             $this->buildPropelModels();
-            $this->loadPropelRuntime();
-        } catch (\Throwable $throwable) {
-            // Only remove the Propel cache dir, not the entire environment cache
-            (new Filesystem())->remove($this->getPropelCacheDir());
 
-            throw $throwable;
+            // Drop negative realpath entries and stale opcode cache for the worker that built,
+            // so the just-generated files are visible without waiting for TTL expiry.
+            clearstatcache(true);
+            if (\function_exists('opcache_reset')) {
+                @opcache_reset();
+            }
+
+            $this->loadPropelRuntime();
         } finally {
+            @unlink($buildingFlag);
             $lock->release();
         }
 
         return true;
+    }
+
+    private function waitForConcurrentBuild(int $maxWaitSeconds = 30, int $pollMicroseconds = 50_000): void
+    {
+        $flag = $this->getBuildingFlagFile();
+        if (!is_file($flag)) {
+            return;
+        }
+
+        $orphanTtl = 120;
+        $deadline = microtime(true) + $maxWaitSeconds;
+
+        while (is_file($flag)) {
+            $mtime = @filemtime($flag);
+            if ($mtime !== false && time() - $mtime > $orphanTtl) {
+                // Orphaned flag (crashed build) — ignore it rather than block forever.
+                @unlink($flag);
+
+                return;
+            }
+
+            if (microtime(true) >= $deadline) {
+                return;
+            }
+
+            usleep($pollMicroseconds);
+            clearstatcache(true, $flag);
+        }
+    }
+
+    private function getBuildingFlagFile(): string
+    {
+        return $this->getPropelCacheDir().'.building';
     }
 
     private function isCacheComplete(): bool
@@ -399,7 +399,7 @@ class PropelInitService
             $config = Yaml::parseFile($configFile);
             $connection = $config['propel']['database']['connections']['TheliaMain'] ?? null;
 
-            if (!is_array($connection) || empty($connection['dsn'])) {
+            if (!\is_array($connection) || empty($connection['dsn'])) {
                 return null;
             }
 
