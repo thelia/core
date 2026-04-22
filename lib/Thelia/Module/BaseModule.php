@@ -473,7 +473,12 @@ class BaseModule implements BaseModuleInterface
 
     public static function configureServices(ServicesConfigurator $servicesConfigurator): void
     {
-        // Override this method to configure the services for your module
+        $dir = \dirname((new \ReflectionClass(static::class))->getFileName());
+
+        $servicesConfigurator->load(static::getModuleCode().'\\', $dir)
+            ->exclude([$dir.'/I18n/*'])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 
     public static function loadConfiguration(ContainerBuilder $containerBuilder): void
