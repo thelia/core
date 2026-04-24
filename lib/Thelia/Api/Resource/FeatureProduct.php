@@ -75,6 +75,7 @@ class FeatureProduct implements PropelResourceInterface
         self::GROUP_FRONT_READ_SINGLE,
         Product::GROUP_ADMIN_READ_SINGLE,
         Product::GROUP_FRONT_READ_SINGLE,
+        Product::GROUP_ADMIN_WRITE,
     ])]
     public Feature $feature;
 
@@ -84,6 +85,7 @@ class FeatureProduct implements PropelResourceInterface
         self::GROUP_FRONT_READ_SINGLE,
         Product::GROUP_ADMIN_READ_SINGLE,
         Product::GROUP_FRONT_READ_SINGLE,
+        Product::GROUP_ADMIN_WRITE,
     ])]
     public FeatureAv $featureAv;
 
@@ -94,7 +96,7 @@ class FeatureProduct implements PropelResourceInterface
         Product::GROUP_ADMIN_READ_SINGLE,
         Product::GROUP_FRONT_READ_SINGLE,
     ])]
-    public string $free_text_value;
+    public ?string $freeTextValue = '';
 
     #[Groups([
         self::GROUP_ADMIN_READ,
@@ -102,8 +104,9 @@ class FeatureProduct implements PropelResourceInterface
         self::GROUP_ADMIN_WRITE,
         Product::GROUP_ADMIN_READ_SINGLE,
         Product::GROUP_FRONT_READ_SINGLE,
+        Product::GROUP_ADMIN_WRITE,
     ])]
-    public ?bool $is_free_text = false;
+    public ?bool $isFreeText = false;
 
     #[Groups([self::GROUP_ADMIN_READ, self::GROUP_FRONT_READ, self::GROUP_ADMIN_WRITE])]
     public ?int $position;
@@ -162,26 +165,26 @@ class FeatureProduct implements PropelResourceInterface
         return $this;
     }
 
-    public function getFreeTextValue(): string
+    public function getFreeTextValue(): ?string
     {
-        return $this->free_text_value;
+        return $this->freeTextValue;
     }
 
-    public function setFreeTextValue(string $free_text_value): self
+    public function setFreeTextValue(?string $freeTextValue): self
     {
-        $this->free_text_value = $free_text_value;
+        $this->freeTextValue = $freeTextValue;
 
         return $this;
     }
 
     public function getIsFreeText(): ?bool
     {
-        return $this->is_free_text;
+        return $this->isFreeText;
     }
 
-    public function setIsFreeText(?bool $is_free_text): self
+    public function setIsFreeText(?bool $isFreeText): self
     {
-        $this->is_free_text = $is_free_text;
+        $this->isFreeText = $isFreeText;
 
         return $this;
     }

@@ -22,6 +22,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Propel\Runtime\Map\TableMap;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Thelia\Api\Bridge\Propel\Attribute\Column;
 use Thelia\Api\Bridge\Propel\Attribute\Relation;
 use Thelia\Api\Bridge\Propel\Filter\SearchFilter;
 use Thelia\Model\Map\AccessoryTableMap;
@@ -73,11 +74,13 @@ class Accessory implements PropelResourceInterface
     public ?int $id = null;
 
     #[Relation(targetResource: Product::class, relationAlias: 'ProductRelatedByProductId')]
+    #[Column(propelSetter: 'setProductId')]
     #[Groups([self::GROUP_ADMIN_READ, self::GROUP_ADMIN_WRITE])]
     public Product $product;
 
     #[Relation(targetResource: Product::class, relationAlias: 'ProductRelatedByAccessory')]
     #[Groups([self::GROUP_ADMIN_READ, self::GROUP_ADMIN_WRITE])]
+    #[Column(propelSetter: 'setAccessory')]
     public Product $accessory;
 
     #[Groups([self::GROUP_ADMIN_READ, self::GROUP_ADMIN_WRITE])]
