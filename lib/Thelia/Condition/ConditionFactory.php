@@ -76,9 +76,13 @@ class ConditionFactory
      */
     public function unserializeConditionCollection(string $serializedConditions): ConditionCollection
     {
-        $unserializedConditions = json_decode(base64_decode($serializedConditions, true));
-
         $collection = new ConditionCollection();
+
+        $decoded = base64_decode($serializedConditions, true);
+        if (false === $decoded) {
+            return $collection;
+        }
+        $unserializedConditions = json_decode($decoded);
 
         if (!empty($unserializedConditions)) {
             /** @var SerializableCondition $condition */
