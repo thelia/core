@@ -93,6 +93,13 @@ final class DatabaseSetup
              ON DUPLICATE KEY UPDATE `full_namespace` = VALUES(`full_namespace`), `version` = VALUES(`version`)'
         );
 
+        $upsertModuleI18n = $this->pdo->prepare(
+            'INSERT INTO `module_i18n` (`id`, `locale`, `title`, `description`, `chapo`, `postscriptum`)
+             VALUES (:id, :locale, :title, :description, :chapo, :postscriptum)
+             ON DUPLICATE KEY UPDATE `title` = VALUES(`title`)'
+        );
+        $selectModuleId = $this->pdo->prepare('SELECT `id` FROM `module` WHERE `code` = :code');
+
         foreach ($moduleDirs as $baseDir) {
             foreach (new \DirectoryIterator($baseDir) as $entry) {
                 if (!$entry->isDir() || $entry->isDot()) {
@@ -123,11 +130,51 @@ final class DatabaseSetup
                     'hidden' => (int) ($xml->hidden ?? 0),
                 ]);
 
+                $this->insertModuleDescriptions($xml, $code, $upsertModuleI18n, $selectModuleId);
                 $this->applyModuleSchema($entry->getPathname(), $code);
             }
         }
 
         return $position;
+    }
+
+    /**
+     * Persist `<descriptive>` blocks from module.xml into `module_i18n`. Without this step
+     * vendor modules registered by registerAndApplyModules() would have no translations,
+     * which breaks every consumer that calls Module::getTitle() (e.g. the delivery
+     * `DeliveryModuleOption::setTitle()` strict-typed setter, payment module pickers).
+     */
+    private function insertModuleDescriptions(
+        \SimpleXMLElement $xml,
+        string $code,
+        \PDOStatement $upsert,
+        \PDOStatement $selectId,
+    ): void {
+        $descriptions = $xml->descriptive ?? null;
+        if (null === $descriptions || 0 === \count($descriptions)) {
+            return;
+        }
+
+        $selectId->execute(['code' => $code]);
+        $moduleId = $selectId->fetchColumn();
+        if (false === $moduleId) {
+            return;
+        }
+
+        foreach ($descriptions as $desc) {
+            $locale = trim((string) ($desc->attributes()->locale ?? ''));
+            if ('' === $locale) {
+                continue;
+            }
+            $upsert->execute([
+                'id' => (int) $moduleId,
+                'locale' => $locale,
+                'title' => isset($desc->title) ? (string) $desc->title : $code,
+                'description' => isset($desc->description) ? (string) $desc->description : null,
+                'chapo' => isset($desc->subtitle) ? (string) $desc->subtitle : null,
+                'postscriptum' => isset($desc->postscriptum) ? (string) $desc->postscriptum : null,
+            ]);
+        }
     }
 
     /** @return string[] */
