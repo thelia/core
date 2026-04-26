@@ -14,11 +14,10 @@ declare(strict_types=1);
 
 namespace Thelia\Domain\Module\Payment;
 
-use OpenApi\Events\OpenApiEvents;
-use OpenApi\Events\PaymentModuleOptionEvent;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Thelia\Api\Bridge\Propel\Event\PaymentModuleOptionEvent;
 use Thelia\Api\Resource\ModuleI18n;
 use Thelia\Api\Resource\PaymentModule;
 use Thelia\Core\Event\Payment\IsValidPaymentEvent;
@@ -98,7 +97,7 @@ readonly class PaymentModuleService
 
             $dispatcher->dispatch(
                 $paymentModuleOptionEvent,
-                OpenApiEvents::MODULE_PAYMENT_GET_OPTIONS,
+                TheliaEvents::MODULE_PAYMENT_GET_OPTIONS,
             );
 
             $paymentModuleApi
