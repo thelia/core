@@ -13,12 +13,21 @@ declare(strict_types=1);
  */
 
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Thelia\Controller\Api\RefreshTokenController;
 use Thelia\Controller\Front\DefaultController;
 
 return static function (RoutingConfigurator $routes): void {
     $routes->add('api_front_login_check', '/api/front/login');
 
     $routes->add('api_admin_login_check', '/api/admin/login');
+
+    $routes->add('api_admin_token_refresh', '/api/admin/token/refresh')
+        ->controller([RefreshTokenController::class, 'refreshAdmin'])
+        ->methods(['POST']);
+
+    $routes->add('api_front_token_refresh', '/api/front/token/refresh')
+        ->controller([RefreshTokenController::class, 'refreshFront'])
+        ->methods(['POST']);
 
     $routes->add('index', '/')
         ->controller([DefaultController::class, 'noAction']);

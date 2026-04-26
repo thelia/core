@@ -14,11 +14,40 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Thelia\Controller\Api\RefreshTokenController;
+use Thelia\Core\Security\RefreshToken\AuthenticationSuccessSubscriber;
+use Thelia\Core\Security\RefreshToken\RefreshTokenService;
 use Thelia\Core\Security\SecurityContext;
+use Thelia\Core\Security\UserProvider\AdminUserProvider;
+use Thelia\Core\Security\UserProvider\CustomerUserProvider;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->alias('thelia.securityContext', SecurityContext::class)
         ->public();
+
+    $container->parameters()
+        ->set('thelia.security.jwt_refresh_token_ttl', (int) ($_ENV['JWT_REFRESH_TOKEN_TTL'] ?? 2_592_000));
+
+    $services->set(RefreshTokenService::class)
+        ->args([
+            service(AdapterInterface::class),
+            param('thelia.security.jwt_refresh_token_ttl'),
+        ]);
+
+    $services->set(AuthenticationSuccessSubscriber::class)
+        ->args([service(RefreshTokenService::class)])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(RefreshTokenController::class)
+        ->args([
+            service(RefreshTokenService::class),
+            service('lexik_jwt_authentication.jwt_manager'),
+            service(AdminUserProvider::class),
+            service(CustomerUserProvider::class),
+        ])
+        ->public()
+        ->tag('controller.service_arguments');
 };

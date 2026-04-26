@@ -722,6 +722,8 @@ class TheliaKernel extends Kernel
             [
                 ['path' => '^/api/front/login', 'roles' => 'PUBLIC_ACCESS'],
                 ['path' => '^/api/admin/login', 'roles' => 'PUBLIC_ACCESS'],
+                ['path' => '^/api/front/token/refresh', 'roles' => 'PUBLIC_ACCESS'],
+                ['path' => '^/api/admin/token/refresh', 'roles' => 'PUBLIC_ACCESS'],
                 ['path' => '^/api/docs', 'roles' => 'PUBLIC_ACCESS'],
                 ['path' => '^/api/admin', 'roles' => 'ROLE_ADMIN'],
                 ['path' => '^/api/front/account', 'roles' => 'ROLE_CUSTOMER'],
