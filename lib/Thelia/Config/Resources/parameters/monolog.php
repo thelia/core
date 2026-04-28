@@ -26,9 +26,10 @@ return static function (ContainerConfigurator $configurator): void {
                 'excluded_http_codes' => [404, 405],
             ],
             'main_stream' => [
-                'type' => 'stream',
+                'type' => 'rotating_file',
                 'path' => '%kernel.logs_dir%/%kernel.environment%.log',
                 'level' => 'debug',
+                'max_files' => 7,
                 'channels' => ['!deprecation'],
             ],
             'console' => [
