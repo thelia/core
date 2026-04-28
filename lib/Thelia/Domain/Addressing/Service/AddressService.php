@@ -52,6 +52,7 @@ readonly class AddressService
             'country' => $address->getCountryId(),
             'state' => $address->getStateId(),
             'phone' => $address->getPhone(),
+            'cellphone' => $address->getCellphone(),
             'is_default' => (bool) $address->getIsDefault(),
         ];
     }
