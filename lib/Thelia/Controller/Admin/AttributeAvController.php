@@ -76,7 +76,7 @@ class AttributeAvController extends AbstractCrudController
 
     protected function getUpdateEvent(array $formData): ActionEvent
     {
-        $changeEvent = new AttributeAvUpdateEvent($formData['id']);
+        $changeEvent = new AttributeAvUpdateEvent((int) $formData['id']);
 
         // Create and dispatch the change event
         $changeEvent

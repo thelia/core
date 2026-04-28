@@ -103,7 +103,7 @@ class AttributeController extends AbstractCrudController
 
         if (null !== $attr_values) {
             foreach ($attr_values as $id => $value) {
-                $event = new AttributeAvUpdateEvent($id);
+                $event = new AttributeAvUpdateEvent((int) $id);
 
                 $event->setTitle($value);
                 $event->setLocale($this->getCurrentEditionLocale());

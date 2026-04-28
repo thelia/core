@@ -106,7 +106,7 @@ class FeatureController extends AbstractCrudController
 
         if (null !== $attr_values) {
             foreach ($attr_values as $id => $value) {
-                $event = new FeatureAvUpdateEvent($id);
+                $event = new FeatureAvUpdateEvent((int) $id);
 
                 $event->setTitle($value);
                 $event->setLocale($this->getCurrentEditionLocale());
@@ -129,7 +129,7 @@ class FeatureController extends AbstractCrudController
 
     protected function getDeleteEvent(): FeatureDeleteEvent
     {
-        return new FeatureDeleteEvent($this->getRequest()->get('feature_id'));
+        return new FeatureDeleteEvent((int) $this->getRequest()->get('feature_id'));
     }
 
     protected function eventContainsObject($event): bool

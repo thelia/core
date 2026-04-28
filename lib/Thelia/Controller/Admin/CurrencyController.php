@@ -83,7 +83,7 @@ class CurrencyController extends AbstractCrudController
 
     protected function getUpdateEvent(array $formData): ActionEvent
     {
-        $changeEvent = new CurrencyUpdateEvent($formData['id']);
+        $changeEvent = new CurrencyUpdateEvent((int) $formData['id']);
 
         $changeEvent
             ->setCurrencyName($formData['name'])
@@ -107,7 +107,7 @@ class CurrencyController extends AbstractCrudController
 
     protected function getDeleteEvent(): CurrencyDeleteEvent
     {
-        return new CurrencyDeleteEvent($this->getRequest()->get('currency_id'));
+        return new CurrencyDeleteEvent((int) $this->getRequest()->get('currency_id'));
     }
 
     protected function eventContainsObject($event): bool

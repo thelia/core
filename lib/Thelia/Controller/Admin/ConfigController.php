@@ -113,7 +113,7 @@ class ConfigController extends AbstractCrudController
 
     protected function getDeleteEvent(): ConfigDeleteEvent
     {
-        return new ConfigDeleteEvent($this->getRequest()->get('variable_id'));
+        return new ConfigDeleteEvent((int) $this->getRequest()->get('variable_id'));
     }
 
     protected function eventContainsObject($event): bool
@@ -213,7 +213,7 @@ class ConfigController extends AbstractCrudController
 
         // Process all changed variables
         foreach ($variables as $id => $value) {
-            $event = new ConfigUpdateEvent($id);
+            $event = new ConfigUpdateEvent((int) $id);
             $event->setValue($value);
 
             $dispatcher->dispatch($event, TheliaEvents::CONFIG_SETVALUE);

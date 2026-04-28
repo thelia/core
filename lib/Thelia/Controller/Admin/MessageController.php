@@ -103,7 +103,7 @@ class MessageController extends AbstractCrudController
 
     protected function getDeleteEvent(): MessageDeleteEvent
     {
-        return new MessageDeleteEvent($this->getRequest()->get('message_id'));
+        return new MessageDeleteEvent((int) $this->getRequest()->get('message_id'));
     }
 
     protected function eventContainsObject($event): bool
